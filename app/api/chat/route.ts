@@ -628,7 +628,7 @@ export async function POST(req: Request) {
     if (messages.length === 1 && latestUserMessage) {
       try {
         // Generate car analysis and oil recommendation
-        recommendation = CarAnalyzer.analyzeCarAndRecommendOil(latestUserMessage.content)
+        recommendation = await CarAnalyzer.analyzeCarAndRecommendOil(latestUserMessage.content)
         
         let finalRecommendation = ""
         let systemPromptAddition = ""

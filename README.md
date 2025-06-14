@@ -84,33 +84,28 @@
 
 ### المتطلبات المسبقة
 
-- Node.js (الإصدار 18 أو أحدث)
-- حساب على Supabase (مجاني)
+* Node.js (الإصدار 18 أو أحدث)
+* حساب على Supabase (مجاني)
+* حساب على Autodata API (اختياري لتحسين بيانات السيارات)
 
 ### خطوات التثبيت
 
-1. استنساخ المشروع:
-   ```bash
-   git clone https://github.com/darkxgs/car-service-chat.git
-   cd car-service-chat
-   ```
-
-2. تثبيت الاعتمادات:
-   ```bash
-   npm install --legacy-peer-deps
-   ```
-
-3. إعداد Supabase:
-   - قم بإنشاء حساب على [Supabase](https://supabase.com)
-   - أنشئ مشروعاً جديداً
-   - احصل على روابط الاتصال (انظر الخطوة التالية)
-
-4. إنشاء ملف `.env.local` وإضافة متغيرات البيئة المطلوبة:
-   ```
-   OPENAI_API_KEY=your_openai_api_key
-   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-   ```
+1. استنساخ المشروع:  
+git clone https://github.com/darkxgs/car-service-chat.git  
+cd car-service-chat
+2. تثبيت الاعتمادات:  
+npm install --legacy-peer-deps
+3. إعداد Supabase:  
+   * قم بإنشاء حساب على Supabase  
+   * أنشئ مشروعاً جديداً  
+   * احصل على روابط الاتصال (انظر الخطوة التالية)
+4. إنشاء ملف `.env.local` وإضافة متغيرات البيئة المطلوبة:  
+```  
+OPENAI_API_KEY=your_openai_api_key  
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url  
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key  
+AUTODATA_API_KEY=your_autodata_api_key  # اختياري لتحسين دقة بيانات السيارات
+```
 
 5. تشغيل المشروع للتطوير:
    ```bash
