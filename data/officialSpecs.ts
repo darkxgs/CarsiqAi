@@ -436,6 +436,17 @@ const officialSpecs: ManufacturerSpecs = {
         changeInterval: "10000",
       },
     },
+    equinox: {
+      "2018-2022": {
+        capacity: "4.5L",
+        viscosity: "0W-30",
+        oilType: "Full Synthetic",
+        filterNumber: "PF64",
+        engineSize: "1.5L Turbo",
+        apiSpec: "API SN PLUS / SP",
+        changeInterval: "10000",
+      },
+    },
     malibu: {
       "2016-2024": {
         capacity: "5.0L",
