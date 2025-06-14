@@ -520,6 +520,7 @@ export class CarAnalyzer {
 النوع: ${recommendedType}
 العلامة التجارية: ${primaryOil[1].brand}
 اسم المنتج: ${primaryOil[0]}
+سعة الزيت: ${carSpecs.capacity}
 
 ✅ **المواصفات الفنية**
 API: ${carSpecs.apiSpec || "غير محدد"}

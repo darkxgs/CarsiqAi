@@ -256,9 +256,19 @@ export async function POST(req: Request) {
           })
         } else {
           finalRecommendation = CarAnalyzer.createRecommendationMessage(recommendation)
+          
+          // استخراج بيانات السعة من توصية السيارة لعرضها في الرسالة الأخيرة
+          const oilCapacity = recommendation.carSpecs?.capacity || "غير معروف"
+          
+          // تمرير سعة الزيت إلى النظام بشكل صريح
+          const capacityNote = `سعة الزيت لهذه السيارة هي: ${oilCapacity}.`
+          
+          finalRecommendation = capacityNote + "\n\n" + finalRecommendation
+          
           logger.info("تم إنشاء توصية بنجاح", {
             carBrand: recommendation.carSpecs?.engineSize || "unknown",
             recommendedOil: recommendation.primaryOil?.[0] || "unknown",
+            oilCapacity: oilCapacity,
           })
         }
 
@@ -275,8 +285,8 @@ export async function POST(req: Request) {
 3. ترشيح زيت واحد فقط هو الأفضل من التوكيلات المعتمدة: Castrol, Mobil 1, Liqui Moly, Meguin, Valvoline, Motul, Hanata
 4. توضيح النوع الدقيق، اللزوجة، الكمية، وسبب الاختيار
 
-مهم جداً: يجب عليك في نهاية الرسالة تقديم خلاصة بعنوان "التوصية النهائية:" ثم اسم الزيت المختار واللزوجة والكمية فقط. مثال:
-التوصية النهائية: Castrol EDGE 5W-40 (4 لتر)
+مهم جداً: يجب عليك في نهاية الرسالة تقديم خلاصة بعنوان "التوصية النهائية:" ثم اسم الزيت المختار واللزوجة والكمية المناسبة حسب مواصفات السيارة. استخدم الكمية الموجودة في سجل السيارة وليس كمية ثابتة. مثال:
+التوصية النهائية: Castrol EDGE 5W-40 (5.7 لتر)
 
 التوصية المفصلة: ${finalRecommendation}`,
           messages: [{ role: "user", content: lastMessage.content }],
@@ -311,8 +321,8 @@ export async function POST(req: Request) {
       model: openrouter("anthropic/claude-3-haiku"),
       system: `أنت مساعد خبير في زيوت السيارات. اعتمد على المعلومات الفنية الرسمية من الشركات المصنّعة ورشّح زيت واحد فقط هو الأفضل من التوكيلات المعتمدة: Castrol, Mobil 1, Liqui Moly, Meguin, Valvoline, Motul, Hanata.
 
-مهم جداً: يجب عليك في نهاية كل رد تقديم خلاصة بعنوان "التوصية النهائية:" ثم اسم الزيت المختار واللزوجة والكمية فقط. مثال:
-التوصية النهائية: Castrol EDGE 5W-40 (4 لتر)`,
+مهم جداً: يجب عليك في نهاية كل رد تقديم خلاصة بعنوان "التوصية النهائية:" ثم اسم الزيت المختار واللزوجة والكمية المناسبة حسب مواصفات السيارة. استخدم الكمية الموجودة في سجل السيارة وليس كمية ثابتة. مثال:
+التوصية النهائية: Castrol EDGE 5W-40 (5.7 لتر)`,
       messages,
       maxTokens: 1000,
     })
