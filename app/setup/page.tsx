@@ -78,6 +78,13 @@ export default function SetupPage() {
           query_type TEXT NOT NULL,
           source TEXT NOT NULL,
           location TEXT,
+          confidence_score FLOAT DEFAULT 0,
+          oil_capacity TEXT,
+          recommended_oil TEXT,
+          oil_viscosity TEXT,
+          session_id TEXT,
+          car_year INT,
+          mileage INT,
           created_at TIMESTAMPTZ DEFAULT NOW()
         );
       `)

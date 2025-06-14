@@ -25,6 +25,13 @@ model UserQuery {
   queryType QueryType
   source    String   // Where the query came from (web, app, etc.)
   location  String?  // User's location (city/country)
+  confidenceScore Float?
+  oilCapacity      String?
+  recommendedOil   String?
+  oilViscosity     String?
+  sessionId        String?
+  carYear          Int?
+  mileage          Int?
 }
 
 // Car models with real market data

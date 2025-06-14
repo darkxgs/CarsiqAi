@@ -46,6 +46,13 @@ export type UserQuery = {
   query_type: 'SPECIFICATIONS' | 'PRICE' | 'MAINTENANCE' | 'COMPARISON' | 'FEATURES' | 'REVIEWS' | 'FUEL_CONSUMPTION' | 'INSURANCE' | 'SERVICE' | 'OTHER'
   source: string
   location?: string
+  confidence_score?: number
+  oil_capacity?: string
+  recommended_oil?: string
+  oil_viscosity?: string
+  session_id?: string
+  car_year?: number
+  mileage?: number
   created_at: string
 }
 

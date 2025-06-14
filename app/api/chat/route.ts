@@ -3,346 +3,676 @@ import { createOpenAI } from "@ai-sdk/openai"
 import CarAnalyzer from "@/utils/carAnalyzer"
 import logger from "@/utils/logger"
 import { supabase, isSupabaseConfigured } from '@/lib/supabase'
+import { z } from 'zod'
+
+// Input validation schemas
+const MessageSchema = z.object({
+  role: z.enum(['user', 'assistant', 'system']),
+  content: z.string().min(1, "Message content cannot be empty")
+})
+
+const RequestBodySchema = z.object({
+  messages: z.array(MessageSchema).min(1, "At least one message is required")
+})
+
+// Enhanced car data extraction with better validation
+interface ExtractedCarData {
+  carBrand: string;
+  carModel: string;
+  year?: number;
+  mileage?: number;
+  engineSize?: string;
+  fuelType?: string;
+  transmission?: string;
+  isValid: boolean;
+  confidence: number;
+}
+
+// Enhanced oil recommendation interface
+interface OilRecommendation {
+  primaryOil: string[];
+  alternativeOil?: string[];
+  viscosity: string;
+  capacity: string;
+  brand: string;
+  specification: string;
+  reason: string;
+  priceRange?: string;
+  changeInterval: string;
+  climateConsiderations: string;
+}
 
 /**
- * OpenRouter configuration
+ * Enhanced OpenRouter configuration with fallback options
  */
 const openRouter = {
   baseURL: "https://openrouter.ai/api/v1",
   key: process.env.OPENROUTER_API_KEY || '',
-  model: process.env.NEXT_PUBLIC_MODEL_DEPLOYMENT || "anthropic/claude-instant-v1",
+  primaryModel: "anthropic/claude-3-haiku",
+  fallbackModel: "anthropic/claude-instant-v1",
+  maxRetries: 3,
+  timeout: 30000,
   systemPrompt: `أنت مساعد متخصص بالسيارات وزيوت المحركات، خبرتك في السيارات عالية جداً.
-أنت تعمل في متجر لبيع قطع غيار السيارات، وكذلك يمكنك تقديم الخدمة الافتراضية عبر الانترنت.
-أنت تتحدث العربية بطلاقة وتفهم لهجة الخليج واللهجة العراقية.
-استخدم لغة عربية مبسطة وسهلة عند تقديم الإجابات.
+أنت تعمل في متجر "هندسة السيارات" لبيع قطع غيار السيارات، وتقدم الخدمة الافتراضية عبر الإنترنت.
 
-**تنسيق الإجابات**:
-- عند تقديم قوائم أو خطوات، استخدم الأرقام مع الرموز التعبيرية (مثل 1️⃣) لتحسين العرض المرئي
-- قسّم إجاباتك إلى فقرات قصيرة مع عناوين واضحة
-- استخدم التنسيق المرئي مثل:
+**مبادئ التشغيل الأساسية:**
+1. الدقة في المعلومات أولوية قصوى
+2. الاعتماد على بيانات الشركات المصنعة الرسمية فقط
+3. ترشيح زيت واحد أمثل مع بديل واحد فقط
+4. مراعاة الظروف المناخية العراقية القاسية
 
-1️⃣ اسم النقطة الأولى:
-شرح مبسط للنقطة الأولى هنا...
-
-2️⃣ اسم النقطة الثانية:
-شرح مبسط للنقطة الثانية هنا...
-
-- استخدم رموز تعبيرية مناسبة مثل (🚗، 🛢️، ⚙️، 🔧، 🔍) لتمييز أجزاء مختلفة من إجابتك
-
-إذا طلب منك المستخدم اقتراح زيت محرك، اسأله عن نوع السيارة، الموديل، السنة، المسافة المقطوعة، وظروف استخدام السيارة.
-
-**معلومات هامة عن مناخ العراق**:
-- درجة حرارة عالية في معظم أيام السنة (تصل إلى 50 درجة مئوية صيفاً)
+**معلومات هامة عن مناخ العراق:**
+- درجة حرارة عالية (تصل إلى 50°م صيفاً)
 - مستويات غبار وأتربة عالية
-- ظروف قيادة قاسية بسبب الطرق وازدحام المرور
-- يجب افتراضيًا اعتبار أن المستخدم في العراق ما لم يذكر خلاف ذلك
-- دائماً قم باقتراح زيوت مقاومة للحرارة العالية وذات حماية من الغبار بشكل افتراضي
+- ظروف قيادة قاسية (طرق وازدحام)
+- ضرورة استخدام زيوت مقاومة للحرارة العالية
 
-توصيات الزيوت يجب أن تكون مبنية على قاعدة بيانات الزيوت المعتمدة والمواصفات الرسمية للسيارات. 
-عند اقتراح زيت، قدم الخيار الأمثل مع بديل إن وجد.
+**التوكيلات المعتمدة المتاحة:**
+Castrol, Mobil 1, Liqui Moly, Meguin, Valvoline, Motul, Hanata
 
-أوجز إجاباتك وكن دقيقاً. تجنب استخدام لغة تسويقية مبالغ فيها.`,
+**تنسيق الإجابات:**
+- استخدم الأرقام مع الرموز التعبيرية (1️⃣, 2️⃣)
+- فقرات قصيرة مع عناوين واضحة
+- رموز تعبيرية مناسبة (🚗, 🛢️, ⚙️, 🔧, 🔍)
+
+**قاعدة إلزامية:**
+يجب ذكر سعة الزيت الدقيقة من مواصفات الشركة المصنعة بالضبط دون تغيير.
+مثال: إذا كانت سعة جينيسيس G70 هي 5.7 لتر، اذكرها هكذا حرفياً.
+
+**التوصية النهائية:**
+يجب إنهاء كل رد بـ "التوصية النهائية:" متبوعة باسم الزيت واللزوجة والكمية.
+مثال: التوصية النهائية: Castrol EDGE 5W-40 (5.7 لتر)`,
   headers: {
     "HTTP-Referer": "https://car-service-chat.vercel.app/",
-    "X-Title": "Car Service Chat",
+    "X-Title": "Car Service Chat - Enhanced",
   },
 }
 
-// Configure OpenRouter
-const openrouter = createOpenAI({
-  apiKey: process.env.OPENROUTER_API_KEY || "",
-  baseURL: "https://openrouter.ai/api/v1",
-  headers: {
-    "HTTP-Referer": "http://localhost:3000",
-    "X-Title": "Car Service Chat"
-  }
-})
+// Enhanced OpenRouter client with retry logic
+const createOpenRouterClient = () => {
+  return createOpenAI({
+    apiKey: process.env.OPENROUTER_API_KEY || "",
+    baseURL: "https://openrouter.ai/api/v1",
+    headers: {
+      "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+      "X-Title": "Car Service Chat - Enhanced"
+    }
+  })
+}
 
-// Add this function to save the query to Supabase
-async function saveQueryToAnalytics(query: string | undefined, carModel?: string, carBrand?: string) {
-  // Skip if Supabase is not configured or query is undefined/empty
+/**
+ * Enhanced car data extraction with better accuracy
+ */
+function enhancedExtractCarData(query: string): ExtractedCarData {
+  const normalizedQuery = query.toLowerCase().trim()
+  
+  // Enhanced brand detection with common Arabic variations
+  const brandMappings = {
+    'تويوتا': ['تويوتا', 'toyota'],
+    'هيونداي': ['هيونداي', 'هيوندا', 'hyundai'],
+    'كيا': ['كيا', 'kia'],
+    'نيسان': ['نيسان', 'nissan'],
+    'هوندا': ['هوندا', 'honda'],
+    'مرسيدس': ['مرسيدس', 'mercedes', 'بنز'],
+    'بي ام دبليو': ['بي ام دبليو', 'bmw', 'بمو'],
+    'لكزس': ['لكزس', 'lexus'],
+    'جينيسيس': ['جينيسيس', 'genesis'],
+    'فولكس واجن': ['فولكس واجن', 'volkswagen', 'vw'],
+    'اودي': ['اودي', 'audi'],
+    'مازda': ['مازda', 'mazda'],
+    'سوزوكي': ['سوزوكي', 'suzuki'],
+    'ميتسوبيشي': ['ميتسوبيشي', 'mitsubishi'],
+    'شيفروليت': ['شيفروليت', 'chevrolet'],
+    'فورد': ['فورد', 'ford'],
+    'بيجو': ['بيجو', 'peugeot'],
+    'رينو': ['رينو', 'renault']
+  }
+  
+  let detectedBrand = ''
+  let confidence = 0
+  
+  for (const [brand, variations] of Object.entries(brandMappings)) {
+    for (const variation of variations) {
+      if (normalizedQuery.includes(variation)) {
+        detectedBrand = brand
+        confidence += 30
+        break
+      }
+    }
+    if (detectedBrand) break
+  }
+  
+  // Enhanced model detection
+  const commonModels = [
+    'كامري', 'كورولا', 'rav4', 'هايلندر', 'برادو', 'لاند كروزر',
+    'النترا', 'سوناتا', 'توسان', 'سنتافي', 'أكسنت', 'i10', 'i20', 'i30',
+    'سيراتو', 'اوبتيما', 'سورنتو', 'كادينزا', 'ريو',
+    'التيما', 'سنترا', 'اكس تريل', 'باترول', 'مورانو',
+    'سيفيك', 'اكورد', 'crv', 'hrv', 'بايلوت',
+    'c200', 'c300', 'e200', 'e300', 's500', 'glc', 'gle',
+    '320i', '330i', '520i', '530i', 'x3', 'x5',
+    'es300', 'is300', 'rx350', 'lx570',
+    'g70', 'g80', 'g90', 'gv70', 'gv80'
+  ]
+  
+  let detectedModel = ''
+  for (const model of commonModels) {
+    if (normalizedQuery.includes(model)) {
+      detectedModel = model
+      confidence += 25
+      break
+    }
+  }
+  
+  // Enhanced year extraction
+  const yearMatch = normalizedQuery.match(/20[0-2][0-9]/) || normalizedQuery.match(/[1-2][0-9]{3}/)
+  const year = yearMatch ? parseInt(yearMatch[0]) : undefined
+  if (year && year >= 1990 && year <= new Date().getFullYear()) {
+    confidence += 20
+  }
+  
+  // Enhanced mileage extraction
+  const mileagePatterns = [
+    /(\d+)\s*ألف/,
+    /(\d+)\s*الف/,
+    /(\d+)\s*k/i,
+    /(\d+)\s*km/i,
+    /(\d+)\s*كيلو/
+  ]
+  
+  let mileage: number | undefined
+  for (const pattern of mileagePatterns) {
+    const match = normalizedQuery.match(pattern)
+    if (match) {
+      mileage = parseInt(match[1]) * 1000
+      confidence += 15
+      break
+    }
+  }
+  
+  return {
+    carBrand: detectedBrand,
+    carModel: detectedModel,
+    year,
+    mileage,
+    isValid: confidence >= 50,
+    confidence
+  }
+}
+
+/**
+ * Enhanced analytics with better error handling and validation
+ */
+async function saveQueryToAnalytics(
+  query: string | undefined, 
+  carData?: ExtractedCarData,
+  recommendation?: OilRecommendation
+) {
   if (!isSupabaseConfigured() || !query || query.trim() === '') {
-    console.log('Supabase not configured or empty query. Skipping analytics tracking.');
-    return;
+    console.log('Supabase not configured or empty query. Skipping analytics tracking.')
+    return
   }
 
   try {
-    // Extract car model and brand if provided in the query
-    let detectedModel = carModel;
-    let detectedBrand = carBrand;
-    
-    if (!detectedBrand) {
-      // Try to detect brand from popular car brands
-      const brands = ['تويوتا', 'هيونداي', 'كيا', 'نيسان', 'هوندا', 'مرسيدس', 'بي إم دبليو', 'لكزس', 'جينيسيس', 'فولكس واجن'];
-      for (const brand of brands) {
-        if (query.includes(brand)) {
-          detectedBrand = brand;
-          break;
-        }
-      }
+    const analyticsData = {
+      query: query.trim(),
+      car_model: carData?.carModel,
+      car_brand: carData?.carBrand,
+      car_year: carData?.year,
+      mileage: carData?.mileage,
+      query_type: determineQueryType(query),
+      confidence_score: carData?.confidence || 0,
+      recommended_oil: recommendation?.primaryOil?.[0],
+      oil_viscosity: recommendation?.viscosity,
+      oil_capacity: recommendation?.capacity,
+      source: 'web',
+      timestamp: new Date().toISOString(),
+      session_id: generateSessionId()
     }
 
-    // Save to Supabase
-    const { error } = await supabase.from('user_queries').insert({
-      query: query,
-      car_model: detectedModel,
-      car_brand: detectedBrand,
-      query_type: determineQueryType(query),
-      source: 'web',
-      timestamp: new Date().toISOString()
-    });
+    const { error } = await supabase.from('user_queries').insert(analyticsData)
 
     if (error) {
-      console.error('Error saving query to analytics:', error);
+      console.error('Error saving query to analytics:', error)
+      // Log to external service if needed
+      logger.error('Analytics save failed', { error, query })
     } else {
-      console.log('Saved query to analytics:', query);
+      console.log('Successfully saved query to analytics:', query.substring(0, 50))
       
-      // Update query count for car models and brands if detected
-      if (detectedModel) {
-        updateModelQueryCount(detectedModel);
+      // Update counters asynchronously
+      if (carData?.carModel) {
+        updateModelQueryCount(carData.carModel).catch(console.error)
       }
       
-      if (detectedBrand) {
-        updateBrandQueryCount(detectedBrand);
+      if (carData?.carBrand) {
+        updateBrandQueryCount(carData.carBrand).catch(console.error)
       }
     }
   } catch (err) {
-    console.error('Error in analytics tracking:', err);
+    console.error('Error in analytics tracking:', err)
+    logger.error('Analytics tracking failed', { error: err, query })
   }
 }
 
-// Helper function to determine query type
-function determineQueryType(query: string) {
+/**
+ * Enhanced query type determination with better accuracy
+ */
+function determineQueryType(query: string): string {
+  const normalizedQuery = query.toLowerCase()
+  
   const queryTypeMappings = [
-    { type: 'SPECIFICATIONS', keywords: ['مواصفات', 'سعة', 'قوة المحرك'] },
-    { type: 'PRICE', keywords: ['سعر', 'تكلفة', 'قيمة'] },
-    { type: 'MAINTENANCE', keywords: ['صيانة', 'إصلاح', 'عطل', 'مشكلة', 'قطع غيار'] },
-    { type: 'COMPARISON', keywords: ['مقارنة', 'أفضل من', 'أحسن من'] },
-    { type: 'FEATURES', keywords: ['مميزات', 'خصائص', 'مواصفات'] },
-    { type: 'REVIEWS', keywords: ['تجارب', 'آراء', 'تقييم'] },
-    { type: 'FUEL_CONSUMPTION', keywords: ['استهلاك الوقود', 'صرفية', 'كفاءة'] },
-    { type: 'INSURANCE', keywords: ['تأمين', 'ضمان'] },
-    { type: 'SERVICE', keywords: ['خدمة', 'ورشة', 'صيانة'] },
-  ];
+    { 
+      type: 'OIL_RECOMMENDATION', 
+      keywords: ['زيت', 'تغيير زيت', 'نوع زيت', 'أفضل زيت'], 
+      weight: 3 
+    },
+    { 
+      type: 'SPECIFICATIONS', 
+      keywords: ['مواصفات', 'سعة', 'قوة المحرك', 'حجم المحرك'], 
+      weight: 2 
+    },
+    { 
+      type: 'MAINTENANCE', 
+      keywords: ['صيانة', 'إصلاح', 'عطل', 'مشكلة', 'قطع غيار', 'فلتر'], 
+      weight: 2 
+    },
+    { 
+      type: 'PRICE', 
+      keywords: ['سعر', 'تكلفة', 'قيمة', 'كم سعر'], 
+      weight: 1 
+    },
+    { 
+      type: 'COMPARISON', 
+      keywords: ['مقارنة', 'أفضل من', 'أحسن من', 'ايهما أفضل'], 
+      weight: 2 
+    },
+    { 
+      type: 'FUEL_CONSUMPTION', 
+      keywords: ['استهلاك الوقود', 'صرفية', 'كفاءة', 'بنزين'], 
+      weight: 1 
+    }
+  ]
 
+  let bestMatch = { type: 'OTHER', score: 0 }
+  
   for (const mapping of queryTypeMappings) {
-    if (mapping.keywords.some(keyword => query.includes(keyword))) {
-      return mapping.type;
+    let score = 0
+    for (const keyword of mapping.keywords) {
+      if (normalizedQuery.includes(keyword)) {
+        score += mapping.weight
+      }
+    }
+    
+    if (score > bestMatch.score) {
+      bestMatch = { type: mapping.type, score }
     }
   }
   
-  return 'OTHER';
+  return bestMatch.type
 }
 
-// Update car model query count
-async function updateModelQueryCount(modelName: string) {
-  if (!isSupabaseConfigured()) return;
+/**
+ * Enhanced model and brand query count updates with better error handling
+ */
+async function updateModelQueryCount(modelName: string): Promise<void> {
+  if (!isSupabaseConfigured() || !modelName) return
   
   try {
-    // Get current car model
     const { data: models, error: fetchError } = await supabase
       .from('car_models')
-      .select('id, queries')
-      .eq('name', modelName)
-      .limit(1);
+      .select('id, queries, name')
+      .ilike('name', `%${modelName}%`)
+      .limit(1)
       
     if (fetchError) {
-      console.error('Error fetching car model:', fetchError);
-      return;
+      console.error('Error fetching car model:', fetchError)
+      return
     }
     
     if (models && models.length > 0) {
-      // Update existing model
       const { error: updateError } = await supabase
         .from('car_models')
-        .update({ queries: (models[0].queries || 0) + 1 })
-        .eq('id', models[0].id);
+        .update({ 
+          queries: (models[0].queries || 0) + 1,
+          last_queried: new Date().toISOString()
+        })
+        .eq('id', models[0].id)
         
       if (updateError) {
-        console.error('Error updating car model query count:', updateError);
+        console.error('Error updating car model query count:', updateError)
+      }
+    } else {
+      // Create new model entry if not exists
+      const { error: insertError } = await supabase
+        .from('car_models')
+        .insert({
+          name: modelName,
+          brand: 'Unknown', // Set default brand to avoid NOT NULL constraint
+          year: 0,          // Set default year to avoid NOT NULL constraint
+          queries: 1,
+          last_queried: new Date().toISOString()
+        })
+        
+      if (insertError) {
+        console.error('Error creating new car model entry:', insertError)
       }
     }
   } catch (err) {
-    console.error('Error in updateModelQueryCount:', err);
+    console.error('Error in updateModelQueryCount:', err)
   }
 }
 
-// Update brand query count
-async function updateBrandQueryCount(brandName: string) {
-  if (!isSupabaseConfigured()) return;
+async function updateBrandQueryCount(brandName: string): Promise<void> {
+  if (!isSupabaseConfigured() || !brandName) return
   
   try {
-    // Get current brand
     const { data: brands, error: fetchError } = await supabase
       .from('car_brands')
-      .select('id, queries')
-      .eq('name', brandName)
-      .limit(1);
+      .select('id, queries, name')
+      .ilike('name', `%${brandName}%`)
+      .limit(1)
       
     if (fetchError) {
-      console.error('Error fetching car brand:', fetchError);
-      return;
+      console.error('Error fetching car brand:', fetchError)
+      return
     }
     
     if (brands && brands.length > 0) {
-      // Update existing brand
       const { error: updateError } = await supabase
         .from('car_brands')
-        .update({ queries: (brands[0].queries || 0) + 1 })
-        .eq('id', brands[0].id);
+        .update({ 
+          queries: (brands[0].queries || 0) + 1,
+          last_queried: new Date().toISOString()
+        })
+        .eq('id', brands[0].id)
         
       if (updateError) {
-        console.error('Error updating car brand query count:', updateError);
+        console.error('Error updating car brand query count:', updateError)
+      }
+    } else {
+      // Create new brand entry if not exists
+      const { error: insertError } = await supabase
+        .from('car_brands')
+        .insert({
+          name: brandName,
+          queries: 1,
+          last_queried: new Date().toISOString()
+        })
+        
+      if (insertError) {
+        console.error('Error creating new car brand entry:', insertError)
       }
     }
   } catch (err) {
-    console.error('Error in updateBrandQueryCount:', err);
+    console.error('Error in updateBrandQueryCount:', err)
   }
 }
 
-export async function POST(req: Request) {
+/**
+ * Generate unique session ID for tracking
+ */
+function generateSessionId(): string {
+  return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+}
+
+/**
+ * Enhanced request validation and sanitization
+ */
+function validateAndSanitizeRequest(body: any) {
   try {
-    // Wrap the JSON parsing in its own try-catch to handle aborted requests
-    let body;
+    const validatedBody = RequestBodySchema.parse(body)
+    
+    // Additional sanitization
+    validatedBody.messages = validatedBody.messages.map(message => ({
+      ...message,
+      content: message.content.trim().substring(0, 2000) // Limit message length
+    }))
+    
+    return { success: true, data: validatedBody }
+  } catch (error) {
+    console.error('Request validation failed:', error)
+    return { 
+      success: false, 
+      error: error instanceof z.ZodError ? error.errors : 'Invalid request format' 
+    }
+  }
+}
+
+/**
+ * Enhanced AI response with retry logic
+ */
+async function generateAIResponse(
+  messages: any[], 
+  systemPrompt: string, 
+  maxTokens: number = 900,
+  retryCount: number = 0
+): Promise<any> {
+  const openrouter = createOpenRouterClient()
+  
+  try {
+    const result = streamText({
+      model: openrouter(retryCount === 0 ? openRouter.primaryModel : openRouter.fallbackModel),
+      system: systemPrompt,
+      messages,
+      maxTokens,
+      temperature: 0.3, // Lower temperature for more consistent responses
+      topP: 0.9,
+      frequencyPenalty: 0.1,
+      presencePenalty: 0.1
+    })
+
+    return result
+  } catch (error) {
+    console.error(`AI response generation failed (attempt ${retryCount + 1}):`, error)
+    
+    if (retryCount < openRouter.maxRetries) {
+      console.log(`Retrying with ${retryCount === 0 ? 'fallback model' : 'reduced parameters'}...`)
+      await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1))) // Exponential backoff
+      return generateAIResponse(messages, systemPrompt, Math.max(500, maxTokens - 200), retryCount + 1)
+    }
+    
+    throw error
+  }
+}
+
+/**
+ * Main POST handler with comprehensive error handling
+ */
+export async function POST(req: Request) {
+  const startTime = Date.now()
+  let requestId: string | undefined
+  
+  try {
+    // Generate unique request ID for tracking
+    requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    console.log(`[${requestId}] Processing new request`)
+    
+    // Enhanced request parsing with timeout
+    let body: any
     try {
-      body = await req.json();
+      const bodyText = await Promise.race([
+        req.text(),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Request timeout')), 10000)
+        )
+      ])
+      
+      body = JSON.parse(bodyText as string)
     } catch (parseError) {
-      console.error("Error parsing request JSON:", parseError);
+      console.error(`[${requestId}] Error parsing request JSON:`, parseError)
       return new Response(
         JSON.stringify({
           error: "تم إلغاء الطلب أو تم استلام بيانات غير صالحة",
+          requestId
         }),
         {
           status: 400,
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" }
         }
-      );
+      )
     }
     
-    const { messages } = body
+    // Validate request format
+    const validation = validateAndSanitizeRequest(body)
+    if (!validation.success) {
+      console.error(`[${requestId}] Request validation failed:`, validation.error)
+      return new Response(
+        JSON.stringify({
+          error: "صيغة الطلب غير صحيحة",
+          details: validation.error,
+          requestId
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" }
+        }
+      )
+    }
     
-    // Get the latest user message with proper typing
-    const userMessages = messages.filter((m: { role: string; content: string }) => 
-      m.role === 'user' && typeof m.content === 'string'
-    );
-    const latestUserMessage = userMessages.length > 0 ? userMessages[userMessages.length - 1] : null;
+    // Type assertion to ensure data exists since we've checked validation.success
+    const { messages } = validation.data as { messages: { role: "user" | "assistant" | "system"; content: string; }[] }
     
-    // Save user query to analytics if it exists
+    // Extract and analyze user message
+    const userMessages = messages.filter((m: any) => m.role === 'user')
+    const latestUserMessage = userMessages[userMessages.length - 1]
+    
+    let extractedCarData: ExtractedCarData | undefined
+    let recommendation: any
+    
     if (latestUserMessage) {
-      // Log for debugging
-      console.log(`[INFO] Received user query: ${latestUserMessage.content}`);
+      console.log(`[${requestId}] Processing user query: ${latestUserMessage.content.substring(0, 100)}...`)
       
-      // Save to analytics
-      saveQueryToAnalytics(latestUserMessage.content);
+      // Enhanced car data extraction
+      extractedCarData = enhancedExtractCarData(latestUserMessage.content)
+      console.log(`[${requestId}] Extracted car data:`, {
+        brand: extractedCarData.carBrand,
+        model: extractedCarData.carModel,
+        confidence: extractedCarData.confidence,
+        isValid: extractedCarData.isValid
+      })
     }
 
-    const lastMessage = messages[messages.length - 1]
-
-    if (messages.length === 1) {
+    // Handle first message (initial recommendation)
+    if (messages.length === 1 && latestUserMessage) {
       try {
-        // تحليل رسالة المستخدم وإنشاء توصية
-        const recommendation = CarAnalyzer.analyzeCarAndRecommendOil(lastMessage.content || "")
-
-        // إنشاء رسالة التوصية النهائية
+        // Generate car analysis and oil recommendation
+        recommendation = CarAnalyzer.analyzeCarAndRecommendOil(latestUserMessage.content)
+        
         let finalRecommendation = ""
+        let systemPromptAddition = ""
 
         if ("errorMessage" in recommendation) {
           finalRecommendation = recommendation.errorMessage
-          logger.warn("لم يتم العثور على توصية مناسبة", {
-            userMessage: lastMessage.content || "",
+          logger.warn(`[${requestId}] No suitable recommendation found`, {
+            userMessage: latestUserMessage.content,
             error: recommendation.errorMessage,
           })
         } else {
           finalRecommendation = CarAnalyzer.createRecommendationMessage(recommendation)
           
-          // استخراج بيانات السعة من توصية السيارة لعرضها في الرسالة الأخيرة
+          // Extract oil capacity for accurate display
           const oilCapacity = recommendation.carSpecs?.capacity || "غير معروف"
+          const carData = extractedCarData || CarAnalyzer.extractCarData(latestUserMessage.content)
+          const brandAndModel = `${carData.carBrand} ${carData.carModel}`
           
-          // تمرير سعة الزيت إلى النظام بشكل صريح
-          const capacityNote = `سعة الزيت لهذه السيارة هي: ${oilCapacity}.`
+          // Create explicit capacity instruction
+          systemPromptAddition = `
+تنبيه حاسم: سعة الزيت الدقيقة لسيارة ${brandAndModel} هي ${oilCapacity} بالضبط حسب بيانات الشركة المصنعة الرسمية. 
+يجب استخدام هذه القيمة بالضبط في التوصية النهائية دون أي تعديل أو تقريب.
+
+قاعدة إلزامية: اختتم ردك بـ "التوصية النهائية:" متبوعة بالزيت المحدد واللزوجة والكمية الدقيقة.
+مثال: التوصية النهائية: Castrol EDGE 5W-40 (${oilCapacity})
+`
           
-          finalRecommendation = capacityNote + "\n\n" + finalRecommendation
-          
-          logger.info("تم إنشاء توصية بنجاح", {
-            carBrand: recommendation.carSpecs?.engineSize || "unknown",
-            recommendedOil: recommendation.primaryOil?.[0] || "unknown",
+          logger.info(`[${requestId}] Generated recommendation successfully`, {
+            carBrand: carData.carBrand,
+            carModel: carData.carModel,
+            recommendedOil: recommendation.primaryOil?.[0],
             oilCapacity: oilCapacity,
           })
         }
 
-        // للتأكد من أن الAPI تعمل بشكل صحيح
-        console.log("Sending request to OpenRouter API with key:", process.env.OPENROUTER_API_KEY ? "Key exists" : "Key missing");
+        // Save analytics data
+        await saveQueryToAnalytics(latestUserMessage.content, extractedCarData, recommendation)
 
-        const result = streamText({
-          model: openrouter("anthropic/claude-3-haiku"),
-          system: `أنت مساعد خبير في زيوت السيارات في مركز "هندسة السيارات".
+        // Generate AI response with enhanced system prompt
+        const result = await generateAIResponse(
+          [{ role: "user", content: latestUserMessage.content }],
+          `${openRouter.systemPrompt}
 
-دورك الأساسي:
-1. تحليل بيانات السيارة (النوع، الموديل، الكيلومترات، ظروف التشغيل)
-2. الاعتماد على توصيات الشركات المصنّعة الرسمية
-3. ترشيح زيت واحد فقط هو الأفضل من التوكيلات المعتمدة: Castrol, Mobil 1, Liqui Moly, Meguin, Valvoline, Motul, Hanata
-4. توضيح النوع الدقيق، اللزوجة، الكمية، وسبب الاختيار
+${systemPromptAddition}
 
-مهم جداً: يجب عليك في نهاية الرسالة تقديم خلاصة بعنوان "التوصية النهائية:" ثم اسم الزيت المختار واللزوجة والكمية المناسبة حسب مواصفات السيارة. استخدم الكمية الموجودة في سجل السيارة وليس كمية ثابتة. مثال:
-التوصية النهائية: Castrol EDGE 5W-40 (5.7 لتر)
+التوصية المفصلة المطلوب معالجتها: ${finalRecommendation}`,
+          900
+        )
 
-التوصية المفصلة: ${finalRecommendation}`,
-          messages: [{ role: "user", content: lastMessage.content }],
-          maxTokens: 1000,
-        })
-
+        const processingTime = Date.now() - startTime
+        console.log(`[${requestId}] Request completed successfully in ${processingTime}ms`)
+        
         return result.toDataStreamResponse()
+        
       } catch (error) {
-        console.error("Error in chat processing:", error);
-        logger.error("خطأ أثناء معالجة رسالة المستخدم", { error })
+        console.error(`[${requestId}] Error in initial recommendation processing:`, error)
+        logger.error("خطأ أثناء معالجة التوصية الأولى", { error, requestId })
 
-        // إرجاع رسالة خطأ للمستخدم
-        const errorResult = streamText({
-          model: openrouter("anthropic/claude-3-haiku"),
-          system: `أنت مساعد خبير في زيوت السيارات. حدث خطأ أثناء معالجة الطلب.`,
-          messages: [
-            {
-              role: "user",
-              content:
-                "عذراً، حدث خطأ أثناء معالجة طلبك. يرجى المحاولة مرة أخرى بصيغة مختلفة. مثال: 'هيونداي النترا 2022 ماشية 130 ألف'",
-            },
-          ],
-          maxTokens: 500,
-        })
+        // Fallback response for first message errors
+        const errorResult = await generateAIResponse(
+          [{
+            role: "user",
+            content: `عذراً، حدث خطأ أثناء معالجة طلبك الخاص بـ "${latestUserMessage.content}". 
+            يرجى المحاولة مرة أخرى بصيغة أوضح. 
+            مثال صحيح: 'هيونداي النترا 2022 ماشية 130 ألف كيلو'`
+          }],
+          `أنت مساعد خبير في زيوت السيارات. ساعد المستخدم في إعادة صياغة طلبه بشكل واضح.`,
+          500
+        )
 
         return errorResult.toDataStreamResponse()
       }
     }
 
-    // للرسائل التالية، استخدم الذكاء الاصطناعي للرد
-    const result = streamText({
-      model: openrouter("anthropic/claude-3-haiku"),
-      system: `أنت مساعد خبير في زيوت السيارات. اعتمد على المعلومات الفنية الرسمية من الشركات المصنّعة ورشّح زيت واحد فقط هو الأفضل من التوكيلات المعتمدة: Castrol, Mobil 1, Liqui Moly, Meguin, Valvoline, Motul, Hanata.
+    // Handle follow-up messages
+    try {
+      await saveQueryToAnalytics(latestUserMessage?.content, extractedCarData)
+      
+      const result = await generateAIResponse(
+        messages,
+        `${openRouter.systemPrompt}
 
-مهم جداً: يجب عليك في نهاية كل رد تقديم خلاصة بعنوان "التوصية النهائية:" ثم اسم الزيت المختار واللزوجة والكمية المناسبة حسب مواصفات السيارة. استخدم الكمية الموجودة في سجل السيارة وليس كمية ثابتة. مثال:
-التوصية النهائية: Castrol EDGE 5W-40 (5.7 لتر)`,
-      messages,
-      maxTokens: 1000,
+تذكير مهم: يجب اختتام كل رد بـ "التوصية النهائية:" متبوعة بالزيت المحدد واللزوجة والكمية الدقيقة من مواصفات الشركة المصنعة.`,
+        900
+      )
+
+      const processingTime = Date.now() - startTime
+      console.log(`[${requestId}] Follow-up request completed in ${processingTime}ms`)
+      
+      return result.toDataStreamResponse()
+      
+    } catch (error) {
+      console.error(`[${requestId}] Error in follow-up message processing:`, error)
+      throw error
+    }
+
+  } catch (error) {
+    const processingTime = Date.now() - startTime
+    console.error(`[${requestId}] General error in API route (${processingTime}ms):`, error)
+    logger.error("خطأ عام في معالجة الطلب", { 
+      error, 
+      requestId, 
+      processingTime 
     })
 
-    return result.toDataStreamResponse()
-  } catch (error) {
-    console.error("General error in API route:", error);
-    logger.error("خطأ عام في معالجة الطلب", { error })
-
-    // إرجاع رسالة خطأ للمستخدم
+    // Return structured error response
     return new Response(
       JSON.stringify({
         error: "حدث خطأ أثناء معالجة طلبك. يرجى المحاولة مرة أخرى.",
+        requestId: requestId,
+        suggestion: "تأكد من كتابة نوع السيارة والموديل بوضوح"
       }),
       {
         status: 500,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
+        headers: { "Content-Type": "application/json" }
+      }
     )
   }
 }

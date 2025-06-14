@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { useChat } from "@ai-sdk/react"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { ChatHeader } from "@/components/chat/ChatHeader"
@@ -249,11 +249,17 @@ export default function ChatPage() {
 
   // Debugging
   useEffect(() => {
-    if (messages.length > 0) console.log("Messages updated:", messages)
+    // Remove excessive logging that causes performance issues
+    // if (messages.length > 0) console.log("Messages updated:", messages)
     if (error) console.error("Chat error detected:", error)
     
     // Re-adjust scale when messages change
     adjustScale();
+    
+    // Handle initial session setup
+    if (messages.length === 0 && !activeSessionId) {
+      handleNewSession()
+    }
   }, [messages, error])
 
   // Handle session selection
@@ -360,6 +366,13 @@ export default function ChatPage() {
       window.removeEventListener('resize', setVh);
       window.removeEventListener('orientationchange', setVh);
     };
+  }, []);
+
+  // Update messages state with new message (reduces console spam)
+  const updateMessages = useCallback((newMessages: typeof messages) => {
+    setMessages(newMessages);
+    // Disable excessive logging
+    // console.log("Messages updated:", newMessages);
   }, []);
 
   return (
