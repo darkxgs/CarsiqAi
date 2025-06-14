@@ -42,6 +42,20 @@ interface OilRecommendation {
   climateConsiderations: string;
 }
 
+// API status tracking for token limits
+interface ApiStatus {
+  isTokenLimitReached: boolean;
+  errorCount: number;
+  lastError?: string;
+  lastErrorTime?: Date;
+}
+
+// Initialize API status
+const apiStatus: ApiStatus = {
+  isTokenLimitReached: false,
+  errorCount: 0
+}
+
 /**
  * Enhanced OpenRouter configuration with fallback options
  */
@@ -50,6 +64,7 @@ const openRouter = {
   key: process.env.OPENROUTER_API_KEY || '',
   primaryModel: "anthropic/claude-3-haiku",
   fallbackModel: "anthropic/claude-instant-v1",
+  mistralModel: "mistralai/mistral-nemo:free",
   maxRetries: 3,
   timeout: 30000,
   systemPrompt: `أنت مساعد متخصص بالسيارات وزيوت المحركات، خبرتك في السيارات عالية جداً.
@@ -98,6 +113,35 @@ const createOpenRouterClient = () => {
       "X-Title": "Car Service Chat - Enhanced"
     }
   })
+}
+
+// Check if error message indicates token limit reached
+function isTokenLimitError(error: any): boolean {
+  if (!error || !error.message) return false
+  
+  const errorMsg = error.message.toLowerCase()
+  return (
+    errorMsg.includes('token') && 
+    (errorMsg.includes('limit') || errorMsg.includes('exceeded') || errorMsg.includes('quota')) ||
+    errorMsg.includes('billing') ||
+    errorMsg.includes('payment required') ||
+    errorMsg.includes('insufficient funds')
+  )
+}
+
+// Reset API status if enough time has passed
+function checkAndResetTokenLimitStatus(): void {
+  if (apiStatus.isTokenLimitReached && apiStatus.lastErrorTime) {
+    // Reset after 24 hours
+    const resetTime = 24 * 60 * 60 * 1000 // 24 hours in milliseconds
+    if (Date.now() - apiStatus.lastErrorTime.getTime() > resetTime) {
+      console.log('Resetting token limit status after 24 hours')
+      apiStatus.isTokenLimitReached = false
+      apiStatus.errorCount = 0
+      apiStatus.lastError = undefined
+      apiStatus.lastErrorTime = undefined
+    }
+  }
 }
 
 /**
@@ -449,9 +493,22 @@ async function generateAIResponse(
 ): Promise<any> {
   const openrouter = createOpenRouterClient()
   
+  // Check and potentially reset token limit status
+  checkAndResetTokenLimitStatus()
+  
+  // Determine which model to use based on token limit status
+  let modelToUse = openRouter.primaryModel
+  if (apiStatus.isTokenLimitReached) {
+    console.log('Token limit reached, using Mistral model')
+    modelToUse = openRouter.mistralModel
+  } else if (retryCount > 0) {
+    console.log('Retry attempt, using fallback model')
+    modelToUse = openRouter.fallbackModel
+  }
+  
   try {
     const result = streamText({
-      model: openrouter(retryCount === 0 ? openRouter.primaryModel : openRouter.fallbackModel),
+      model: openrouter(modelToUse),
       system: systemPrompt,
       messages,
       maxTokens,
@@ -464,6 +521,21 @@ async function generateAIResponse(
     return result
   } catch (error) {
     console.error(`AI response generation failed (attempt ${retryCount + 1}):`, error)
+    
+    // Check if error is related to token limits
+    if (isTokenLimitError(error)) {
+      console.warn('Token limit error detected, switching to Mistral model for future requests')
+      apiStatus.isTokenLimitReached = true
+      apiStatus.errorCount += 1
+      apiStatus.lastError = error.message || 'Unknown token limit error'
+      apiStatus.lastErrorTime = new Date()
+      
+      if (retryCount < openRouter.maxRetries) {
+        console.log('Retrying with Mistral model...')
+        await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1))) // Exponential backoff
+        return generateAIResponse(messages, systemPrompt, Math.max(500, maxTokens - 200), retryCount + 1)
+      }
+    }
     
     if (retryCount < openRouter.maxRetries) {
       console.log(`Retrying with ${retryCount === 0 ? 'fallback model' : 'reduced parameters'}...`)
