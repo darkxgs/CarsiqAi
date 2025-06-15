@@ -1,14 +1,6 @@
 import officialSpecs, { type CarSpec } from "@/data/officialSpecs"
 import authorizedOils, { type OilSpec } from "@/data/authorizedOils"
 import logger from "@/utils/logger"
-import { oilSpecsAPI } from "@/lib/api/autodata"
-
-// API flags configuration
-const API_CONFIG = {
-  USE_API: true,            // Master switch for API usage
-  LOG_API_RESULTS: true,    // Log API results for debugging
-  PREFER_API_DATA: true     // Use API data over local database when available
-}
 
 // إضافة نظام ذاكرة التخزين المؤقت
 interface CacheEntry {
@@ -302,7 +294,7 @@ export class CarAnalyzer {
   /**
    * تحليل بيانات السيارة وتوصية الزيت المناسب
    */
-  public static async analyzeCarAndRecommendOil(userMessage: string): Promise<OilRecommendation | { errorMessage: string }> {
+  public static analyzeCarAndRecommendOil(userMessage: string): OilRecommendation | { errorMessage: string } {
     try {
       // إنشاء مفتاح للذاكرة المؤقتة
       const cacheKey = userMessage.toLowerCase().trim()
@@ -324,137 +316,8 @@ export class CarAnalyzer {
         return errorResult
       }
 
-      // تحديد فئة السنة - استخدام API بدلاً من البحث المحلي فقط
+      // تحديد فئة السنة
       const yearCategory = this.determineYearCategory(carData)
-
-      try {
-        logger.info('Fetching oil specs using API', { carBrand: carData.carBrand, carModel: carData.carModel, year: carData.year })
-        
-        // Get car specifications from API
-        const apiCarSpecs = await oilSpecsAPI.getOilSpecifications(
-          carData.carBrand, 
-          carData.carModel, 
-          carData.year,
-          carData.engineSize
-        )
-        
-        // If API returns valid specs, use them instead of local database
-        if (apiCarSpecs) {
-          // Set year category for compatibility with rest of the code
-          let recommendedViscosity = apiCarSpecs.viscosity
-          let recommendedType = apiCarSpecs.oilType
-          
-          // Apply the same business logic for adjustments based on mileage & conditions
-          // Special handling for Genesis cars with high mileage
-          if (carData.carBrand === "genesis" && carData.mileage > 100000) {
-            // Genesis cars with high mileage need 5W-40 for better protection
-            recommendedViscosity = "5W-40"
-            recommendedType = "Full Synthetic"
-            logger.info(`تعديل التوصية لسيارة جينيسيس ذات كيلومترات عالية`, {
-              car: `${carData.carBrand} ${carData.carModel}`,
-              mileage: carData.mileage,
-              newViscosity: recommendedViscosity,
-            })
-          } else if (carData.mileage > 150000) {
-            if (apiCarSpecs.viscosity === "0W-20") recommendedViscosity = "5W-30"
-            else if (apiCarSpecs.viscosity === "0W-30") recommendedViscosity = "5W-30"
-            recommendedType = "High Mileage"
-            logger.info(`تعديل التوصية للكيلومترات العالية`, {
-              originalViscosity: apiCarSpecs.viscosity,
-              newViscosity: recommendedViscosity,
-            })
-          } else if (carData.mileage > 100000) {
-            if (apiCarSpecs.viscosity === "0W-20") recommendedViscosity = "5W-30"
-            logger.info(`تعديل التوصية للكيلومترات المتوسطة`, {
-              originalViscosity: apiCarSpecs.viscosity,
-              newViscosity: recommendedViscosity,
-            })
-          }
-
-          // تعديل التوصية بناءً على ظروف التشغيل
-          if (carData.conditions === "شاق" && recommendedViscosity === "0W-20") {
-            recommendedViscosity = "5W-30"
-            logger.info(`تعديل التوصية لظروف التشغيل الشاقة`, { newViscosity: recommendedViscosity })
-          }
-
-          // تعديل التوصية بناءً على مقاومة الحرارة
-          if (carData.heatResistance === "عالية") {
-            if (recommendedViscosity.startsWith("0W-")) {
-            recommendedViscosity = "5W-30"
-              logger.info(`تعديل التوصية لمقاومة الحرارة العالية في العراق`, { newViscosity: recommendedViscosity })
-            }
-            
-            // للمحركات الأكبر، يفضل لزوجة أعلى في المناخ الحار
-            if (apiCarSpecs.engineSize.includes("2.5L") || apiCarSpecs.engineSize.includes("3.0L")) {
-              if (recommendedViscosity === "5W-30") {
-                recommendedViscosity = "5W-40"
-                logger.info(`تعديل إضافي للمحركات الكبيرة في المناخ الحار`, { newViscosity: recommendedViscosity })
-              }
-            }
-          }
-
-          // البحث عن أفضل زيت متوفر
-          const matchingOils = Object.entries(authorizedOils).filter(
-            ([name, oil]) =>
-              oil.viscosity === recommendedViscosity && (oil.type === recommendedType || oil.type === "Full Synthetic"),
-          )
-
-          // التعامل مع حالة عدم وجود زيوت مطابقة
-          if (matchingOils.length === 0) {
-            logger.warn(`لم يتم العثور على زيوت مطابقة`, { recommendedViscosity, recommendedType })
-            
-            // Use original continuation of the logic
-            const alternativeOils = Object.entries(authorizedOils).filter(
-              ([name, oil]) => oil.type === "Full Synthetic" || oil.type === recommendedType,
-            )
-
-            if (alternativeOils.length > 0) {
-              // ترتيب البدائل حسب الجودة
-              const sortedAlternatives = alternativeOils.sort((a, b) => {
-                const typeOrder = { "Full Synthetic": 1, "High Mileage": 2, "Semi Synthetic": 3, Conventional: 4 }
-                return typeOrder[a[1].type] - typeOrder[b[1].type]
-              })
-
-              const result = {
-                carSpecs: apiCarSpecs,
-                primaryOil: sortedAlternatives[0],
-                alternativeOil: sortedAlternatives[1] || null,
-                recommendedViscosity,
-                recommendedType,
-                yearCategory: yearCategory || "API",
-                errorMessage: `لم نجد زيتاً مطابقاً تماماً للمواصفات المطلوبة، لكن هذه أفضل البدائل المتاحة.`,
-              }
-
-              recommendationCache.set(cacheKey, result)
-              return result
-            }
-          } else {
-            // ترتيب الزيوت حسب الجودة والسعر
-            const sortedOils = matchingOils.sort((a, b) => {
-              const typeOrder = { "Full Synthetic": 1, "High Mileage": 2, "Semi Synthetic": 3, Conventional: 4 }
-              return typeOrder[a[1].type] - typeOrder[b[1].type]
-            })
-
-            const result = {
-              carSpecs: apiCarSpecs,
-              primaryOil: sortedOils[0],
-              alternativeOil: sortedOils[1] || null,
-              recommendedViscosity,
-              recommendedType,
-              yearCategory: yearCategory || "API",
-            }
-
-            // حفظ النتيجة في الذاكرة المؤقتة
-            recommendationCache.set(cacheKey, result)
-            return result
-          }
-        }
-      } catch (apiError) {
-        logger.error('Error fetching data from API, falling back to local database', { apiError })
-        // Continue with existing local database logic
-      }
-
-      // Fallback to original logic using local database
       if (!yearCategory) {
         const errorResult = {
           errorMessage: `عذراً، لا تتوفر لدينا المواصفات الفنية الرسمية لسيارة ${carData.carBrand} ${carData.carModel} موديل ${carData.year}.`,
@@ -463,7 +326,7 @@ export class CarAnalyzer {
         return errorResult
       }
 
-      // الحصول على مواصفات السيارة من قاعدة البيانات المحلية
+      // الحصول على مواصفات السيارة
       const carSpecs = officialSpecs[carData.carBrand]?.[carData.carModel]?.[yearCategory]
       if (!carSpecs) {
         logger.error(`لم يتم العثور على مواصفات للسيارة`, { carData, yearCategory })
@@ -474,7 +337,7 @@ export class CarAnalyzer {
         return errorResult
       }
 
-      // Original logic continues for local database...
+      // تعديل التوصية بناءً على الكيلومترات
       let recommendedViscosity = carSpecs.viscosity
       let recommendedType = carSpecs.oilType
 

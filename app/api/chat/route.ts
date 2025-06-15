@@ -4,6 +4,7 @@ import CarAnalyzer from "@/utils/carAnalyzer"
 import logger from "@/utils/logger"
 import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 import { z } from 'zod'
+import { normalizeArabicCarInput, getCarModels, extractOilRecommendationData, suggestOil } from '@/utils/carQueryApi'
 
 // Input validation schemas
 const MessageSchema = z.object({
@@ -106,9 +107,9 @@ Castrol, Mobil 1, Liqui Moly, Meguin, Valvoline, Motul, Hanata
 // Enhanced OpenRouter client with retry logic
 const createOpenRouterClient = () => {
   return createOpenAI({
-    apiKey: process.env.OPENROUTER_API_KEY || "",
-    baseURL: "https://openrouter.ai/api/v1",
-    headers: {
+  apiKey: process.env.OPENROUTER_API_KEY || "",
+  baseURL: "https://openrouter.ai/api/v1",
+  headers: {
       "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
       "X-Title": "Car Service Chat - Enhanced"
     }
@@ -338,7 +339,7 @@ function determineQueryType(query: string): string {
   ]
 
   let bestMatch = { type: 'OTHER', score: 0 }
-  
+
   for (const mapping of queryTypeMappings) {
     let score = 0
     for (const keyword of mapping.keywords) {
@@ -483,80 +484,13 @@ function validateAndSanitizeRequest(body: any) {
 }
 
 /**
- * Enhanced AI response with retry logic
- */
-async function generateAIResponse(
-  messages: any[], 
-  systemPrompt: string, 
-  maxTokens: number = 900,
-  retryCount: number = 0
-): Promise<any> {
-  const openrouter = createOpenRouterClient()
-  
-  // Check and potentially reset token limit status
-  checkAndResetTokenLimitStatus()
-  
-  // Determine which model to use based on token limit status
-  let modelToUse = openRouter.primaryModel
-  if (apiStatus.isTokenLimitReached) {
-    console.log('Token limit reached, using Mistral model')
-    modelToUse = openRouter.mistralModel
-  } else if (retryCount > 0) {
-    console.log('Retry attempt, using fallback model')
-    modelToUse = openRouter.fallbackModel
-  }
-  
-  try {
-    const result = streamText({
-      model: openrouter(modelToUse),
-      system: systemPrompt,
-      messages,
-      maxTokens,
-      temperature: 0.3, // Lower temperature for more consistent responses
-      topP: 0.9,
-      frequencyPenalty: 0.1,
-      presencePenalty: 0.1
-    })
-
-    return result
-  } catch (error) {
-    console.error(`AI response generation failed (attempt ${retryCount + 1}):`, error)
-    
-    // Check if error is related to token limits
-    if (isTokenLimitError(error)) {
-      console.warn('Token limit error detected, switching to Mistral model for future requests')
-      apiStatus.isTokenLimitReached = true
-      apiStatus.errorCount += 1
-      apiStatus.lastError = error.message || 'Unknown token limit error'
-      apiStatus.lastErrorTime = new Date()
-      
-      if (retryCount < openRouter.maxRetries) {
-        console.log('Retrying with Mistral model...')
-        await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1))) // Exponential backoff
-        return generateAIResponse(messages, systemPrompt, Math.max(500, maxTokens - 200), retryCount + 1)
-      }
-    }
-    
-    if (retryCount < openRouter.maxRetries) {
-      console.log(`Retrying with ${retryCount === 0 ? 'fallback model' : 'reduced parameters'}...`)
-      await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1))) // Exponential backoff
-      return generateAIResponse(messages, systemPrompt, Math.max(500, maxTokens - 200), retryCount + 1)
-    }
-    
-    throw error
-  }
-}
-
-/**
  * Main POST handler with comprehensive error handling
  */
 export async function POST(req: Request) {
   const startTime = Date.now()
-  let requestId: string | undefined
+  let requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
   
   try {
-    // Generate unique request ID for tracking
-    requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
     console.log(`[${requestId}] Processing new request`)
     
     // Enhanced request parsing with timeout
@@ -604,147 +538,144 @@ export async function POST(req: Request) {
     // Type assertion to ensure data exists since we've checked validation.success
     const { messages } = validation.data as { messages: { role: "user" | "assistant" | "system"; content: string; }[] }
     
-    // Extract and analyze user message
-    const userMessages = messages.filter((m: any) => m.role === 'user')
-    const latestUserMessage = userMessages[userMessages.length - 1]
+    // Process first user message to extract car data
+    const userQuery = messages.find(m => m.role === 'user')?.content || '';
     
-    let extractedCarData: ExtractedCarData | undefined
-    let recommendation: any
+    // Get car data for oil recommendations
+    let carData: ExtractedCarData | undefined;
+    let carSpecsPrompt = '';
+    let carTrimData = null;
     
-    if (latestUserMessage) {
-      console.log(`[${requestId}] Processing user query: ${latestUserMessage.content.substring(0, 100)}...`)
-      
-      // Enhanced car data extraction
-      extractedCarData = enhancedExtractCarData(latestUserMessage.content)
-      console.log(`[${requestId}] Extracted car data:`, {
-        brand: extractedCarData.carBrand,
-        model: extractedCarData.carModel,
-        confidence: extractedCarData.confidence,
-        isValid: extractedCarData.isValid
-      })
-    }
-
-    // Handle first message (initial recommendation)
-    if (messages.length === 1 && latestUserMessage) {
-      try {
-        // Generate car analysis and oil recommendation
-        recommendation = await CarAnalyzer.analyzeCarAndRecommendOil(latestUserMessage.content)
-        
-        let finalRecommendation = ""
-        let systemPromptAddition = ""
-
-        if ("errorMessage" in recommendation) {
-          finalRecommendation = recommendation.errorMessage
-          logger.warn(`[${requestId}] No suitable recommendation found`, {
-            userMessage: latestUserMessage.content,
-            error: recommendation.errorMessage,
-          })
-        } else {
-          finalRecommendation = CarAnalyzer.createRecommendationMessage(recommendation)
-          
-          // Extract oil capacity for accurate display
-          const oilCapacity = recommendation.carSpecs?.capacity || "غير معروف"
-          const carData = extractedCarData || CarAnalyzer.extractCarData(latestUserMessage.content)
-          const brandAndModel = `${carData.carBrand} ${carData.carModel}`
-          
-          // Create explicit capacity instruction
-          systemPromptAddition = `
-تنبيه حاسم: سعة الزيت الدقيقة لسيارة ${brandAndModel} هي ${oilCapacity} بالضبط حسب بيانات الشركة المصنعة الرسمية. 
-يجب استخدام هذه القيمة بالضبط في التوصية النهائية دون أي تعديل أو تقريب.
-
-قاعدة إلزامية: اختتم ردك بـ "التوصية النهائية:" متبوعة بالزيت المحدد واللزوجة والكمية الدقيقة.
-مثال: التوصية النهائية: Castrol EDGE 5W-40 (${oilCapacity})
-`
-          
-          logger.info(`[${requestId}] Generated recommendation successfully`, {
-            carBrand: carData.carBrand,
-            carModel: carData.carModel,
-            recommendedOil: recommendation.primaryOil?.[0],
-            oilCapacity: oilCapacity,
-          })
-        }
-
-        // Save analytics data
-        await saveQueryToAnalytics(latestUserMessage.content, extractedCarData, recommendation)
-
-        // Generate AI response with enhanced system prompt
-        const result = await generateAIResponse(
-          [{ role: "user", content: latestUserMessage.content }],
-          `${openRouter.systemPrompt}
-
-${systemPromptAddition}
-
-التوصية المفصلة المطلوب معالجتها: ${finalRecommendation}`,
-          900
-        )
-
-        const processingTime = Date.now() - startTime
-        console.log(`[${requestId}] Request completed successfully in ${processingTime}ms`)
-        
-        return result.toDataStreamResponse()
-        
-      } catch (error) {
-        console.error(`[${requestId}] Error in initial recommendation processing:`, error)
-        logger.error("خطأ أثناء معالجة التوصية الأولى", { error, requestId })
-
-        // Fallback response for first message errors
-        const errorResult = await generateAIResponse(
-          [{
-            role: "user",
-            content: `عذراً، حدث خطأ أثناء معالجة طلبك الخاص بـ "${latestUserMessage.content}". 
-            يرجى المحاولة مرة أخرى بصيغة أوضح. 
-            مثال صحيح: 'هيونداي النترا 2022 ماشية 130 ألف كيلو'`
-          }],
-          `أنت مساعد خبير في زيوت السيارات. ساعد المستخدم في إعادة صياغة طلبه بشكل واضح.`,
-          500
-        )
-
-        return errorResult.toDataStreamResponse()
-      }
-    }
-
-    // Handle follow-up messages
     try {
-      await saveQueryToAnalytics(latestUserMessage?.content, extractedCarData)
+      // First, try to use enhanced CarQuery API
+      const normalizedData = await normalizeArabicCarInput(userQuery);
       
-      const result = await generateAIResponse(
-        messages,
-        `${openRouter.systemPrompt}
+      if (normalizedData.make && normalizedData.model) {
+        // If we have make and model, get detailed car specifications
+        // Always include year parameter when available for more accurate results
+        const trims = await getCarModels(
+          normalizedData.make,
+          normalizedData.model,
+          normalizedData.year
+        );
+        
+        if (trims && trims.length > 0) {
+          // Use the first trim for demonstration purposes
+          // In a future update, we could allow selecting from multiple trims
+          carTrimData = trims[0];
+          const specs = extractOilRecommendationData(carTrimData);
+          const oilRecommendation = suggestOil(specs);
+          
+          // Log successful car data retrieval
+          logger.info("Successfully retrieved car data from CarQuery API", {
+            make: normalizedData.make,
+            model: normalizedData.model,
+            year: normalizedData.year,
+            trimCount: trims.length,
+            selectedTrim: carTrimData.model_trim
+          });
+          
+          // Add car specifications to the system prompt
+          carSpecsPrompt = `
+الآن لديك معلومات دقيقة عن هذه السيارة من قاعدة بيانات CarQuery:
+- النوع: ${normalizedData.make} ${normalizedData.model} ${normalizedData.year || ''}
+- المحرك: ${carTrimData.model_engine_type || 'غير معروف'} ${carTrimData.model_engine_cc || '0'}cc
+- نوع الوقود: ${carTrimData.model_engine_fuel || 'غير معروف'}
+${carTrimData.model_engine_compression ? `- نسبة الانضغاط: ${carTrimData.model_engine_compression}` : ''}
+${carTrimData.model_weight_kg ? `- وزن السيارة: ${carTrimData.model_weight_kg} كغم` : ''}
+${carTrimData.model_lkm_city ? `- استهلاك الوقود: ${carTrimData.model_lkm_city} لتر/كم` : ''}
+${carTrimData.model_drive ? `- نظام الدفع: ${carTrimData.model_drive}` : ''}
 
-تذكير مهم: يجب اختتام كل رد بـ "التوصية النهائية:" متبوعة بالزيت المحدد واللزوجة والكمية الدقيقة من مواصفات الشركة المصنعة.`,
-        900
-      )
+توصية الزيت بناء على المواصفات:
+- اللزوجة المقترحة: ${oilRecommendation.viscosity}
+- نوع الزيت: ${oilRecommendation.quality}
+- كمية الزيت المطلوبة: ${oilRecommendation.capacity || '4.5 لتر'}
+- السبب: ${oilRecommendation.reason}
 
-      const processingTime = Date.now() - startTime
-      console.log(`[${requestId}] Follow-up request completed in ${processingTime}ms`)
+استخدم هذه المعلومات لتقديم توصية دقيقة، لكن يمكنك تعديل التوصية بناء على معرفتك المتخصصة.
+`;
+        } else {
+          logger.warn("No car trims found for the normalized car data", {
+            make: normalizedData.make,
+            model: normalizedData.model,
+            year: normalizedData.year
+          });
+        }
+      }
       
-      return result.toDataStreamResponse()
-      
-    } catch (error) {
-      console.error(`[${requestId}] Error in follow-up message processing:`, error)
-      throw error
+      // Also try the legacy car data extraction as fallback
+      if (!carTrimData) {
+        carData = enhancedExtractCarData(userQuery);
+        logger.info("Using fallback car data extraction", { 
+          carData,
+          confidence: carData?.confidence || 0
+        });
+      }
+    } catch (carDataError) {
+      logger.error("Error extracting car data", { error: carDataError });
+      // Continue execution - this is not a fatal error
     }
-
-  } catch (error) {
-    const processingTime = Date.now() - startTime
-    console.error(`[${requestId}] General error in API route (${processingTime}ms):`, error)
-    logger.error("خطأ عام في معالجة الطلب", { 
-      error, 
-      requestId, 
-      processingTime 
-    })
-
-    // Return structured error response
+    
+    // If we have car data or specs, update the system prompt
+    let enhancedSystemPrompt = openRouter.systemPrompt;
+    if (carSpecsPrompt) {
+      enhancedSystemPrompt += "\n\n" + carSpecsPrompt;
+    } else if (carData && carData.isValid) {
+      enhancedSystemPrompt += `\n\nالمستخدم سأل عن ${carData.carBrand} ${carData.carModel} ${carData.year || ''}`;
+    }
+    
+    // Create OpenRouter client
+    const openrouter = createOpenRouterClient();
+    
+    // Check and potentially reset token limit status
+    checkAndResetTokenLimitStatus();
+    
+    // Determine which model to use based on token limit status
+    let modelToUse = openRouter.primaryModel;
+    if (apiStatus.isTokenLimitReached) {
+      console.log('Token limit reached, using Mistral model');
+      modelToUse = openRouter.mistralModel;
+    }
+    
+    // Update analytics asynchronously (don't await)
+    try {
+      saveQueryToAnalytics(userQuery, carData).catch(err => {
+        console.error("Error saving analytics:", err);
+      });
+    } catch (analyticsError) {
+      console.error("Failed to trigger analytics:", analyticsError);
+      // Non-fatal error, continue
+    }
+    
+    // Create stream response using streamText
+    const result = streamText({
+      model: openrouter(modelToUse),
+      system: enhancedSystemPrompt,
+      messages,
+      maxTokens: 900,
+      temperature: 0.3,
+      topP: 0.9,
+      frequencyPenalty: 0.1,
+      presencePenalty: 0.1
+    });
+    
+    // Return the data stream response directly
+    return result.toDataStreamResponse();
+    
+  } catch (error: any) {
+    console.error(`[${requestId}] Error processing request:`, error);
+    logger.error("Chat API error", { error, requestId });
+    
     return new Response(
       JSON.stringify({
         error: "حدث خطأ أثناء معالجة طلبك. يرجى المحاولة مرة أخرى.",
-        requestId: requestId,
-        suggestion: "تأكد من كتابة نوع السيارة والموديل بوضوح"
+        requestId,
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
       }),
       {
         status: 500,
         headers: { "Content-Type": "application/json" }
       }
-    )
+    );
   }
 }
