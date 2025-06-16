@@ -6,9 +6,8 @@
   <strong>🇮🇶 مساعد ذكي متخصص لتوصيات زيوت السيارات في العراق</strong>
   <br/><br/>
 
-  <!-- إصلاح المسافات في النصوص العربية باستخدام URL encoding -->
-  <a href="https://opensource.org/licenses/MIT">
-    <img src="https://img.shields.io/badge/%D8%A7%D9%84%D8%AA%D8%B1%D8%AE%D9%8A%D8%B5-MIT-yellow.svg" alt="الترخيص: MIT"/>
+ <a href="https://opensource.org/licenses/MIT">
+    <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"/>
   </a>
   <a href="https://nextjs.org/">
     <img src="https://img.shields.io/badge/Next.js-14-black" alt="Next.js"/>
@@ -23,8 +22,9 @@
     <img src="https://img.shields.io/badge/OpenRouter-API-FF6B35" alt="OpenRouter API"/>
   </a>
   <a href="https://carsiqai.vercel.app/">
-    <img src="https://img.shields.io/badge/%D8%AA%D8%AC%D8%B1%D8%A8%D8%A9-%D9%85%D8%A8%D8%A7%D8%B4%D8%B1%D8%A9-FF5722" alt="تجربة مباشرة"/>
+    <img src="https://img.shields.io/badge/Live-Demo-FF5722" alt="Live Demo"/>
   </a>
+
 </div>
 
 
