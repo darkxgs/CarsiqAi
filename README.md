@@ -374,7 +374,7 @@ git push origin feature/amazing-feature
 
 <p>
   <a href="https://github.com/darkxgs/CarsiqAi/stargazers">
-    <img src="https://img.shields.io/badge/⭐-امنح_نجمة-FFD700?style=for-the-badge" alt="امنح نجمة"/>
+    <img src="https://img.shields.io/badge/⭐-Star_the_Project-FFD700?style=for-the-badge" alt="امنح نجمة">
   </a>
   <a href="https://github.com/darkxgs/CarsiqAi/fork">
     <img src="https://img.shields.io/badge/🔄-انسخ_المشروع-00C851?style=for-the-badge" alt="انسخ المشروع"/>
