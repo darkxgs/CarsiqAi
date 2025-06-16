@@ -54,24 +54,17 @@
 ## 🖼️ لقطات شاشة
 
 <div align="center">
-  <table>
-    <tr>
-      <td><img src="/public/screenshots/dark-mode.png" alt="واجهة الوضع الداكن" width="100%"/></td>
-      <td><img src="/public/screenshots/light-mode.png" alt="واجهة الوضع الفاتح" width="100%"/></td>
-    </tr>
-    <tr>
-      <td align="center">الوضع الداكن</td>
-      <td align="center">الوضع الفاتح</td>
-    </tr>
-    <tr>
-      <td><img src="/public/screenshots/mobile-view.png" alt="واجهة الجوال" width="100%"/></td>
-      <td><img src="/public/screenshots/settings-view.png" alt="إعدادات التطبيق" width="100%"/></td>
-    </tr>
-    <tr>
-      <td align="center">واجهة الجوال</td>
-      <td align="center">إعدادات التطبيق</td>
-    </tr>
-  </table>
+  <h3>الوضع الداكن والفاتح</h3>
+  <p>
+    <img src="/public/screenshots/dark-mode.png" alt="واجهة الوضع الداكن" width="400"/>
+    <img src="/public/screenshots/light-mode.png" alt="واجهة الوضع الفاتح" width="400"/>
+  </p>
+  
+  <h3>واجهة الجوال وإعدادات التطبيق</h3>
+  <p>
+    <img src="/public/screenshots/mobile-view.png" alt="واجهة الجوال" width="300"/>
+    <img src="/public/screenshots/settings-view.png" alt="إعدادات التطبيق" width="450"/>
+  </p>
 </div>
 
 ## 🔍 ميزات خاصة بالسوق العراقي
