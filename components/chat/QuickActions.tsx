@@ -7,9 +7,10 @@ import { RefreshCw, Fuel, Clock, ChevronDown, ChevronUp, Settings, Droplets, Wre
 
 interface QuickActionsProps {
   onActionSelected: (action: string) => void
+  onFaqExpandChange?: (isExpanded: boolean) => void
 }
 
-export function QuickActions({ onActionSelected }: QuickActionsProps) {
+export function QuickActions({ onActionSelected, onFaqExpandChange }: QuickActionsProps) {
   const [showQuickActions, setShowQuickActions] = useState(true)
 
   const quickActions = {
@@ -57,6 +58,14 @@ export function QuickActions({ onActionSelected }: QuickActionsProps) {
       onActionSelected(message);
     }
   }
+  
+  const toggleQuickActions = () => {
+    const newState = !showQuickActions;
+    setShowQuickActions(newState);
+    if (onFaqExpandChange) {
+      onFaqExpandChange(newState);
+    }
+  }
 
   return (
     <div className="mx-auto mb-2 flex-shrink-0">
@@ -65,7 +74,7 @@ export function QuickActions({ onActionSelected }: QuickActionsProps) {
           <div className="h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent w-1/4 mx-2"></div>
           <Button
             variant="ghost"
-            onClick={() => setShowQuickActions(!showQuickActions)}
+            onClick={toggleQuickActions}
             className="flex items-center justify-center text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
           >
             <span className="font-bold text-base">الأسئلة الشائعة</span>

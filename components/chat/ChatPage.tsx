@@ -28,6 +28,7 @@ export default function ChatPage() {
   const [scale, setScale] = useState(1)
   const [keyboardVisible, setKeyboardVisible] = useState(false)
   const [viewportHeight, setViewportHeight] = useState(0)
+  const [isFaqExpanded, setIsFaqExpanded] = useState(true)
   const containerRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
   
@@ -375,6 +376,11 @@ export default function ChatPage() {
     // console.log("Messages updated:", newMessages);
   }, []);
 
+  // Handle FAQ expansion state change
+  const handleFaqExpandChange = (isExpanded: boolean) => {
+    setIsFaqExpanded(isExpanded);
+  }
+
   return (
     <TooltipProvider>
       <div 
@@ -422,6 +428,7 @@ export default function ChatPage() {
               messages={messages} 
               isLoading={isLoading} 
               keyboardVisible={keyboardVisible}
+              isFaqExpanded={isFaqExpanded}
             />
 
             {/* Settings Panel */}
@@ -433,7 +440,10 @@ export default function ChatPage() {
 
             {/* Quick Actions */}
             {messages.length === 0 && (
-              <QuickActions onActionSelected={handleQuickAction} />
+              <QuickActions 
+                onActionSelected={handleQuickAction} 
+                onFaqExpandChange={handleFaqExpandChange}
+              />
             )}
           </div>
 

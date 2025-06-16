@@ -15,9 +15,10 @@ interface ChatMessagesProps {
   messages: Message[]
   isLoading: boolean
   keyboardVisible?: boolean
+  isFaqExpanded?: boolean
 }
 
-export function ChatMessages({ messages, isLoading, keyboardVisible = false }: ChatMessagesProps) {
+export function ChatMessages({ messages, isLoading, keyboardVisible = false, isFaqExpanded = false }: ChatMessagesProps) {
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -118,10 +119,18 @@ export function ChatMessages({ messages, isLoading, keyboardVisible = false }: C
   return (
     <div className={`flex-1 overflow-y-auto p-4 w-full ${keyboardVisible ? 'pb-16' : ''} h-full`}>
       {messages.length === 0 && (
-        <div className="text-center h-full flex flex-col justify-center items-center px-4">
+        <div className={`text-center flex flex-col items-center px-4 ${
+          isFaqExpanded ? 'justify-start' : 'h-full justify-center'
+        }`}>
           {/* Improved responsive logo container */}
-          <div className="logo-wrapper flex items-center justify-center mb-6 sm:mb-8 w-full">
-            <div className="w-32 h-32 sm:w-44 sm:h-44 md:w-56 md:h-56 relative logo-pulse flex-shrink-0">
+          <div className={`logo-wrapper flex items-center justify-center w-full ${
+            isFaqExpanded ? 'mb-3 sm:mb-4' : 'mb-6 sm:mb-8'
+          }`}>
+            <div className={`relative logo-pulse flex-shrink-0 ${
+              isFaqExpanded
+                ? 'w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40' 
+                : 'w-32 h-32 sm:w-44 sm:h-44 md:w-56 md:h-56'
+            }`}>
               <div className="absolute inset-0 logo-glow rounded-full"></div>
               <div className="relative w-full h-full flex items-center justify-center">
                 <Image
@@ -146,12 +155,18 @@ export function ChatMessages({ messages, isLoading, keyboardVisible = false }: C
               </div>
             </div>
           </div>
-          <h1 className="text-2xl sm:text-3xl md:text-4xl mb-2 sm:mb-3 font-bold text-gray-900 dark:text-white">مساعد خبير زيوت السيارات</h1>
-          <h2 className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 text-[#1a73e8] dark:text-blue-300 font-semibold max-w-lg">
+          <h1 className={`text-2xl sm:text-3xl md:text-4xl ${
+            isFaqExpanded ? 'mb-1 sm:mb-2' : 'mb-2 sm:mb-3'
+          } font-bold text-gray-900 dark:text-white`}>مساعد خبير زيوت السيارات</h1>
+          <h2 className={`text-base sm:text-lg md:text-xl ${
+            isFaqExpanded ? 'mb-3 sm:mb-4' : 'mb-6 sm:mb-8'
+          } text-[#1a73e8] dark:text-blue-300 font-semibold max-w-lg`}>
             نعتمد على توصيات الشركة المصنّعة لاختيار الزيت المناسب لسيارتك
           </h2>
           <Button
-            className="bg-blue-600 hover:bg-blue-700 text-white text-base sm:text-lg font-bold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 py-4 sm:py-6 px-8 sm:px-10 rounded-2xl hover:translate-y-[-2px]"
+            className={`bg-blue-600 hover:bg-blue-700 text-white ${
+              isFaqExpanded ? 'text-sm sm:text-base py-3 sm:py-4 px-6 sm:px-8' : 'text-base sm:text-lg py-4 sm:py-6 px-8 sm:px-10'
+            } font-bold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 rounded-2xl hover:translate-y-[-2px]`}
             onClick={() => document.querySelector('input')?.focus()}
           >
             احصل على استشارتك الان
