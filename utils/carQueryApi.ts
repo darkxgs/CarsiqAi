@@ -510,6 +510,11 @@ function extractCarBasicInfo(
     'crv': ['سي ار في', 'crv', 'cr-v'],
     'land cruiser': ['لاند كروزر', 'لاندكروزر', 'land cruiser'],
     'prado': ['برادو', 'prado'],
+    // Add Jeep models
+    'compass': ['كومباس', 'compass'],
+    'cherokee': ['شيروكي', 'جراند شيروكي', 'cherokee', 'grand cherokee'],
+    'wrangler': ['رانجلر', 'wrangler'],
+    'renegade': ['رينيجيد', 'renegade']
   };
   
   for (const [modelKey, variations] of Object.entries(modelMappings)) {
@@ -952,11 +957,21 @@ export function suggestOil(specs: ReturnType<typeof extractOilRecommendationData
   let recommendedViscosity = '5W-30'; // Default viscosity
   let oilQuality = 'Synthetic';
   let reason = '';
+  let capacity = '4.0';
 
-  // Handle specific makes and models
-  if (specs.model.toLowerCase().includes('camry') && 
+  // Special handling for specific vehicles
+  const modelLower = specs.model.toLowerCase();
+  
+  // Handle Jeep Compass specifically
+  if (modelLower.includes('jeep') && modelLower.includes('compass')) {
+    recommendedViscosity = '0W-20';
+    oilQuality = 'Full Synthetic';
+    capacity = '5.2';
+    reason = 'Jeep Compass requires 0W-20 full synthetic oil per manufacturer specifications';
+  }
+  // Handle modern Toyota Camry (2018+)
+  else if (modelLower.includes('camry') && 
       parseInt(specs.year || '0') >= 2018) {
-    // For modern Toyota Camry (2018+)
     recommendedViscosity = '0W-20';
     oilQuality = 'Full Synthetic';
     reason = 'Toyota Camry 2018+ requires 0W-20 for optimal fuel efficiency';
@@ -999,18 +1014,17 @@ export function suggestOil(specs: ReturnType<typeof extractOilRecommendationData
   
   // Calculate approximate oil capacity based on engine size
   // This is an estimate - actual capacity should be verified with manufacturer specs
-  let oilCapacity = '4.0';
   if (specs.engineCC > 0) {
-    if (specs.engineCC <= 1500) oilCapacity = '3.5';
-    else if (specs.engineCC <= 2500) oilCapacity = '4.5';
-    else if (specs.engineCC <= 3500) oilCapacity = '5.7';
-    else oilCapacity = '6.5';
+    if (specs.engineCC <= 1500) capacity = '3.5';
+    else if (specs.engineCC <= 2500) capacity = '4.5';
+    else if (specs.engineCC <= 3500) capacity = '5.7';
+    else capacity = '6.5';
   }
   
   return {
     viscosity: recommendedViscosity,
     quality: oilQuality,
     reason: reason.trim(),
-    capacity: `${oilCapacity} لتر`
+    capacity: `${capacity} لتر`
   };
 } 

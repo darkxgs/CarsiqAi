@@ -566,6 +566,19 @@ export async function POST(req: Request) {
           const specs = extractOilRecommendationData(carTrimData);
           const oilRecommendation = suggestOil(specs);
           
+          // Special priority for Jeep vehicles - ALWAYS use CarQuery data
+          const isJeepVehicle = normalizedData.make.toLowerCase() === 'jeep';
+          const isCompass = normalizedData.model.toLowerCase() === 'compass';
+          
+          if (isJeepVehicle) {
+            logger.info("Prioritizing CarQuery data for Jeep vehicle", {
+              make: normalizedData.make,
+              model: normalizedData.model,
+              year: normalizedData.year,
+              isCompass
+            });
+          }
+          
           // Log successful car data retrieval
           logger.info("Successfully retrieved car data from CarQuery API", {
             make: normalizedData.make,

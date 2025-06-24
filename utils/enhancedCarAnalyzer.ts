@@ -110,12 +110,29 @@ export class EnhancedCarAnalyzer {
     // تحديد العلامة التجارية - كود مشابه للنسخة الحالية
     if (message.includes("هيونداي") || message.includes("hyundai")) carBrand = "hyundai"
     else if (message.includes("تويوتا") || message.includes("toyota")) carBrand = "toyota"
-    // ... باقي العلامات التجارية
+    else if (message.includes("هوندا") || message.includes("honda")) carBrand = "honda"
+    else if (message.includes("بي ام دبليو") || message.includes("bmw")) carBrand = "bmw"
+    else if (message.includes("مرسيدس") || message.includes("mercedes")) carBrand = "mercedes"
+    else if (message.includes("نيسان") || message.includes("nissan")) carBrand = "nissan"
+    else if (message.includes("كيا") || message.includes("kia")) carBrand = "kia"
+    else if (message.includes("جينيسيس") || message.includes("genesis")) carBrand = "genesis"
+    else if (message.includes("شيفروليه") || message.includes("chevrolet")) carBrand = "chevrolet"
+    else if (message.includes("ميتسوبيشي") || message.includes("mitsubishi")) carBrand = "mitsubishi"
+    else if (message.includes("فورد") || message.includes("ford")) carBrand = "ford"
+    else if (message.includes("فولكس واجن") || message.includes("volkswagen")) carBrand = "volkswagen"
+    else if (message.includes("دودج") || message.includes("dodge")) carBrand = "dodge"
+    else if (message.includes("جيب") || message.includes("jeep")) carBrand = "jeep"
 
     // تحديد الموديل - كود مشابه للنسخة الحالية
     if (message.includes("النترا") || message.includes("elantra")) carModel = "elantra"
     else if (message.includes("سوناتا") || message.includes("sonata")) carModel = "sonata"
     // ... باقي الموديلات
+    
+    // Add Jeep model detection
+    else if (message.includes("كومباس") || message.includes("compass")) carModel = "compass"
+    else if (message.includes("شيروكي") || message.includes("جراند شيروكي") || message.includes("cherokee")) carModel = "cherokee"
+    else if (message.includes("رانجلر") || message.includes("wrangler")) carModel = "wrangler"
+    else if (message.includes("رينيجيد") || message.includes("renegade")) carModel = "renegade"
 
     // استخراج VIN
     const vinMatch = message.match(/vin[:\s]*([A-HJ-NPR-Z0-9]{17})/i)
@@ -282,6 +299,14 @@ export class EnhancedCarAnalyzer {
         recommendationCache.set(cacheKey, errorResult)
         return errorResult
       }
+      
+      // Special note for Jeep vehicles to check CarQuery API
+      if (carData.carBrand === "jeep") {
+        logger.info("Note: Jeep vehicle detected. Consider using CarQuery API data for the most up-to-date specifications.", {
+          model: carData.carModel, 
+          year: carData.year 
+        });
+      }
 
       // محاولة الحصول على البيانات من VIN أولاً إذا كان متاحًا
       if (carData.vin && carData.vin.length === 17) {
@@ -346,9 +371,38 @@ export class EnhancedCarAnalyzer {
     // تعديل التوصية بناءً على الكيلومترات
     let recommendedViscosity = carSpecs.viscosity
     let recommendedType = carSpecs.oilType
+    let serviceBulletins: Array<{title: string, description: string, url: string}> = []
 
+    // Special handling for Jeep vehicles - strictly follow manufacturer specs
+    if (carData.carBrand === "jeep") {
+      // Maintain factory specifications for all Jeep vehicles regardless of mileage or conditions
+      recommendedViscosity = carSpecs.viscosity
+      recommendedType = carSpecs.oilType
+
+      // Add service bulletins specific to Jeep vehicles
+      if (carData.carModel === "compass") {
+        serviceBulletins.push({
+          title: "زيوت محرك معتمدة لسيارة جيب كومباس",
+          description: "يجب استخدام زيت SAE 0W-20 المعتمد من موبار فقط لضمان أداء المحرك الأمثل والحفاظ على الضمان.",
+          url: "https://www.mopar.com/en-us/care/oil-finder.html"
+        });
+        
+        logger.info(`استخدام مواصفات المصنع الأصلية لسيارة جيب كومباس`, {
+          model: carData.carModel,
+          year: carData.year,
+          viscosity: recommendedViscosity,
+          capacity: carSpecs.capacity
+        });
+      } else {
+        serviceBulletins.push({
+          title: "التزم بمواصفات الشركة المصنعة",
+          description: "سيارات جيب حساسة لنوع الزيت المستخدم، لذا يفضل التقيد بالزيوت المعتمدة من الشركة المصنعة.",
+          url: "https://www.jeep.com/maintenance.html"
+        });
+      }
+    }
     // Special handling for high mileage
-    if (carData.mileage > 150000) {
+    else if (carData.mileage > 150000) {
       if (carSpecs.viscosity === "0W-20") recommendedViscosity = "5W-30"
       else if (carSpecs.viscosity === "0W-30") recommendedViscosity = "5W-30"
       recommendedType = "High Mileage"
@@ -357,21 +411,24 @@ export class EnhancedCarAnalyzer {
         newViscosity: recommendedViscosity,
       })
     } else if (carData.mileage > 100000) {
-      if (carSpecs.viscosity === "0W-20") recommendedViscosity = "5W-30"
-      logger.info(`تعديل التوصية للكيلومترات المتوسطة`, {
-        originalViscosity: carSpecs.viscosity,
-        newViscosity: recommendedViscosity,
-      })
+      // Do not adjust viscosity for Jeep vehicles even at medium-high mileage
+      if (carSpecs.viscosity === "0W-20" && carData.carBrand !== "jeep") {
+        recommendedViscosity = "5W-30"
+        logger.info(`تعديل التوصية للكيلومترات المتوسطة`, {
+          originalViscosity: carSpecs.viscosity,
+          newViscosity: recommendedViscosity,
+        })
+      }
     }
 
-    // تعديل التوصية بناءً على ظروف التشغيل
-    if (carData.conditions === "شاق" && recommendedViscosity === "0W-20") {
+    // تعديل التوصية بناءً على ظروف التشغيل - except for Jeep vehicles
+    if (carData.carBrand !== "jeep" && carData.conditions === "شاق" && recommendedViscosity === "0W-20") {
       recommendedViscosity = "5W-30"
       logger.info(`تعديل التوصية لظروف التشغيل الشاقة`, { newViscosity: recommendedViscosity })
     }
 
-    // تعديل التوصية بناءً على مقاومة الحرارة
-    if (carData.heatResistance === "عالية") {
+    // تعديل التوصية بناءً على مقاومة الحرارة - except for Jeep vehicles
+    if (carData.carBrand !== "jeep" && carData.heatResistance === "عالية") {
       if (recommendedViscosity.startsWith("0W-")) {
         recommendedViscosity = "5W-30"
         logger.info(`تعديل التوصية لمقاومة الحرارة العالية`, { newViscosity: recommendedViscosity })
@@ -465,6 +522,7 @@ export class EnhancedCarAnalyzer {
       yearCategory: `${carData.year}`,
       transmissionRecommendation,
       temperatureNotes,
+      serviceBulletins,
     }
   }
 

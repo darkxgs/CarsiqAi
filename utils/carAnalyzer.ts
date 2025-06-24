@@ -107,6 +107,7 @@ export class CarAnalyzer {
     else if (message.includes("فورد") || message.includes("ford")) carBrand = "ford"
     else if (message.includes("فولكس واجن") || message.includes("فولكسفاجن") || message.includes("volkswagen")) carBrand = "volkswagen"
     else if (message.includes("دودج") || message.includes("dodge")) carBrand = "dodge"
+    else if (message.includes("جيب") || message.includes("jeep")) carBrand = "jeep"
 
     // تحديد الموديل
     if (message.includes("النترا") || message.includes("elantra")) carModel = "elantra"
@@ -153,6 +154,10 @@ export class CarAnalyzer {
     else if (message.includes("دورانجو") || message.includes("durango")) carModel = "durango"
     else if (message.includes("جي ٧٠") || message.includes("g70") || message.includes("g 70")) carModel = "g70"
     else if (message.includes("جي ٨٠") || message.includes("g80") || message.includes("g 80")) carModel = "g80"
+    else if (message.includes("كومباس") || message.includes("compass")) carModel = "compass"
+    else if (message.includes("شيروكي") || message.includes("جراند شيروكي") || message.includes("cherokee")) carModel = "cherokee"
+    else if (message.includes("رانجلر") || message.includes("wrangler")) carModel = "wrangler"
+    else if (message.includes("رينيجيد") || message.includes("renegade")) carModel = "renegade"
 
     // استخراج السنة
     const yearMatch = message.match(/20\d{2}/)
