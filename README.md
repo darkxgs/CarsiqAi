@@ -5,14 +5,28 @@
   <br/>
   <strong>🇮🇶 مساعد ذكي متخصص لتوصيات زيوت السيارات في العراق</strong>
   <br/><br/>
-  
-  [![الترخيص: MIT](https://img.shields.io/badge/الترخيص-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-  [![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
-  [![React](https://img.shields.io/badge/React-18-blue)](https://reactjs.org/)
-  [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3-38B2AC)](https://tailwindcss.com/)
-  [![OpenRouter](https://img.shields.io/badge/OpenRouter-API-FF6B35)](https://openrouter.ai/)
-  [![تجربة مباشرة](https://img.shields.io/badge/تجربة-مباشرة-FF5722)](https://carsiqai.vercel.app/)
+
+ <a href="https://opensource.org/licenses/MIT">
+    <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"/>
+  </a>
+  <a href="https://nextjs.org/">
+    <img src="https://img.shields.io/badge/Next.js-14-black" alt="Next.js"/>
+  </a>
+  <a href="https://reactjs.org/">
+    <img src="https://img.shields.io/badge/React-18-blue" alt="React"/>
+  </a>
+  <a href="https://tailwindcss.com/">
+    <img src="https://img.shields.io/badge/Tailwind-3-38B2AC" alt="Tailwind CSS"/>
+  </a>
+  <a href="https://openrouter.ai/">
+    <img src="https://img.shields.io/badge/OpenRouter-API-FF6B35" alt="OpenRouter API"/>
+  </a>
+  <a href="https://carsiqai.vercel.app/">
+    <img src="https://img.shields.io/badge/Live-Demo-FF5722" alt="Live Demo"/>
+  </a>
+
 </div>
+
 
 ---
 
@@ -246,13 +260,13 @@ vercel --prod
 <div dir="rtl">
 
 ### 🎯 المرحلة القادمة (الربع الثاني 2025)
-- [ ] **نظام المستخدمين** - تسجيل الدخول وحفظ البيانات في السحابة
+- [ ] **نظام المستخدمين** - تسجيل الدخول 
 - [ ] **تطبيق الجوال** - إصدارات أصلية للـ iOS والـ Android
 - [ ] **الذكاء المرئي** - تحليل صور محرك السيارة لتشخيص المشاكل
 - [ ] **التكامل المحلي** - ربط مع ورش الصيانة العراقية
 
 ### 🌟 المرحلة المتقدمة (النصف الثاني 2025)
-- [ ] **الدعم متعدد اللغات** - الإنجليزية والكردية
+- [x] **الدعم متعدد اللغات** - الإنجليزية والكردية
 - [ ] **الواقع المعزز** - مسح باركود قطع الغيار للحصول على معلومات
 - [ ] **المجتمع التفاعلي** - منصة لتبادل الخبرات بين المستخدمين
 - [ ] **الذكاء التنبؤي** - توقع احتياجات الصيانة قبل حدوث المشاكل
@@ -374,13 +388,13 @@ git push origin feature/amazing-feature
 
 <p>
   <a href="https://github.com/darkxgs/CarsiqAi/stargazers">
-    <img src="https://img.shields.io/badge/⭐-امنح_نجمة-FFD700?style=for-the-badge" alt="امنح نجمة"/>
+    <img src="https://img.shields.io/badge/⭐-Star_the_Project-FFD700?style=for-the-badge" alt="امنح نجمة"/>
   </a>
   <a href="https://github.com/darkxgs/CarsiqAi/fork">
-    <img src="https://img.shields.io/badge/🔄-انسخ_المشروع-00C851?style=for-the-badge" alt="انسخ المشروع"/>
+    <img src="https://img.shields.io/badge/🔄-Fork_the_Project-00C851?style=for-the-badge" alt="انسخ المشروع"/>
   </a>
   <a href="https://github.com/darkxgs/CarsiqAi/issues">
-    <img src="https://img.shields.io/badge/🐛-أبلغ_عن_مشكلة-FF4444?style=for-the-badge" alt="أبلغ عن مشكلة"/>
+    <img src="https://img.shields.io/badge/🐛-Report_an_Issue-FF4444?style=for-the-badge" alt="أبلغ عن مشكلة"/>
   </a>
 </p>
 
