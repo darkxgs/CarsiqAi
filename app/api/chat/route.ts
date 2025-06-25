@@ -164,13 +164,14 @@ function enhancedExtractCarData(query: string): ExtractedCarData {
     'جينيسيس': ['جينيسيس', 'genesis'],
     'فولكس واجن': ['فولكس واجن', 'volkswagen', 'vw'],
     'اودي': ['اودي', 'audi'],
-    'مازda': ['مازda', 'mazda'],
+    'مازدا': ['مازدا', 'mazda'],
     'سوزوكي': ['سوزوكي', 'suzuki'],
     'ميتسوبيشي': ['ميتسوبيشي', 'mitsubishi'],
     'شيفروليت': ['شيفروليت', 'chevrolet'],
     'فورد': ['فورد', 'ford'],
     'بيجو': ['بيجو', 'peugeot'],
-    'رينو': ['رينو', 'renault']
+    'رينو': ['رينو', 'renault'],
+    'جيب': ['جيب', 'jeep']
   }
   
   let detectedBrand = ''
@@ -197,7 +198,8 @@ function enhancedExtractCarData(query: string): ExtractedCarData {
     'c200', 'c300', 'e200', 'e300', 's500', 'glc', 'gle',
     '320i', '330i', '520i', '530i', 'x3', 'x5',
     'es300', 'is300', 'rx350', 'lx570',
-    'g70', 'g80', 'g90', 'gv70', 'gv80'
+    'g70', 'g80', 'g90', 'gv70', 'gv80',
+    'كومباس', 'compass', 'شيروكي', 'cherokee', 'رانجلر', 'wrangler', 'رينيجيد', 'renegade'
   ]
   
   let detectedModel = ''
@@ -541,6 +543,9 @@ export async function POST(req: Request) {
     // Process first user message to extract car data
     const userQuery = messages.find(m => m.role === 'user')?.content || '';
     
+    // Check for special cases in the query
+    const isJeepCompassQuery = userQuery.toLowerCase().includes('جيب كومباس') || userQuery.toLowerCase().includes('jeep compass');
+    
     // Get car data for oil recommendations
     let carData: ExtractedCarData | undefined;
     let carSpecsPrompt = '';
@@ -549,6 +554,14 @@ export async function POST(req: Request) {
     try {
       // First, try to use enhanced CarQuery API
       const normalizedData = await normalizeArabicCarInput(userQuery);
+      
+      // Special handling for specific car models not well-detected by default algorithms
+      if (isJeepCompassQuery && !normalizedData.make) {
+        console.log('Special handling for Jeep Compass');
+        normalizedData.make = 'jeep';
+        normalizedData.model = 'compass';
+        normalizedData.confidence = 80;
+      }
       
       if (normalizedData.make && normalizedData.model) {
         // If we have make and model, get detailed car specifications
@@ -566,19 +579,6 @@ export async function POST(req: Request) {
           const specs = extractOilRecommendationData(carTrimData);
           const oilRecommendation = suggestOil(specs);
           
-          // Special priority for Jeep vehicles - ALWAYS use CarQuery data
-          const isJeepVehicle = normalizedData.make.toLowerCase() === 'jeep';
-          const isCompass = normalizedData.model.toLowerCase() === 'compass';
-          
-          if (isJeepVehicle) {
-            logger.info("Prioritizing CarQuery data for Jeep vehicle", {
-              make: normalizedData.make,
-              model: normalizedData.model,
-              year: normalizedData.year,
-              isCompass
-            });
-          }
-          
           // Log successful car data retrieval
           logger.info("Successfully retrieved car data from CarQuery API", {
             make: normalizedData.make,
@@ -587,6 +587,13 @@ export async function POST(req: Request) {
             trimCount: trims.length,
             selectedTrim: carTrimData.model_trim
           });
+          
+          // Special handling for Jeep Compass to ensure correct data
+          if (isJeepCompassQuery && normalizedData.year && parseInt(normalizedData.year) >= 2017) {
+            oilRecommendation.viscosity = '0W-20';
+            oilRecommendation.capacity = '5.2 لتر';
+            console.log('Applied special Jeep Compass oil correction');
+          }
           
           // Add car specifications to the system prompt
           carSpecsPrompt = `
@@ -602,7 +609,7 @@ ${carTrimData.model_drive ? `- نظام الدفع: ${carTrimData.model_drive}` 
 توصية الزيت بناء على المواصفات:
 - اللزوجة المقترحة: ${oilRecommendation.viscosity}
 - نوع الزيت: ${oilRecommendation.quality}
-- كمية الزيت المطلوبة: ${oilRecommendation.capacity || '4.5 لتر'}
+- كمية الزيت المطلوبة: ${oilRecommendation.capacity}
 - السبب: ${oilRecommendation.reason}
 
 استخدم هذه المعلومات لتقديم توصية دقيقة، لكن يمكنك تعديل التوصية بناء على معرفتك المتخصصة.
@@ -635,6 +642,27 @@ ${carTrimData.model_drive ? `- نظام الدفع: ${carTrimData.model_drive}` 
       enhancedSystemPrompt += "\n\n" + carSpecsPrompt;
     } else if (carData && carData.isValid) {
       enhancedSystemPrompt += `\n\nالمستخدم سأل عن ${carData.carBrand} ${carData.carModel} ${carData.year || ''}`;
+    }
+    
+    // Special handling for specific car models that require exact specifications
+    // This is a fallback when the API and other methods don't provide accurate data
+    if (isJeepCompassQuery) {
+      // Extract year if available
+      const yearMatch = userQuery.match(/20(\d{2})/);
+      const year = yearMatch ? `20${yearMatch[1]}` : '2019'; // Default to 2019 if not specified
+      
+      // Add exact Jeep Compass specifications to the prompt
+      enhancedSystemPrompt += `\n\n
+معلومات دقيقة عن جيب كومباس ${year}:
+- سعة زيت المحرك: 5.2 لتر
+- نوع الزيت الموصى به: 0W-20 Full Synthetic
+- المناسب للظروف العراقية: يتحمل درجات الحرارة العالية
+- فترة تغيير الزيت: كل 8000 كم في الظروف العراقية
+
+يجب التأكد من ذكر هذه المعلومات الدقيقة في إجابتك.
+`;
+      
+      console.log('Added Jeep Compass override specifications');
     }
     
     // Create OpenRouter client

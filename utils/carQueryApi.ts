@@ -341,6 +341,12 @@ export async function normalizeArabicCarInput(
         const prompt = `
 Extract car make, model and year from this text: "${input}"
 
+Pay special attention to these specific car models and their variations:
+- "جيب كومباس" = "Jeep Compass"
+- "جيب شيروكي" = "Jeep Cherokee"
+- "جيب رانجلر" = "Jeep Wrangler"
+- "جيب" = "Jeep"
+
 Return ONLY a JSON object with this exact format:
 {
   "make": "brand name in English (e.g., toyota)",
@@ -361,7 +367,7 @@ DO NOT include any explanations or text outside the JSON object.
           const result = await streamText({
             model: openAI("anthropic/claude-3-haiku"),
             messages: [{ role: "user", content: prompt }],
-            temperature: 0.2,
+            temperature: 0.1, // Lower temperature for more deterministic results
             maxTokens: 300,
           });
           
@@ -400,6 +406,14 @@ DO NOT include any explanations or text outside the JSON object.
           if (extractedJson) {
             try {
               const parsedData = JSON.parse(extractedJson);
+              
+              // Special case handling for Jeep Compass
+              if (input.toLowerCase().includes("جيب كومباس") || 
+                  input.toLowerCase().includes("jeep compass")) {
+                parsedData.make = "jeep";
+                parsedData.model = "compass";
+                parsedData.confidence = 95;
+              }
               
               const normalizedData = {
                 make: parsedData.make?.toLowerCase().trim() || "",
@@ -476,7 +490,7 @@ function extractCarBasicInfo(
     'mitsubishi': ['ميتسوبيشي', 'mitsubishi', 'متسوبيشي'],
     'chevrolet': ['شيفروليت', 'chevrolet', 'شيفروليه', 'شفر', 'شيفي'],
     'ford': ['فورد', 'ford'],
-    'jeep': ['جيب', 'jeep']
+    'jeep': ['جيب', 'jeep', 'جب', 'جيـب', 'جيـــب'] // Enhanced Jeep variations
   };
   
   for (const [brandKey, variations] of Object.entries(brandMappings)) {
@@ -510,11 +524,12 @@ function extractCarBasicInfo(
     'crv': ['سي ار في', 'crv', 'cr-v'],
     'land cruiser': ['لاند كروزر', 'لاندكروزر', 'land cruiser'],
     'prado': ['برادو', 'prado'],
-    // Add Jeep models
-    'compass': ['كومباس', 'compass'],
-    'cherokee': ['شيروكي', 'جراند شيروكي', 'cherokee', 'grand cherokee'],
-    'wrangler': ['رانجلر', 'wrangler'],
-    'renegade': ['رينيجيد', 'renegade']
+    // Enhanced Jeep model detection with more variations
+    'compass': ['كومباس', 'compass', 'كمباس', 'كومبس', 'كمبس', 'كومباص'],
+    'grand cherokee': ['جراند شيروكي', 'grand cherokee', 'جراند شروكي', 'جرند شيروكي'],
+    'cherokee': ['شيروكي', 'cherokee', 'شروكي', 'شيروكى'],
+    'wrangler': ['رانجلر', 'رانقلر', 'wrangler', 'رانجلار'],
+    'renegade': ['رينيجيد', 'renegade', 'رينجيد']
   };
   
   for (const [modelKey, variations] of Object.entries(modelMappings)) {
@@ -526,6 +541,19 @@ function extractCarBasicInfo(
       }
     }
     if (model) break;
+  }
+  
+  // Special case for Jeep Compass - look for the combination
+  if (make === "jeep" && !model) {
+    // If "compass" wasn't directly found but we have Jeep and some similar text
+    const compassPatterns = ['كومب', 'كمب', 'comp'];
+    for (const pattern of compassPatterns) {
+      if (lowercaseInput.includes(pattern)) {
+        model = 'compass';
+        confidence += 10; // Lower confidence since it's a partial match
+        break;
+      }
+    }
   }
   
   // Enhanced year extraction with improved patterns for Arabic text
@@ -957,25 +985,119 @@ export function suggestOil(specs: ReturnType<typeof extractOilRecommendationData
   let recommendedViscosity = '5W-30'; // Default viscosity
   let oilQuality = 'Synthetic';
   let reason = '';
-  let capacity = '4.0';
+  let capacity = '4.5'; // Default capacity
 
-  // Special handling for specific vehicles
+  // Extract model and make information
   const modelLower = specs.model.toLowerCase();
+  const makeMatch = modelLower.match(/^([a-z]+)/);
+  const make = makeMatch ? makeMatch[1] : '';
   
-  // Handle Jeep Compass specifically
-  if (modelLower.includes('jeep') && modelLower.includes('compass')) {
-    recommendedViscosity = '0W-20';
-    oilQuality = 'Full Synthetic';
-    capacity = '5.2';
-    reason = 'Jeep Compass requires 0W-20 full synthetic oil per manufacturer specifications';
+  // Calculate approximate oil capacity based on engine size if available
+  if (specs.engineCC > 0) {
+    if (specs.engineCC <= 1500) capacity = '3.5';
+    else if (specs.engineCC <= 2000) capacity = '4.0';
+    else if (specs.engineCC <= 2500) capacity = '4.5';
+    else if (specs.engineCC <= 3000) capacity = '5.0';
+    else if (specs.engineCC <= 3500) capacity = '5.7';
+    else capacity = '6.5';
   }
-  // Handle modern Toyota Camry (2018+)
-  else if (modelLower.includes('camry') && 
-      parseInt(specs.year || '0') >= 2018) {
+  
+  // Look for specific car makes and models
+  
+  // Toyota models
+  if (modelLower.includes('toyota') || make === 'toyota') {
+    if (modelLower.includes('camry') && parseInt(specs.year || '0') >= 2018) {
     recommendedViscosity = '0W-20';
     oilQuality = 'Full Synthetic';
     reason = 'Toyota Camry 2018+ requires 0W-20 for optimal fuel efficiency';
+      capacity = '4.8';
+    } else if (modelLower.includes('corolla') && parseInt(specs.year || '0') >= 2020) {
+      recommendedViscosity = '0W-20';
+      oilQuality = 'Full Synthetic';
+      reason = 'Toyota Corolla 2020+ requires 0W-20 for optimal fuel efficiency';
+      capacity = '4.4';
+    }
   }
+  
+  // Jeep models - comprehensive handling for all Jeep models
+  else if (modelLower.includes('jeep') || make === 'jeep') {
+    if (modelLower.includes('compass') && parseInt(specs.year || '0') >= 2017) {
+      recommendedViscosity = '0W-20';
+      oilQuality = 'Full Synthetic';
+      reason = 'Jeep Compass 2017+ requires 0W-20 for optimal performance';
+      capacity = '5.2'; // Exact specification for Jeep Compass
+    }
+    else if (modelLower.includes('cherokee') && parseInt(specs.year || '0') >= 2019) {
+      recommendedViscosity = '0W-20';
+      oilQuality = 'Full Synthetic';
+      reason = 'Jeep Cherokee 2019+ requires 0W-20 for optimal performance';
+      capacity = '5.6';
+    }
+    else if (modelLower.includes('wrangler') && parseInt(specs.year || '0') >= 2018) {
+      recommendedViscosity = '5W-30';
+      oilQuality = 'Full Synthetic';
+      reason = 'Jeep Wrangler 2018+ with 2.0L turbo engine requires 5W-30';
+      capacity = '5.0';
+    }
+    else if (modelLower.includes('renegade') && parseInt(specs.year || '0') >= 2015) {
+      recommendedViscosity = '5W-40';
+      oilQuality = 'Full Synthetic';
+      reason = 'Jeep Renegade requires 5W-40 for optimal performance in hot climates';
+      capacity = '4.7';
+    }
+    else if (modelLower.includes('grand')) {
+      recommendedViscosity = '5W-30';
+      oilQuality = 'Full Synthetic';
+      reason = 'Jeep Grand Cherokee requires 5W-30 for optimal performance';
+      capacity = '6.2';
+    }
+  }
+  
+  // Honda models
+  else if (modelLower.includes('honda') || make === 'honda') {
+    if (modelLower.includes('accord') && parseInt(specs.year || '0') >= 2018) {
+      recommendedViscosity = '0W-20';
+      oilQuality = 'Full Synthetic';
+      reason = 'Honda Accord 2018+ requires 0W-20 for optimal fuel efficiency';
+      capacity = '4.6';
+    } else if (modelLower.includes('civic') && parseInt(specs.year || '0') >= 2016) {
+      recommendedViscosity = '0W-20';
+      oilQuality = 'Full Synthetic';
+      reason = 'Honda Civic 2016+ requires 0W-20 for optimal fuel efficiency';
+      capacity = '3.7';
+    }
+  }
+  
+  // Hyundai models
+  else if (modelLower.includes('hyundai') || make === 'hyundai') {
+    if (modelLower.includes('elantra') && parseInt(specs.year || '0') >= 2017) {
+      recommendedViscosity = '5W-30';
+      oilQuality = 'Full Synthetic';
+      reason = 'Hyundai Elantra 2017+ performs best with 5W-30 in hot climates';
+      capacity = '4.0';
+    } else if (modelLower.includes('tucson') && parseInt(specs.year || '0') >= 2016) {
+      recommendedViscosity = '5W-30';
+      oilQuality = 'Full Synthetic';
+      reason = 'Hyundai Tucson 2016+ requires 5W-30 for optimal engine protection';
+      capacity = '4.8';
+    }
+  }
+  
+  // Kia models
+  else if (modelLower.includes('kia') || make === 'kia') {
+    if (modelLower.includes('sportage') && parseInt(specs.year || '0') >= 2017) {
+      recommendedViscosity = '5W-30';
+      oilQuality = 'Full Synthetic';
+      reason = 'Kia Sportage 2017+ requires 5W-30 for optimal performance';
+      capacity = '4.8';
+    } else if (modelLower.includes('optima') && parseInt(specs.year || '0') >= 2016) {
+      recommendedViscosity = '5W-20';
+      oilQuality = 'Full Synthetic';
+      reason = 'Kia Optima 2016+ performs best with 5W-20 synthetic oil';
+      capacity = '4.8';
+    }
+  }
+  
   // Handle diesel engines
   else if (specs.fuelType.toLowerCase().includes('diesel')) {
     oilQuality = 'Diesel-specific Synthetic';
@@ -986,6 +1108,7 @@ export function suggestOil(specs: ReturnType<typeof extractOilRecommendationData
       recommendedViscosity = '5W-40';
     }
   }
+  
   // Handle high compression engines
   else if (specs.compression > 10.5) {
     oilQuality = 'High-performance Synthetic';
@@ -998,28 +1121,28 @@ export function suggestOil(specs: ReturnType<typeof extractOilRecommendationData
       recommendedViscosity = '5W-30';
     }
   }
+  
   // Handle large engines or heavy vehicles
   else if (specs.engineCC > 3000 || specs.weight > 2000) {
     recommendedViscosity = '5W-40';
     reason = 'Large engine or heavy vehicle needs thicker oil';
   }
-  // Handle stressed engines with poor fuel economy
-  else if (specs.cityFuelConsumption > 0 && specs.cityFuelConsumption < 8) {
-    oilQuality = 'Premium Synthetic';
-    reason = 'Engine under stress due to poor fuel economy';
+  
+  // If the API provided oil spec information, use it
+  if (specs.oilSpec) {
+    const apiOilInfo = parseApiOilSpec(specs.oilSpec);
+    if (apiOilInfo.viscosity) {
+      recommendedViscosity = apiOilInfo.viscosity;
+      reason = 'Using manufacturer-specified oil viscosity';
+    }
+    if (apiOilInfo.capacity) {
+      capacity = apiOilInfo.capacity;
+      reason += ' with exact manufacturer-specified capacity';
+    }
   }
 
   // Climate considerations for Iraq
   reason += '. Iraqi climate requires heat-resistant formula.';
-  
-  // Calculate approximate oil capacity based on engine size
-  // This is an estimate - actual capacity should be verified with manufacturer specs
-  if (specs.engineCC > 0) {
-    if (specs.engineCC <= 1500) capacity = '3.5';
-    else if (specs.engineCC <= 2500) capacity = '4.5';
-    else if (specs.engineCC <= 3500) capacity = '5.7';
-    else capacity = '6.5';
-  }
   
   return {
     viscosity: recommendedViscosity,
@@ -1027,4 +1150,72 @@ export function suggestOil(specs: ReturnType<typeof extractOilRecommendationData
     reason: reason.trim(),
     capacity: `${capacity} لتر`
   };
+}
+
+/**
+ * Try to parse oil specifications from API data
+ * Format might be like "5W-30, 4.5L" or varied
+ */
+function parseApiOilSpec(spec: string): { viscosity?: string, capacity?: string } {
+  const result: { viscosity?: string, capacity?: string } = {};
+  
+  if (!spec) return result;
+  
+  // Convert spec to lowercase for case-insensitive matching
+  const lowerSpec = spec.toLowerCase();
+  
+  // Look for viscosity patterns with expanded formats
+  const viscosityPatterns = [
+    /(\d+w-\d+)/i,                       // Standard format: 5W-30, 0W-20
+    /(\d+w\d+)/i,                        // No dash: 5W30, 0W20
+    /sae\s*(\d+w-\d+)/i,                 // With SAE prefix: SAE 5W-30
+    /(\d+w-\d+)\s*synthetic/i,           // With type suffix: 5W-30 Synthetic
+    /(\d+w-\d+)\s*oil/i                  // With oil suffix: 5W-30 oil
+  ];
+  
+  for (const pattern of viscosityPatterns) {
+    const match = lowerSpec.match(pattern);
+    if (match) {
+      // Normalize the format to ensure consistent output
+      result.viscosity = match[1].toUpperCase().replace('W', 'W-').replace('w-', 'W-');
+      break;
+    }
+  }
+  
+  // Look for capacity patterns with expanded formats
+  const capacityPatterns = [
+    /(\d+(\.\d+)?)\s*(l|liter|liters|lt|litres|литр|л)/i,     // Standard: 4.5L, 4.5 liters
+    /oil\s*capacity\s*(\d+(\.\d+)?)/i,                       // Description: oil capacity 4.5
+    /capacity\s*(\d+(\.\d+)?)\s*(l|liter|liters)/i,          // Description: capacity 4.5L
+    /(\d+(\.\d+)?)\s*quarts/i                               // US units: 4.5 quarts (convert to L)
+  ];
+  
+  for (const pattern of capacityPatterns) {
+    const match = lowerSpec.match(pattern);
+    if (match) {
+      let capacity = parseFloat(match[1]);
+      
+      // Convert quarts to liters if needed
+      if (match[0].toLowerCase().includes('quart')) {
+        capacity = Math.round((capacity * 0.946353) * 10) / 10; // Round to 1 decimal place
+      }
+      
+      result.capacity = capacity.toString();
+      break;
+    }
+  }
+
+  // Special case for Jeep Compass to ensure accuracy
+  if ((lowerSpec.includes('jeep') && lowerSpec.includes('compass')) ||
+     (lowerSpec.includes('جيب') && lowerSpec.includes('كومباس'))) {
+    
+    // 2017+ Jeep Compass uses 0W-20 with 5.2L capacity
+    const year = spec.match(/(20\d\d)/);
+    if (year && parseInt(year[1]) >= 2017) {
+      result.viscosity = '0W-20';
+      result.capacity = '5.2';
+    }
+  }
+  
+  return result;
 } 

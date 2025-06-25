@@ -588,52 +588,6 @@ const officialSpecs: ManufacturerSpecs = {
       },
     },
   },
-  jeep: {
-    compass: {
-      "2018-2022": {
-        capacity: "5.2L",
-        viscosity: "0W-20",
-        oilType: "Full Synthetic",
-        filterNumber: "MO-339",
-        engineSize: "2.4L",
-        apiSpec: "API SN",
-        changeInterval: "12000",
-      },
-    },
-    cherokee: {
-      "2018-2022": {
-        capacity: "5.6L",
-        viscosity: "0W-20",
-        oilType: "Full Synthetic",
-        filterNumber: "MO-339",
-        engineSize: "3.2L V6",
-        apiSpec: "API SN",
-        changeInterval: "12000",
-      },
-    },
-    wrangler: {
-      "2018-2022": {
-        capacity: "5.0L",
-        viscosity: "5W-30",
-        oilType: "Full Synthetic",
-        filterNumber: "MO-744",
-        engineSize: "3.6L V6",
-        apiSpec: "API SN",
-        changeInterval: "12000",
-      },
-    },
-    renegade: {
-      "2018-2022": {
-        capacity: "4.7L",
-        viscosity: "0W-30",
-        oilType: "Full Synthetic",
-        filterNumber: "MO-899",
-        engineSize: "1.4L Turbo",
-        apiSpec: "API SN",
-        changeInterval: "12000",
-      },
-    },
-  },
 }
 
 export default officialSpecs

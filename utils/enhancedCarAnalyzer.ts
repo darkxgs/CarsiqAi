@@ -115,22 +115,63 @@ export class EnhancedCarAnalyzer {
     else if (message.includes("مرسيدس") || message.includes("mercedes")) carBrand = "mercedes"
     else if (message.includes("نيسان") || message.includes("nissan")) carBrand = "nissan"
     else if (message.includes("كيا") || message.includes("kia")) carBrand = "kia"
-    else if (message.includes("جينيسيس") || message.includes("genesis")) carBrand = "genesis"
-    else if (message.includes("شيفروليه") || message.includes("chevrolet")) carBrand = "chevrolet"
-    else if (message.includes("ميتسوبيشي") || message.includes("mitsubishi")) carBrand = "mitsubishi"
+    else if (message.includes("جنسزز") || message.includes("جينيسيس") || message.includes("genesis")) carBrand = "genesis"
+    else if (message.includes("شيفروليه") || message.includes("شفروليه") || message.includes("chevrolet")) carBrand = "chevrolet"
+    else if (message.includes("ميتسوبيشي") || message.includes("متسوبيشي") || message.includes("mitsubishi")) carBrand = "mitsubishi"
     else if (message.includes("فورد") || message.includes("ford")) carBrand = "ford"
-    else if (message.includes("فولكس واجن") || message.includes("volkswagen")) carBrand = "volkswagen"
+    else if (message.includes("فولكس واجن") || message.includes("فولكسفاجن") || message.includes("volkswagen")) carBrand = "volkswagen"
     else if (message.includes("دودج") || message.includes("dodge")) carBrand = "dodge"
     else if (message.includes("جيب") || message.includes("jeep")) carBrand = "jeep"
 
     // تحديد الموديل - كود مشابه للنسخة الحالية
     if (message.includes("النترا") || message.includes("elantra")) carModel = "elantra"
     else if (message.includes("سوناتا") || message.includes("sonata")) carModel = "sonata"
-    // ... باقي الموديلات
-    
-    // Add Jeep model detection
+    else if (message.includes("توكسون") || message.includes("tucson")) carModel = "tucson"
+    else if (message.includes("اكسنت") || message.includes("أكسنت") || message.includes("accent")) carModel = "accent"
+    else if (message.includes("كريتا") || message.includes("creta")) carModel = "creta"
+    else if (message.includes("كامري") || message.includes("camry")) carModel = "camry"
+    else if (message.includes("كورولا") || message.includes("corolla")) carModel = "corolla"
+    else if (message.includes("بريوس") || message.includes("prius")) carModel = "prius"
+    else if (message.includes("هايلكس") || message.includes("هايلوكس") || message.includes("hilux")) carModel = "hilux"
+    else if (message.includes("لاندكروزر") || message.includes("لاند كروزر") || message.includes("landcruiser")) carModel = "landcruiser"
+    else if (message.includes("يارس") || message.includes("yaris")) carModel = "yaris"
+    else if (message.includes("راف فور") || message.includes("راف 4") || message.includes("rav4")) carModel = "rav4"
+    else if (message.includes("سيفيك") || message.includes("civic")) carModel = "civic"
+    else if (message.includes("أكورد") || message.includes("accord")) carModel = "accord"
+    else if (message.includes("سي آر في") || message.includes("cr-v") || message.includes("crv")) carModel = "crv"
+    else if (message.includes("سيتي") || message.includes("city")) carModel = "city"
+    else if (message.includes("الفئة الثالثة") || message.includes("3 series")) carModel = "3_series"
+    else if (message.includes("الفئة الخامسة") || message.includes("5 series")) carModel = "5_series"
+    else if (message.includes("اكس 5") || message.includes("x5")) carModel = "x5"
+    else if (message.includes("سي كلاس") || message.includes("c class")) carModel = "c_class"
+    else if (message.includes("اي كلاس") || message.includes("e class")) carModel = "e_class"
+    else if (message.includes("التيما") || message.includes("altima")) carModel = "altima"
+    else if (message.includes("صني") || message.includes("sunny")) carModel = "sunny"
+    else if (message.includes("باترول") || message.includes("patrol")) carModel = "patrol"
+    else if (message.includes("نافارا") || message.includes("navara")) carModel = "navara"
+    else if (message.includes("أوبتيما") || message.includes("optima")) carModel = "optima"
+    else if (message.includes("سبورتاج") || message.includes("sportage")) carModel = "sportage"
+    else if (message.includes("ريو") || message.includes("rio")) carModel = "rio"
+    else if (message.includes("سيراتو") || message.includes("cerato")) carModel = "cerato"
+    else if (message.includes("كروز") || message.includes("cruze")) carModel = "cruze"
+    else if (message.includes("ماليبو") || message.includes("malibu")) carModel = "malibu"
+    else if (message.includes("تاهو") || message.includes("tahoe")) carModel = "tahoe"
+    else if (message.includes("سلفرادو") || message.includes("silverado")) carModel = "silverado"
+    else if (message.includes("باجيرو") || message.includes("pajero")) carModel = "pajero"
+    else if (message.includes("لانسر") || message.includes("lancer")) carModel = "lancer"
+    else if (message.includes("ال 200") || message.includes("l200")) carModel = "l200"
+    else if (message.includes("اف 150") || message.includes("f150") || message.includes("f-150")) carModel = "f150"
+    else if (message.includes("رينجر") || message.includes("ranger")) carModel = "ranger"
+    else if (message.includes("باسات") || message.includes("passat")) carModel = "passat"
+    else if (message.includes("تيجوان") || message.includes("tiguan")) carModel = "tiguan"
+    else if (message.includes("تشارجر") || message.includes("charger")) carModel = "charger"
+    else if (message.includes("دورانجو") || message.includes("durango")) carModel = "durango"
+    else if (message.includes("جي ٧٠") || message.includes("g70") || message.includes("g 70")) carModel = "g70"
+    else if (message.includes("جي ٨٠") || message.includes("g80") || message.includes("g 80")) carModel = "g80"
+    // Jeep models
     else if (message.includes("كومباس") || message.includes("compass")) carModel = "compass"
-    else if (message.includes("شيروكي") || message.includes("جراند شيروكي") || message.includes("cherokee")) carModel = "cherokee"
+    else if (message.includes("شيروكي") || message.includes("cherokee")) carModel = "cherokee"
+    else if (message.includes("جراند شيروكي") || message.includes("grand cherokee")) carModel = "grand_cherokee"
     else if (message.includes("رانجلر") || message.includes("wrangler")) carModel = "wrangler"
     else if (message.includes("رينيجيد") || message.includes("renegade")) carModel = "renegade"
 
@@ -299,14 +340,6 @@ export class EnhancedCarAnalyzer {
         recommendationCache.set(cacheKey, errorResult)
         return errorResult
       }
-      
-      // Special note for Jeep vehicles to check CarQuery API
-      if (carData.carBrand === "jeep") {
-        logger.info("Note: Jeep vehicle detected. Consider using CarQuery API data for the most up-to-date specifications.", {
-          model: carData.carModel, 
-          year: carData.year 
-        });
-      }
 
       // محاولة الحصول على البيانات من VIN أولاً إذا كان متاحًا
       if (carData.vin && carData.vin.length === 17) {
@@ -371,38 +404,9 @@ export class EnhancedCarAnalyzer {
     // تعديل التوصية بناءً على الكيلومترات
     let recommendedViscosity = carSpecs.viscosity
     let recommendedType = carSpecs.oilType
-    let serviceBulletins: Array<{title: string, description: string, url: string}> = []
 
-    // Special handling for Jeep vehicles - strictly follow manufacturer specs
-    if (carData.carBrand === "jeep") {
-      // Maintain factory specifications for all Jeep vehicles regardless of mileage or conditions
-      recommendedViscosity = carSpecs.viscosity
-      recommendedType = carSpecs.oilType
-
-      // Add service bulletins specific to Jeep vehicles
-      if (carData.carModel === "compass") {
-        serviceBulletins.push({
-          title: "زيوت محرك معتمدة لسيارة جيب كومباس",
-          description: "يجب استخدام زيت SAE 0W-20 المعتمد من موبار فقط لضمان أداء المحرك الأمثل والحفاظ على الضمان.",
-          url: "https://www.mopar.com/en-us/care/oil-finder.html"
-        });
-        
-        logger.info(`استخدام مواصفات المصنع الأصلية لسيارة جيب كومباس`, {
-          model: carData.carModel,
-          year: carData.year,
-          viscosity: recommendedViscosity,
-          capacity: carSpecs.capacity
-        });
-      } else {
-        serviceBulletins.push({
-          title: "التزم بمواصفات الشركة المصنعة",
-          description: "سيارات جيب حساسة لنوع الزيت المستخدم، لذا يفضل التقيد بالزيوت المعتمدة من الشركة المصنعة.",
-          url: "https://www.jeep.com/maintenance.html"
-        });
-      }
-    }
     // Special handling for high mileage
-    else if (carData.mileage > 150000) {
+    if (carData.mileage > 150000) {
       if (carSpecs.viscosity === "0W-20") recommendedViscosity = "5W-30"
       else if (carSpecs.viscosity === "0W-30") recommendedViscosity = "5W-30"
       recommendedType = "High Mileage"
@@ -411,24 +415,21 @@ export class EnhancedCarAnalyzer {
         newViscosity: recommendedViscosity,
       })
     } else if (carData.mileage > 100000) {
-      // Do not adjust viscosity for Jeep vehicles even at medium-high mileage
-      if (carSpecs.viscosity === "0W-20" && carData.carBrand !== "jeep") {
-        recommendedViscosity = "5W-30"
-        logger.info(`تعديل التوصية للكيلومترات المتوسطة`, {
-          originalViscosity: carSpecs.viscosity,
-          newViscosity: recommendedViscosity,
-        })
-      }
+      if (carSpecs.viscosity === "0W-20") recommendedViscosity = "5W-30"
+      logger.info(`تعديل التوصية للكيلومترات المتوسطة`, {
+        originalViscosity: carSpecs.viscosity,
+        newViscosity: recommendedViscosity,
+      })
     }
 
-    // تعديل التوصية بناءً على ظروف التشغيل - except for Jeep vehicles
-    if (carData.carBrand !== "jeep" && carData.conditions === "شاق" && recommendedViscosity === "0W-20") {
+    // تعديل التوصية بناءً على ظروف التشغيل
+    if (carData.conditions === "شاق" && recommendedViscosity === "0W-20") {
       recommendedViscosity = "5W-30"
       logger.info(`تعديل التوصية لظروف التشغيل الشاقة`, { newViscosity: recommendedViscosity })
     }
 
-    // تعديل التوصية بناءً على مقاومة الحرارة - except for Jeep vehicles
-    if (carData.carBrand !== "jeep" && carData.heatResistance === "عالية") {
+    // تعديل التوصية بناءً على مقاومة الحرارة
+    if (carData.heatResistance === "عالية") {
       if (recommendedViscosity.startsWith("0W-")) {
         recommendedViscosity = "5W-30"
         logger.info(`تعديل التوصية لمقاومة الحرارة العالية`, { newViscosity: recommendedViscosity })
@@ -522,7 +523,6 @@ export class EnhancedCarAnalyzer {
       yearCategory: `${carData.year}`,
       transmissionRecommendation,
       temperatureNotes,
-      serviceBulletins,
     }
   }
 
