@@ -15,13 +15,8 @@
     padding: 0 !important;
   }
   html, body {
-    height: auto;
-    width: 100%;
+    height: 100%;
     overflow-x: hidden;
-    overflow-y: auto;
-    margin: 0;
-    padding: 0;
-    position: relative;
   }
   input, textarea {
     font-size: 16px;
@@ -481,6 +476,40 @@ button:disabled {
   .logo-wrapper {
     margin-bottom: 1rem;
   }
+  
+  /* Better scaling for mobile */
+  .logo-pulse img {
+    max-width: 90%;
+    max-height: 90%;
+  }
+}
+
+/* Laptop-specific adjustments for better display on medium screens */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .logo-pulse {
+    max-width: 180px;
+    max-height: 180px;
+  }
+  
+  .logo-wrapper img {
+    max-width: 85%;
+    max-height: 85%;
+  }
+  
+  /* Adjust button size for laptops */
+  button.rounded-2xl {
+    font-size: 0.95rem;
+    padding: 0.5rem 1.25rem;
+  }
+  
+  /* Fix text size on laptops */
+  h1.lg\:text-4xl {
+    font-size: 1.75rem; /* Slightly smaller than desktop */
+  }
+  
+  h2.lg\:text-xl {
+    font-size: 1.1rem; /* Slightly smaller than desktop */
+  }
 }
 
 /* Mobile container with svh for better iOS Safari support */
@@ -500,13 +529,11 @@ button:disabled {
 
 /* Mobile container and helper class for better viewport height handling */
 .mobile-container {
-  height: 100% !important;
   height: 100svh !important;
-  max-height: 100% !important;
   max-height: 100svh !important;
-  display: flex !important;
-  flex-direction: column !important;
-  overflow: hidden !important;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Chat message styling improvements */
@@ -564,4 +591,10 @@ button:disabled {
     margin: 0.5rem 0;
     padding-bottom: 0.5rem;
   }
+}
+
+/* Enhanced height handling for mobile devices */
+.min-h-screen {
+  min-height: 100svh !important;
+  min-height: -webkit-fill-available !important;
 }
