@@ -545,6 +545,11 @@ export async function POST(req: Request) {
     
     // Check for special cases in the query
     const isJeepCompassQuery = userQuery.toLowerCase().includes('جيب كومباس') || userQuery.toLowerCase().includes('jeep compass');
+    const isJeepLaredoQuery = userQuery.toLowerCase().includes('جيب لاريدو') || 
+                              userQuery.toLowerCase().includes('jeep laredo') || 
+                              userQuery.toLowerCase().includes('جييب لاريدو') ||
+                              (userQuery.toLowerCase().includes('جيب') && userQuery.toLowerCase().includes('لاريدو')) ||
+                              (userQuery.toLowerCase().includes('jeep') && userQuery.toLowerCase().includes('laredo'));
     
     // Get car data for oil recommendations
     let carData: ExtractedCarData | undefined;
@@ -560,6 +565,14 @@ export async function POST(req: Request) {
         console.log('Special handling for Jeep Compass');
         normalizedData.make = 'jeep';
         normalizedData.model = 'compass';
+        normalizedData.confidence = 80;
+      }
+      
+      // Special handling for Jeep Grand Cherokee (Laredo)
+      if (isJeepLaredoQuery && (!normalizedData.make || !normalizedData.model)) {
+        console.log('Special handling for Jeep Grand Cherokee (Laredo)');
+        normalizedData.make = 'jeep';
+        normalizedData.model = 'grand cherokee';
         normalizedData.confidence = 80;
       }
       
@@ -593,6 +606,26 @@ export async function POST(req: Request) {
             oilRecommendation.viscosity = '0W-20';
             oilRecommendation.capacity = '5.2 لتر';
             console.log('Applied special Jeep Compass oil correction');
+          }
+          
+          // Special handling for Jeep Grand Cherokee (Laredo) to ensure correct data
+          if (isJeepLaredoQuery) {
+            // Check for engine size indicators in the query
+            const isV8 = userQuery.toLowerCase().includes('5.7') || 
+                        userQuery.toLowerCase().includes('v8') || 
+                        userQuery.toLowerCase().includes('هيمي') ||
+                        userQuery.toLowerCase().includes('hemi');
+                        
+            if (isV8) {
+              oilRecommendation.viscosity = '5W-20';
+              oilRecommendation.capacity = '6.6 لتر';
+              console.log('Applied special Jeep Grand Cherokee V8 oil correction');
+            } else {
+              // Default to V6 specs (most common)
+              oilRecommendation.viscosity = '0W-20';
+              oilRecommendation.capacity = '5.7 لتر';
+              console.log('Applied special Jeep Grand Cherokee V6 oil correction');
+            }
           }
           
           // Add car specifications to the system prompt
@@ -663,6 +696,45 @@ ${carTrimData.model_drive ? `- نظام الدفع: ${carTrimData.model_drive}` 
 `;
       
       console.log('Added Jeep Compass override specifications');
+    }
+    
+    // Special handling for Jeep Grand Cherokee (Laredo)
+    if (isJeepLaredoQuery) {
+      // Extract year if available
+      const yearMatch = userQuery.match(/20(\d{2})/);
+      const year = yearMatch ? `20${yearMatch[1]}` : '2020'; // Default to 2020 if not specified
+      
+      // Check for engine size indicators in the query
+      const isV8 = userQuery.toLowerCase().includes('5.7') || 
+                  userQuery.toLowerCase().includes('v8') || 
+                  userQuery.toLowerCase().includes('هيمي') ||
+                  userQuery.toLowerCase().includes('hemi');
+      
+      if (isV8) {
+        // Add exact Jeep Grand Cherokee V8 specifications to the prompt
+        enhancedSystemPrompt += `\n\n
+معلومات دقيقة عن جيب جراند شيروكي (لاريدو) ${year} بمحرك V8 HEMI:
+- سعة زيت المحرك: 6.6 لتر
+- نوع الزيت الموصى به: 5W-20 Full Synthetic
+- المناسب للظروف العراقية: يتحمل درجات الحرارة العالية
+- فترة تغيير الزيت: كل 8000 كم في الظروف العراقية
+
+يجب التأكد من ذكر هذه المعلومات الدقيقة في إجابتك.
+`;
+      } else {
+        // Add exact Jeep Grand Cherokee V6 specifications to the prompt (most common)
+        enhancedSystemPrompt += `\n\n
+معلومات دقيقة عن جيب جراند شيروكي (لاريدو) ${year} بمحرك V6:
+- سعة زيت المحرك: 5.7 لتر
+- نوع الزيت الموصى به: 0W-20 Full Synthetic
+- المناسب للظروف العراقية: يتحمل درجات الحرارة العالية
+- فترة تغيير الزيت: كل 8000 كم في الظروف العراقية
+
+يجب التأكد من ذكر هذه المعلومات الدقيقة في إجابتك.
+`;
+      }
+      
+      console.log('Added Jeep Grand Cherokee (Laredo) override specifications');
     }
     
     // Create OpenRouter client

@@ -4,6 +4,65 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { LRUCache } from "lru-cache";
 import { z } from "zod";
 
+/**
+ * Configuration for the CarQuery API module
+ * Values are loaded from environment variables with defaults
+ */
+const config = {
+  cache: {
+    maxSize: parseInt(process.env.CARQUERY_CACHE_MAX_SIZE || '100'),
+    defaultTtl: parseInt(process.env.CARQUERY_CACHE_TTL || '86400000') // 24 hours
+  },
+  rateLimit: {
+    global: {
+      maxRequests: parseInt(process.env.CARQUERY_RATE_LIMIT_MAX || '50'),
+      window: parseInt(process.env.CARQUERY_RATE_LIMIT_WINDOW || '60000') // 1 minute
+    },
+    perUser: {
+      maxRequests: parseInt(process.env.CARQUERY_USER_RATE_LIMIT_MAX || '20'),
+      window: parseInt(process.env.CARQUERY_USER_RATE_LIMIT_WINDOW || '60000') // 1 minute
+    }
+  },
+  retry: {
+    maxRetries: parseInt(process.env.CARQUERY_MAX_RETRIES || '3'),
+    initialDelay: parseInt(process.env.CARQUERY_RETRY_INITIAL_DELAY || '1000'),
+    maxDelay: parseInt(process.env.CARQUERY_RETRY_MAX_DELAY || '10000')
+  },
+  api: {
+    baseUrl: process.env.CARQUERY_API_URL || 'https://www.carqueryapi.com/api/0.3/',
+    timeout: parseInt(process.env.CARQUERY_API_TIMEOUT || '10000'),
+    userAgent: process.env.CARQUERY_USER_AGENT || 'CarsiqAi/1.0'
+  }
+};
+
+// Validate configuration
+(function validateConfig() {
+  if (config.cache.maxSize <= 0) config.cache.maxSize = 100;
+  if (config.cache.defaultTtl <= 0) config.cache.defaultTtl = 86400000;
+  
+  if (config.rateLimit.global.maxRequests <= 0) config.rateLimit.global.maxRequests = 50;
+  if (config.rateLimit.global.window <= 0) config.rateLimit.global.window = 60000;
+  
+  if (config.rateLimit.perUser.maxRequests <= 0) config.rateLimit.perUser.maxRequests = 20;
+  if (config.rateLimit.perUser.window <= 0) config.rateLimit.perUser.window = 60000;
+  
+  if (config.retry.maxRetries < 0) config.retry.maxRetries = 3;
+  if (config.retry.initialDelay <= 0) config.retry.initialDelay = 1000;
+  if (config.retry.maxDelay <= 0) config.retry.maxDelay = 10000;
+  
+  if (config.api.timeout <= 0) config.api.timeout = 10000;
+})();
+
+/**
+ * Custom error class for CarQuery API operations
+ */
+class CarQueryError extends Error {
+  constructor(message: string, public code: string, public statusCode?: number) {
+    super(message);
+    this.name = 'CarQueryError';
+  }
+}
+
 interface CarQueryTrim {
   model_id: string;
   model_trim: string;
@@ -33,27 +92,75 @@ interface CarQueryResponse {
 
 // LRU Cache for API results to reduce redundant requests
 const carQueryCache = new LRUCache<string, any>({
-  max: 100, // Store up to 100 results
-  ttl: 1000 * 60 * 60 * 24, // Cache for 24 hours
+  max: config.cache.maxSize, 
+  ttl: config.cache.defaultTtl,
   allowStale: false,
   updateAgeOnGet: true,
 });
 
 // Rate limiting configuration
 const rateLimiter = {
-  maxRequests: 50, // Maximum requests per time window
-  timeWindow: 60 * 1000, // Time window in milliseconds (1 minute)
+  maxRequests: config.rateLimit.global.maxRequests,
+  timeWindow: config.rateLimit.global.window,
   requestCount: 0, // Current request count
   windowStart: Date.now(), // Start of the current time window
   queue: [] as { resolve: Function, reject: Function }[],
   processing: false
 };
 
+// Per-user rate limiting
+const userRateLimits = new Map<string, { count: number; reset: number }>();
+
+/**
+ * Checks if a user has exceeded their rate limit
+ * @param userId User identifier (can be IP address or actual user ID)
+ * @returns Whether the request can proceed (true) or is rate limited (false)
+ */
+function checkUserRateLimit(userId: string): boolean {
+  const now = Date.now();
+  const userLimit = userRateLimits.get(userId);
+  
+  // If no limit exists or the time window has passed, initialize or reset
+  if (!userLimit || now > userLimit.reset) {
+    userRateLimits.set(userId, { 
+      count: 1, 
+      reset: now + 60000 // 1 minute window
+    });
+    return true;
+  }
+  
+  // If user exceeds limit, reject the request
+  if (userLimit.count >= 20) { // 20 requests per minute per user
+    logger.warn(`Rate limit exceeded for user: ${userId}`);
+    return false;
+  }
+  
+  // Increment count and allow
+  userLimit.count++;
+  return true;
+}
+
+/**
+ * Cleans up expired user rate limits to prevent memory leaks
+ */
+function cleanupUserRateLimits(): void {
+  const now = Date.now();
+  // Use Array.from to avoid iterator compatibility issues
+  Array.from(userRateLimits.entries()).forEach(([userId, limit]) => {
+    if (now > limit.reset) {
+      userRateLimits.delete(userId);
+    }
+  });
+}
+
+// Run cleanup periodically
+setInterval(cleanupUserRateLimits, 60000); // Clean up every minute
+
 // Retry configuration
 const retryConfig = {
-  maxRetries: 3,
-  initialDelay: 1000, // 1 second
-  maxDelay: 10000, // 10 seconds
+  maxRetries: config.retry.maxRetries,
+  initialDelay: config.retry.initialDelay,
+  maxDelay: config.retry.maxDelay
 };
 
 // Input validation schemas
@@ -72,7 +179,7 @@ const YearInputSchema = z.object({
   year: z.string().optional()
 });
 
-// Metrics tracking
+// Enhanced metrics tracking with more detailed information
 interface ApiMetrics {
   totalRequests: number;
   successfulRequests: number;
@@ -82,8 +189,67 @@ interface ApiMetrics {
   cacheMisses: number;
   normalizationSuccesses: number;
   normalizationFailures: number;
+  errorsByType: Record<string, number>;
+  rateLimit: {
+    blocked: number;
+    queued: number;
+  };
   lastReset: Date;
 }
+
+// Class for tracking response time percentiles
+class ResponseTimeTracker {
+  private times: number[] = [];
+  private maxSamples: number = 1000;
+  
+  /**
+   * Record a new response time
+   * @param time Response time in milliseconds
+   */
+  record(time: number): void {
+    this.times.push(time);
+    if (this.times.length > this.maxSamples) {
+      this.times = this.times.slice(-this.maxSamples); // Keep last 1000
+    }
+  }
+  
+  /**
+   * Get percentile values from recorded times
+   * @returns Object with p50, p95, p99 percentiles
+   */
+  getPercentiles(): { p50: number; p95: number; p99: number } {
+    if (this.times.length === 0) {
+      return { p50: 0, p95: 0, p99: 0 };
+    }
+    
+    const sorted = [...this.times].sort((a, b) => a - b);
+    return {
+      p50: sorted[Math.floor(sorted.length * 0.5)] || 0,
+      p95: sorted[Math.floor(sorted.length * 0.95)] || 0,
+      p99: sorted[Math.floor(sorted.length * 0.99)] || 0
+    };
+  }
+  
+  /**
+   * Get the average response time
+   * @returns Average response time in milliseconds
+   */
+  getAverage(): number {
+    if (this.times.length === 0) return 0;
+    const sum = this.times.reduce((acc, time) => acc + time, 0);
+    return Math.round(sum / this.times.length);
+  }
+  
+  /**
+   * Clear recorded times
+   */
+  clear(): void {
+    this.times = [];
+  }
+}
+
+// Initialize response time tracker
+const responseTimeTracker = new ResponseTimeTracker();
 
 // Initialize metrics
 const metrics: ApiMetrics = {
@@ -95,26 +261,141 @@ const metrics: ApiMetrics = {
   cacheMisses: 0,
   normalizationSuccesses: 0,
   normalizationFailures: 0,
+  errorsByType: {},
+  rateLimit: {
+    blocked: 0,
+    queued: 0
+  },
   lastReset: new Date()
 };
+
+// Enhanced cache configuration for different types of data
+interface CacheConfig {
+  ttl: number;
+  priority: 'high' | 'medium' | 'low';
+}
+
+const cacheConfigs: Record<string, CacheConfig> = {
+  'normalize': { ttl: 1000 * 60 * 60 * 24 * 7, priority: 'high' }, // 7 days
+  'models': { ttl: 1000 * 60 * 60 * 12, priority: 'medium' }, // 12 hours
+  'available': { ttl: 1000 * 60 * 60 * 24, priority: 'medium' }, // 24 hours
+  'makes': { ttl: 1000 * 60 * 60 * 24 * 3, priority: 'medium' }, // 3 days
+  'image': { ttl: 1000 * 60 * 60 * 24 * 30, priority: 'low' } // 30 days
+};
+
+/**
+ * Gets appropriate TTL for a specific cache key type
+ * @param key Cache key
+ * @returns TTL value in milliseconds
+ */
+function getCacheTTL(key: string): number {
+  // Determine key type from prefix
+  const keyType = key.split(':')[0];
+  
+  // Return appropriate TTL based on key type
+  return (keyType && cacheConfigs[keyType]?.ttl) || 
+         1000 * 60 * 60 * 24; // Default 24 hours
+}
+
+/**
+ * Warms up the cache with popular car models
+ * This helps reduce API load and improve response times
+ * @returns Promise that resolves when warming is complete
+ */
+export async function warmCache(): Promise<void> {
+  logger.info("Starting cache warming process");
+  
+  try {
+    // List of popular models to pre-cache
+    const popularModels = [
+      { make: 'toyota', model: 'camry', year: '2024' },
+      { make: 'toyota', model: 'corolla', year: '2024' },
+      { make: 'honda', model: 'accord', year: '2024' },
+      { make: 'honda', model: 'civic', year: '2024' },
+      { make: 'hyundai', model: 'elantra', year: '2024' },
+      { make: 'hyundai', model: 'tucson', year: '2024' },
+      { make: 'kia', model: 'k5', year: '2024' },
+      { make: 'kia', model: 'sportage', year: '2024' },
+      { make: 'jeep', model: 'compass', year: '2024' },
+      { make: 'jeep', model: 'grand cherokee', year: '2024' }
+    ];
+    
+    // Warm up car models data
+    await getMultipleCarModels(popularModels);
+    
+    // Get all popular makes
+    await getAvailableMakes('2024');
+    
+    logger.info("Cache warming completed successfully");
+  } catch (error) {
+    logger.error("Error during cache warming", { error });
+  }
+}
+
+/**
+ * Cleanup function to prevent memory leaks and release resources
+ */
+export function cleanup(): void {
+  carQueryCache.clear();
+  rateLimiter.queue.forEach(({ reject }) => 
+    reject(new Error('Service shutting down'))
+  );
+  rateLimiter.queue = [];
+  logger.info("CarQueryApi resources cleaned up");
+}
 
 /**
  * Records a metric for API monitoring
  * @param metricName Name of the metric to update
  * @param value Value to add (default: 1)
  */
-function recordMetric(metricName: keyof ApiMetrics, value: number = 1): void {
+function recordMetric(metricName: keyof Omit<ApiMetrics, 'errorsByType' | 'rateLimit' | 'lastReset'>, value: number = 1): void {
   if (metricName in metrics && typeof metrics[metricName] === 'number') {
     (metrics[metricName] as number) += value;
   }
 }
 
 /**
- * Gets current API metrics
- * @returns Copy of current metrics
+ * Records an error by type for monitoring
+ * @param errorType Type of error
  */
-export function getApiMetrics(): ApiMetrics {
-  return { ...metrics };
+function recordErrorByType(errorType: string): void {
+  if (!metrics.errorsByType[errorType]) {
+    metrics.errorsByType[errorType] = 0;
+  }
+  metrics.errorsByType[errorType]++;
+}
+
+/**
+ * Gets current API metrics with percentiles
+ * @returns Enhanced metrics with calculated values
+ */
+export function getApiMetrics(): ApiMetrics & { 
+  responseTimePercentiles: { p50: number; p95: number; p99: number };
+  averageResponseTime: number;
+  cacheEfficiency: number;
+  uptime: number;
+} {
+  const baseMetrics = { ...metrics };
+  const percentiles = responseTimeTracker.getPercentiles();
+  const avgTime = responseTimeTracker.getAverage();
+  
+  // Calculate cache efficiency
+  const totalCacheOperations = baseMetrics.cacheHits + baseMetrics.cacheMisses;
+  const cacheEfficiency = totalCacheOperations > 0 
+    ? (baseMetrics.cacheHits / totalCacheOperations) * 100 
+    : 0;
+    
+  // Calculate uptime in seconds
+  const uptime = (Date.now() - metrics.lastReset.getTime()) / 1000;
+  
+  return {
+    ...baseMetrics,
+    responseTimePercentiles: percentiles,
+    averageResponseTime: avgTime,
+    cacheEfficiency: Math.round(cacheEfficiency * 100) / 100,
+    uptime
+  };
 }
 
 /**
@@ -122,51 +403,18 @@ export function getApiMetrics(): ApiMetrics {
  */
 export function resetApiMetrics(): void {
   Object.keys(metrics).forEach(key => {
-    if (key !== 'lastReset') {
+    if (key === 'errorsByType') {
+      metrics.errorsByType = {};
+    } else if (key === 'rateLimit') {
+      metrics.rateLimit = { blocked: 0, queued: 0 };
+    } else if (key !== 'lastReset') {
       (metrics as any)[key] = 0;
     }
   });
-  metrics.lastReset = new Date();
-}
-
-/**
- * Tracks performance of an API call
- * @param fn Function to track
- * @param cacheKey Cache key to check for cache hits
- * @returns Result of the function
- */
-async function trackApiPerformance<T>(
-  fn: () => Promise<T>,
-  options: { 
-    cacheKey?: string, 
-    operation: string 
-  }
-): Promise<T> {
-  const startTime = Date.now();
-  recordMetric('totalRequests');
   
-  try {
-    // Check if this is a cache hit
-    if (options.cacheKey && carQueryCache.has(options.cacheKey)) {
-      recordMetric('cacheHits');
-    } else if (options.cacheKey) {
-      recordMetric('cacheMisses');
-    }
-    
-    // Execute the function
-    const result = await fn();
-    
-    // Record success and timing
-    recordMetric('successfulRequests');
-    recordMetric('totalResponseTime', Date.now() - startTime);
-    
-    return result;
-  } catch (error) {
-    // Record failure
-    recordMetric('failedRequests');
-    logger.error(`API operation failed: ${options.operation}`, { error, duration: Date.now() - startTime });
-    throw error;
-  }
+  metrics.lastReset = new Date();
+  responseTimeTracker.clear();
+  logger.info("API metrics reset completed");
 }
 
 /**
@@ -246,12 +494,22 @@ async function fetchWithRetry(url: string, options: RequestInit = {}): Promise<R
   let lastError: Error | null = null;
   
   while (retries <= retryConfig.maxRetries) {
+    // Create AbortController for this request
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), config.api.timeout);
+    
     try {
       // Wait for rate limit slot before making request
       await acquireRateLimit();
       
-      // Make the request
-      const response = await fetch(url, options);
+      // Make the request with timeout
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal
+      });
+      
+      // Clear the timeout as soon as we get a response
+      clearTimeout(timeoutId);
       
       // If successful, return response
       if (response.ok) {
@@ -260,26 +518,51 @@ async function fetchWithRetry(url: string, options: RequestInit = {}): Promise<R
       
       // If rate limited (429) or server error (5xx), retry
       if (response.status === 429 || response.status >= 500) {
-        throw new Error(`API returned status ${response.status}`);
+        throw new CarQueryError(
+          `API returned status ${response.status}`,
+          'SERVER_ERROR',
+          response.status
+        );
       }
       
       // For other error codes, don't retry
       return response;
       
     } catch (error: any) {
+      // Clear timeout in case of error
+      clearTimeout(timeoutId);
       lastError = error;
       
+      // Convert to CarQueryError if it's not already
+      if (!(error instanceof CarQueryError)) {
+        if (error.name === 'AbortError') {
+          lastError = new CarQueryError('Request timeout exceeded', 'TIMEOUT');
+        } else {
+          lastError = new CarQueryError(
+            `Fetch error: ${error.message}`, 
+            'NETWORK_ERROR'
+          );
+        }
+      }
+      
       // Don't retry if it's not a retryable error
-      if (error.name !== 'AbortError' && 
-          !error.message.includes('API returned status') &&
-          !error.message.includes('network')) {
-        throw error;
+      const isRetryable = error.name === 'AbortError' || 
+                         error.message.includes('API returned status') ||
+                         error.message.includes('network');
+                         
+      if (!isRetryable) {
+        throw lastError;
       }
       
       // If max retries reached, throw the error
       if (retries >= retryConfig.maxRetries) {
-        logger.error("Max retries reached for API call", { url, retries, error });
-        throw error;
+        logger.error("Max retries reached for API call", { 
+          url, 
+          retries, 
+          errorCode: lastError instanceof CarQueryError ? lastError.code : 'UNKNOWN',
+          error: lastError ? lastError.message : 'Unknown error' 
+        });
+        throw lastError || new CarQueryError("Max retries reached", "MAX_RETRIES");
       }
       
       // Calculate delay with exponential backoff and jitter
@@ -297,7 +580,7 @@ async function fetchWithRetry(url: string, options: RequestInit = {}): Promise<R
   }
   
   // This should never happen, but TypeScript needs it
-  throw lastError || new Error("Unknown error in fetchWithRetry");
+  throw lastError || new CarQueryError("Unknown error in fetchWithRetry", "UNKNOWN_ERROR");
 }
 
 /**
@@ -328,6 +611,9 @@ export async function normalizeArabicCarInput(
           return cached;
         }
 
+        // First sanitize the input
+        const sanitizedInput = sanitizeInput(input);
+        
         // Use the OpenRouter integration
         const openAI = createOpenAI({
           apiKey: process.env.OPENROUTER_API_KEY || "",
@@ -339,23 +625,25 @@ export async function normalizeArabicCarInput(
         });
         
         const prompt = `
-Extract car make, model and year from this text: "${input}"
+You are a car data extraction expert. Extract make, model, and year from: "${sanitizedInput}"
 
-Pay special attention to these specific car models and their variations:
+Context: This is for Iraqi car market. Common brands include Toyota, Hyundai, Kia, Jeep, etc.
+
+Special cases:
 - "جيب كومباس" = "Jeep Compass"
+- "جيب لاريدو" = "Jeep Grand Cherokee Laredo"
 - "جيب شيروكي" = "Jeep Cherokee"
 - "جيب رانجلر" = "Jeep Wrangler"
 - "جيب" = "Jeep"
+- Handle Arabic numerals: ٢٠٢٠ = 2020
 
-Return ONLY a JSON object with this exact format:
-{
-  "make": "brand name in English (e.g., toyota)",
-  "model": "model name in English (e.g., camry)",
-  "year": "year if present, or empty string",
-  "confidence": number from 0-100 indicating confidence level
-}
+Confidence scoring:
+- 90-100: Exact match with known model
+- 70-89: Good match with minor variations
+- 50-69: Partial match or spelling variations
+- Below 50: Uncertain match
 
-DO NOT include any explanations or text outside the JSON object.
+Return JSON only: {"make": "string", "model": "string", "year": "string|null", "confidence": number}
 `;
 
         logger.debug("Sending car data normalization request to OpenRouter", {
@@ -490,7 +778,7 @@ function extractCarBasicInfo(
     'mitsubishi': ['ميتسوبيشي', 'mitsubishi', 'متسوبيشي'],
     'chevrolet': ['شيفروليت', 'chevrolet', 'شيفروليه', 'شفر', 'شيفي'],
     'ford': ['فورد', 'ford'],
-    'jeep': ['جيب', 'jeep', 'جب', 'جيـب', 'جيـــب'] // Enhanced Jeep variations
+    'jeep': ['جيب', 'jeep', 'جب', 'جيـب', 'جيـــب', 'جييب'] // Enhanced Jeep variations
   };
   
   for (const [brandKey, variations] of Object.entries(brandMappings)) {
@@ -526,7 +814,7 @@ function extractCarBasicInfo(
     'prado': ['برادو', 'prado'],
     // Enhanced Jeep model detection with more variations
     'compass': ['كومباس', 'compass', 'كمباس', 'كومبس', 'كمبس', 'كومباص'],
-    'grand cherokee': ['جراند شيروكي', 'grand cherokee', 'جراند شروكي', 'جرند شيروكي'],
+    'grand cherokee': ['جراند شيروكي', 'grand cherokee', 'جراند شروكي', 'جرند شيروكي', 'لاريدو', 'laredo'],
     'cherokee': ['شيروكي', 'cherokee', 'شروكي', 'شيروكى'],
     'wrangler': ['رانجلر', 'رانقلر', 'wrangler', 'رانجلار'],
     'renegade': ['رينيجيد', 'renegade', 'رينجيد']
@@ -550,6 +838,19 @@ function extractCarBasicInfo(
     for (const pattern of compassPatterns) {
       if (lowercaseInput.includes(pattern)) {
         model = 'compass';
+        confidence += 10; // Lower confidence since it's a partial match
+        break;
+      }
+    }
+  }
+  
+  // Special case for Jeep Grand Cherokee (Laredo) - look for the combination
+  if (make === "jeep" && !model) {
+    // If "grand cherokee" or "laredo" wasn't directly found but we have Jeep and some similar text
+    const grandCherokeePatterns = ['جراند', 'grand', 'لاريد', 'laredo'];
+    for (const pattern of grandCherokeePatterns) {
+      if (lowercaseInput.includes(pattern)) {
+        model = 'grand cherokee';
         confidence += 10; // Lower confidence since it's a partial match
         break;
       }
@@ -619,16 +920,53 @@ function extractCarBasicInfo(
 }
 
 /**
- * Helper function to convert Arabic/Persian digits to English digits
+ * Sanitizes user input to prevent security issues
+ * @param input User input string
+ * @returns Sanitized string
+ */
+function sanitizeInput(input: string): string {
+  return input
+    .replace(/[<>]/g, '') // Remove potential HTML
+    .replace(/[^\u0600-\u06FF\u0750-\u077F\w\s\-\.]/g, '') // Allow Arabic, English, numbers, spaces, hyphens, dots
+    .trim()
+    .substring(0, 200); // Limit length
+}
+
+/**
+ * Normalizes Arabic text for better matching
+ * @param text Arabic text
+ * @returns Normalized text
+ */
+function normalizeArabicText(text: string): string {
+  return text
+    // Normalize Arabic letters
+    .replace(/[أإآا]/g, 'ا')
+    .replace(/[ىي]/g, 'ي')
+    .replace(/ة/g, 'ه')
+    // Remove diacritics
+    .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, '')
+    // Normalize whitespace
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * Enhanced Arabic number conversion with full mapping
+ */
+const arabicToEnglishDigits: Record<string, string> = {
+  '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4',
+  '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9'
+};
+
+/**
+ * Convert Arabic/Persian numbers to English numbers more comprehensively
+ * @param str String containing Arabic/Persian numbers
+ * @returns String with converted numbers
  */
 function convertArabicDigitsToEnglish(str: string): string {
-  const arabicDigits = '٠١٢٣٤٥٦٧٨٩';
-  const englishDigits = '0123456789';
-  
-  return str.split('').map(c => {
-    const index = arabicDigits.indexOf(c);
-    return index !== -1 ? englishDigits[index] : c;
-  }).join('');
+  return str.replace(/[\u0660-\u0669\u06F0-\u06F9]/g, match => 
+    arabicToEnglishDigits[match] || match
+  );
 }
 
 /**
@@ -666,7 +1004,7 @@ export async function getCarModels(make: string, model: string, year?: string | 
         }
         
         // Common parameters for the request
-        const baseUrl = "https://www.carqueryapi.com/api/0.3/";
+        const baseUrl = config.api.baseUrl;
         let queryParams = `?callback=?&cmd=getTrims&make=${encodeURIComponent(make)}`;
         
         // Add model and year if available
@@ -1033,6 +1371,28 @@ export function suggestOil(specs: ReturnType<typeof extractOilRecommendationData
       reason = 'Jeep Cherokee 2019+ requires 0W-20 for optimal performance';
       capacity = '5.6';
     }
+    else if (modelLower.includes('grand cherokee') || modelLower.includes('laredo') || modelLower.includes('grand') && modelLower.includes('cherokee')) {
+      // Check for specific engine types
+      if (specs.engineCC >= 3500 && specs.engineCC < 5000) {
+        // 3.6L V6 Pentastar engine
+        recommendedViscosity = '0W-20';
+        oilQuality = 'Full Synthetic';
+        reason = 'Jeep Grand Cherokee with 3.6L V6 engine requires 0W-20';
+        capacity = '5.7';
+      } else if (specs.engineCC >= 5000) {
+        // 5.7L V8 HEMI engine
+        recommendedViscosity = '5W-20';
+        oilQuality = 'Full Synthetic';
+        reason = 'Jeep Grand Cherokee with 5.7L V8 HEMI engine requires 5W-20';
+        capacity = '6.6';
+      } else {
+        // Default for Grand Cherokee if engine size unknown
+        recommendedViscosity = '0W-20';
+        oilQuality = 'Full Synthetic';
+        reason = 'Jeep Grand Cherokee requires 0W-20 for optimal performance';
+        capacity = '5.7'; // Default to V6 capacity
+      }
+    }
     else if (modelLower.includes('wrangler') && parseInt(specs.year || '0') >= 2018) {
       recommendedViscosity = '5W-30';
       oilQuality = 'Full Synthetic';
@@ -1161,33 +1521,33 @@ function parseApiOilSpec(spec: string): { viscosity?: string, capacity?: string 
   
   if (!spec) return result;
   
-  // Convert spec to lowercase for case-insensitive matching
   const lowerSpec = spec.toLowerCase();
   
-  // Look for viscosity patterns with expanded formats
+  // Viscosity patterns
   const viscosityPatterns = [
-    /(\d+w-\d+)/i,                       // Standard format: 5W-30, 0W-20
-    /(\d+w\d+)/i,                        // No dash: 5W30, 0W20
-    /sae\s*(\d+w-\d+)/i,                 // With SAE prefix: SAE 5W-30
-    /(\d+w-\d+)\s*synthetic/i,           // With type suffix: 5W-30 Synthetic
-    /(\d+w-\d+)\s*oil/i                  // With oil suffix: 5W-30 oil
+    /(\d+w-\d+)/i,
+    /sae\s+(\d+w-\d+)/i,
+    /oil\s+grade\s+(\d+w-\d+)/i,
+    /grade\s+(\d+w-\d+)/i,
+    /viscosity\s+(\d+w-\d+)/i
   ];
   
   for (const pattern of viscosityPatterns) {
     const match = lowerSpec.match(pattern);
     if (match) {
-      // Normalize the format to ensure consistent output
-      result.viscosity = match[1].toUpperCase().replace('W', 'W-').replace('w-', 'W-');
+      result.viscosity = match[1].toUpperCase();
       break;
     }
   }
   
-  // Look for capacity patterns with expanded formats
+  // Capacity patterns
   const capacityPatterns = [
-    /(\d+(\.\d+)?)\s*(l|liter|liters|lt|litres|литр|л)/i,     // Standard: 4.5L, 4.5 liters
-    /oil\s*capacity\s*(\d+(\.\d+)?)/i,                       // Description: oil capacity 4.5
-    /capacity\s*(\d+(\.\d+)?)\s*(l|liter|liters)/i,          // Description: capacity 4.5L
-    /(\d+(\.\d+)?)\s*quarts/i                               // US units: 4.5 quarts (convert to L)
+    /(\d+\.?\d*)\s*liters?/i,
+    /(\d+\.?\d*)\s*l\b/i,
+    /(\d+\.?\d*)\s*quarts?/i,
+    /(\d+\.?\d*)\s*qt/i,
+    /oil\s+capacity\s*:?\s*(\d+\.?\d*)/i,
+    /capacity\s*:?\s*(\d+\.?\d*)/i
   ];
   
   for (const pattern of capacityPatterns) {
@@ -1217,5 +1577,161 @@ function parseApiOilSpec(spec: string): { viscosity?: string, capacity?: string 
     }
   }
   
+  // Special case for Jeep Grand Cherokee (including Laredo trim)
+  if ((lowerSpec.includes('jeep') && lowerSpec.includes('grand') && lowerSpec.includes('cherokee')) ||
+      (lowerSpec.includes('jeep') && lowerSpec.includes('laredo')) ||
+      (lowerSpec.includes('جيب') && lowerSpec.includes('لاريدو'))) {
+    
+    // Check for engine size indicators
+    const isV8 = lowerSpec.includes('5.7') || lowerSpec.includes('v8') || lowerSpec.includes('hemi');
+    const isV6 = lowerSpec.includes('3.6') || lowerSpec.includes('v6') || lowerSpec.includes('pentastar');
+    
+    if (isV8) {
+      // V8 HEMI engine
+      result.viscosity = '5W-20';
+      result.capacity = '6.6';
+    } else if (isV6 || !isV8) {
+      // V6 engine (default for most Grand Cherokees)
+      result.viscosity = '0W-20';
+      result.capacity = '5.7';
+    }
+  }
+  
   return result;
+}
+
+/**
+ * Processes multiple car queries in an efficient batched manner
+ * @param queries Array of car queries with make, model, and optional year
+ * @returns Array of car trim arrays for each query
+ */
+export async function getMultipleCarModels(
+  queries: Array<{make: string, model: string, year?: string}>
+): Promise<Array<CarQueryTrim[]>> {
+  const batchSize = 5; // Process up to 5 queries at once
+  const results: Array<CarQueryTrim[]> = [];
+  
+  // Validate inputs
+  const validatedQueries = queries.filter(q => {
+    if (!q.make || !q.model) {
+      logger.warn("Invalid query in batch request", { query: q });
+      return false;
+    }
+    return true;
+  });
+  
+  logger.info(`Processing ${validatedQueries.length} car queries in batches of ${batchSize}`);
+  
+  try {
+    // Process queries in batches to prevent overloading the API
+    for (let i = 0; i < validatedQueries.length; i += batchSize) {
+      const batch = validatedQueries.slice(i, i + batchSize);
+      
+      // Create batch of promises
+      const batchPromises = batch.map(q => 
+        getCarModels(q.make, q.model, q.year)
+          .catch(error => {
+            // Log error but continue with empty result
+            logger.error(`Error in batch query for ${q.make} ${q.model}`, { error });
+            return [];
+          })
+      );
+      
+      // Wait for all promises in this batch to settle
+      const batchResults = await Promise.allSettled(batchPromises);
+      
+      // Extract values from results
+      const batchData = batchResults.map(r => 
+        r.status === 'fulfilled' ? r.value : []
+      );
+      
+      // Add batch results to overall results
+      results.push(...batchData);
+      
+      // Add small delay between batches to be nice to the API
+      if (i + batchSize < validatedQueries.length) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+    }
+    
+    return results;
+  } catch (error) {
+    logger.error("Error in batch processing", { error });
+    return results; // Return partial results if available
+  }
+}
+
+/**
+ * Tracks performance of an API call
+ * @param fn Function to track
+ * @param options Options including cache key and operation name
+ * @returns Result of the function
+ */
+async function trackApiPerformance<T>(
+  fn: () => Promise<T>,
+  options: { 
+    cacheKey?: string, 
+    operation: string,
+    context?: Record<string, any>,
+    userId?: string
+  }
+): Promise<T> {
+  const startTime = Date.now();
+  recordMetric('totalRequests');
+  
+  // Check user rate limit if userId is provided
+  if (options.userId && !checkUserRateLimit(options.userId)) {
+    metrics.rateLimit.blocked++;
+    throw new CarQueryError(
+      `Rate limit exceeded for user: ${options.userId}`,
+      'RATE_LIMIT_EXCEEDED'
+    );
+  }
+  
+  try {
+    // Check if this is a cache hit
+    if (options.cacheKey && carQueryCache.has(options.cacheKey)) {
+      recordMetric('cacheHits');
+    } else if (options.cacheKey) {
+      recordMetric('cacheMisses');
+    }
+    
+    // Execute the function
+    const result = await fn();
+    
+    // Record success and timing
+    recordMetric('successfulRequests');
+    const duration = Date.now() - startTime;
+    recordMetric('totalResponseTime', duration);
+    
+    // Track response time for percentiles
+    responseTimeTracker.record(duration);
+    
+    return result;
+  } catch (error: any) {
+    // Record failure
+    recordMetric('failedRequests');
+    const duration = Date.now() - startTime;
+    
+    // Create contextual error with additional information
+    const contextualError = error instanceof CarQueryError 
+      ? error 
+      : new CarQueryError(
+          `Failed to perform ${options.operation}: ${error.message}`,
+          'OPERATION_FAILED'
+        );
+        
+    // Record error by type
+    recordErrorByType(contextualError.code);
+    
+    // Log error with context
+    logger.error(`API operation failed: ${options.operation}`, { 
+      error: contextualError,
+      code: contextualError.code,
+      duration,
+      context: options.context
+    });
+    
+    throw contextualError;
+  }
 } 
