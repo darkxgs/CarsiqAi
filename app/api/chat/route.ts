@@ -941,6 +941,7 @@ ${carTrimData.model_drive ? `- نظام الدفع: ${carTrimData.model_drive}` 
 - نوع المحرك: 6.2L V8 (LT1/LT4)
 
 يجب التأكد من ذكر هذه المعلومات الدقيقة في إجابتك، خاصة سعة الزيت الكبيرة (9.5 لتر) التي تختلف كثيراً عن الطرازات الأخرى.
+التوصية النهائية: Mobil 1 5W-30 Full Synthetic (9.5 لتر)
 `;
       } else if (isV6) {
         // Add exact Chevrolet Camaro V6 specifications to the prompt
@@ -953,6 +954,7 @@ ${carTrimData.model_drive ? `- نظام الدفع: ${carTrimData.model_drive}` 
 - نوع المحرك: 3.6L V6 (LGX)
 
 يجب التأكد من ذكر هذه المعلومات الدقيقة في إجابتك.
+التوصية النهائية: Valvoline MaxLife 5W-30 Full Synthetic (5.7 لتر)
 `;
       } else {
         // Add exact Chevrolet Camaro L4 specifications to the prompt (base model)
@@ -965,6 +967,7 @@ ${carTrimData.model_drive ? `- نظام الدفع: ${carTrimData.model_drive}` 
 - نوع المحرك: 2.0L L4 Turbo (LTG)
 
 يجب التأكد من ذكر هذه المعلومات الدقيقة في إجابتك.
+التوصية النهائية: Castrol EDGE 5W-30 Full Synthetic (4.7 لتر)
 `;
       }
       

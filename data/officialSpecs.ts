@@ -951,8 +951,8 @@ const officialSpecs: ManufacturerSpecs = {
         engineSize: "2.0L AWD LTG",
         apiSpec: "API SN / dexos1",
         changeInterval: "10000",
-      },
     },
+  },
     lacrosse: {
       "2016-2018": {
         capacity: "4.7L",
@@ -1042,7 +1042,7 @@ const officialSpecs: ManufacturerSpecs = {
         engineSize: "5.3L V8 L83 / L8B",
         apiSpec: "API SN / dexos1",
         changeInterval: "10000",
-      },
+  },
       "2016-2018-v8-6.2": {
         capacity: "7.6L",
         viscosity: "0W-20",
