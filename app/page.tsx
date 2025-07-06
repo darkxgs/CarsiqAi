@@ -306,7 +306,7 @@ export default function LandingPage() {
           </div>
         </div>
         <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-800 text-center">
-          <p className="text-sm text-gray-600 dark:text-gray-400">© 2023 هندسة السيارات. جميع الحقوق محفوظة.</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">© 2025 هندسة السيارات. جميع الحقوق محفوظة.</p>
         </div>
       </footer>
     </div>

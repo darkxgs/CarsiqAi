@@ -28,7 +28,7 @@ export default function PrivacyPage() {
               سياسة الخصوصية
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-300">
-              آخر تحديث: ديسمبر 2023
+              آخر تحديث: ديسمبر 2025
             </p>
           </div>
 
@@ -173,7 +173,7 @@ export default function PrivacyPage() {
       <footer className="bg-gray-100 dark:bg-gray-900 py-8 px-4 mt-12">
         <div className="max-w-4xl mx-auto text-center">
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            © 2023 هندسة السيارات. جميع الحقوق محفوظة.
+            © 2025 هندسة السيارات. جميع الحقوق محفوظة.
           </p>
         </div>
       </footer>

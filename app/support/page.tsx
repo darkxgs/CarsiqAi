@@ -194,7 +194,7 @@ export default function SupportPage() {
       <footer className="bg-gray-100 dark:bg-gray-900 py-8 px-4 mt-12">
         <div className="max-w-4xl mx-auto text-center">
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            © 2023 هندسة السيارات. جميع الحقوق محفوظة.
+            © 2025 هندسة السيارات. جميع الحقوق محفوظة.
           </p>
         </div>
       </footer>
