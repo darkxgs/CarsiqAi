@@ -43,27 +43,23 @@ export default function LandingPage() {
       </header>
       
       {/* Hero Section */}
-      <section className="relative py-16 md:py-28 px-4 bg-gradient-to-br from-primary/10 via-white to-secondary/10 dark:from-primary/20 dark:via-gray-900 dark:to-secondary/20 overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120vw] h-96 bg-gradient-to-r from-primary/20 via-transparent to-secondary/20 blur-3xl opacity-40 -z-10"></div>
+      <section className="py-12 md:py-20 px-4">
         <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-gray-900 dark:text-white mb-6 leading-tight drop-shadow-lg">
-            مساعدك الذكي <span className="text-primary">لاختيار زيوت</span> سيارتك
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6">
+            مساعد ذكي <span className="text-primary">لاختيار زيوت</span> سيارتك
           </h1>
-          <h2 className="text-2xl md:text-3xl text-secondary font-semibold mb-4">أول خدمة في العراق لتوصيات زيوت المحرك حسب سيارتك وبيئتك</h2>
-          <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-10 max-w-2xl mx-auto">
-            استشارة فورية لاختيار أفضل زيت محرك لسيارتك بناءً على الموديل والظروف المناخية العراقية. جرب الخدمة الآن مجاناً!
+          <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
+            استشارة فورية لاختيار أفضل زيت محرك لسيارتك بناءً على الموديل والظروف المناخية العراقية
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/chat">
-              <Button size="lg" className="rounded-full px-10 py-6 text-xl shadow-lg bg-primary hover:bg-primary/90 text-white">
+              <Button size="lg" className="rounded-full px-8 py-6 text-lg">
                 ابدأ المحادثة الآن
               </Button>
             </Link>
-            <Link href="/about">
-              <Button size="lg" variant="outline" className="rounded-full px-10 py-6 text-xl border-2 border-primary text-primary hover:bg-primary/10">
-                شاهد كيف يعمل
-              </Button>
-            </Link>
+            <Button size="lg" variant="outline" className="rounded-full px-8 py-6 text-lg">
+              شاهد كيف يعمل
+            </Button>
           </div>
         </div>
       </section>

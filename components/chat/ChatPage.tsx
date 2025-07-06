@@ -9,14 +9,6 @@ import { ChatInput } from "@/components/chat/ChatInput"
 import { ChatSidebar } from "@/components/chat/ChatSidebar"
 import { QuickActions } from "@/components/chat/QuickActions"
 import { Settings } from "@/components/chat/Settings"
-import { AnimatedContainer } from "@/components/ui/animated-container"
-import { 
-  BackgroundPattern, 
-  FloatingOrbs, 
-  GradientMesh, 
-  ParticleField,
-  GlassEffect
-} from "@/components/ui/background-patterns"
 import { ChatMessage, ChatSession } from "@/types/chat"
 import { 
   getChatStorage, 
@@ -392,134 +384,107 @@ export default function ChatPage() {
   return (
     <TooltipProvider>
       <div 
-        className={`min-h-[100svh] transition-colors duration-300 ${darkMode ? 'dark bg-[#1a1f2c]' : 'bg-gray-50'} flex flex-col m-0 p-0 mobile-safe-container relative overflow-hidden`}
+        className={`min-h-[100svh] transition-colors duration-300 ${darkMode ? 'dark bg-[#1a1f2c]' : 'bg-gray-50'} flex flex-col m-0 p-0 mobile-safe-container relative`}
         style={{ margin: 0, padding: 0 }}
       >
-        {/* Enhanced Background with Visual Effects */}
-        <BackgroundPattern variant="geometric" className="z-0 opacity-30" />
-        <FloatingOrbs count={6} className="z-0" />
-        <GradientMesh className="z-0" />
-        <ParticleField density="low" className="z-0 text-blue-400/20" />
-        {/* Enhanced Chat Sidebar */}
-        <AnimatedContainer animation="slideInLeft" delay={100}>
-          <ChatSidebar
-            isOpen={sidebarOpen}
-            onClose={toggleSidebar}
-            sessions={sessions}
-            activeSessionId={activeSessionId}
-            onSessionSelect={handleSessionSelect}
-            onNewSession={handleNewSession}
-          />
-        </AnimatedContainer>
+        {/* Chat Sidebar */}
+        <ChatSidebar
+          isOpen={sidebarOpen}
+          onClose={toggleSidebar}
+          sessions={sessions}
+          activeSessionId={activeSessionId}
+          onSessionSelect={handleSessionSelect}
+          onNewSession={handleNewSession}
+        />
         
         <div 
           ref={containerRef}
-          className="relative flex-grow flex flex-col overflow-hidden md:mr-64 z-10"
+          className="flex-grow flex flex-col overflow-hidden md:mr-64"
           dir="rtl"
           style={{
             ...getContentStyles(),
             height: keyboardVisible ? `calc(${viewportHeight}px - 1px)` : undefined
           }}
         >
-          {/* Enhanced Header */}
-          <AnimatedContainer animation="slideUp" delay={200}>
-            <GlassEffect className="m-4 rounded-2xl">
-              <ChatHeader 
-                darkMode={darkMode} 
-                setDarkMode={setDarkMode}
-                showSettings={showSettings}
-                setShowSettings={setShowSettings}
+          {/* Header */}
+          <ChatHeader 
+            darkMode={darkMode} 
+            setDarkMode={setDarkMode}
+            showSettings={showSettings}
+            setShowSettings={setShowSettings}
+          />
+
+          {/* Messages */}
+          <div 
+            ref={messagesContainerRef}
+            className="flex-1 overflow-y-auto chat-container flex flex-col w-full"
+            id="chat-wrapper"
+            style={{
+              height: keyboardVisible ? 'calc(100% - 120px)' : 'auto',
+              paddingBottom: keyboardVisible ? '8px' : '16px'
+            }}
+          >
+            <ChatMessages 
+              messages={messages} 
+              isLoading={isLoading} 
+              keyboardVisible={keyboardVisible}
+              isFaqExpanded={isFaqExpanded}
+            />
+
+            {/* Settings Panel */}
+            <Settings 
+              showSettings={showSettings} 
+              onClose={() => setShowSettings(false)}
+              darkMode={darkMode}
+            />
+
+            {/* Quick Actions */}
+            {messages.length === 0 && (
+              <QuickActions 
+                onActionSelected={handleQuickAction} 
+                onFaqExpandChange={handleFaqExpandChange}
               />
-            </GlassEffect>
-          </AnimatedContainer>
+            )}
+          </div>
 
-          {/* Enhanced Messages Container */}
-          <AnimatedContainer animation="fadeIn" delay={400}>
-            <div 
-              ref={messagesContainerRef}
-              className="flex-1 overflow-y-auto chat-container flex flex-col w-full relative"
-              id="chat-wrapper"
-              style={{
-                height: keyboardVisible ? 'calc(100% - 120px)' : 'auto',
-                paddingBottom: keyboardVisible ? '8px' : '16px'
-              }}
-            >
-              <ChatMessages 
-                messages={messages} 
-                isLoading={isLoading} 
-                keyboardVisible={keyboardVisible}
-                isFaqExpanded={isFaqExpanded}
-              />
-
-              {/* Enhanced Settings Panel */}
-              <AnimatedContainer animation="scaleIn" delay={600}>
-                <Settings 
-                  showSettings={showSettings} 
-                  onClose={() => setShowSettings(false)}
-                  darkMode={darkMode}
-                />
-              </AnimatedContainer>
-
-              {/* Enhanced Quick Actions */}
-              {messages.length === 0 && (
-                <AnimatedContainer animation="slideUp" delay={800}>
-                  <QuickActions 
-                    onActionSelected={handleQuickAction} 
-                    onFaqExpandChange={handleFaqExpandChange}
-                  />
-                </AnimatedContainer>
-              )}
-            </div>
-          </AnimatedContainer>
-
-          {/* Enhanced Input Area */}
-          <AnimatedContainer animation="slideUp" delay={1000}>
-            <div className={`${keyboardVisible ? 'sticky bottom-0 z-40' : ''}`}>
-              <GlassEffect className="m-4 rounded-2xl">
-                <ChatInput
-                  input={input}
-                  handleInputChange={handleInputChange}
-                  handleSubmit={handleFormSubmitWithHistory}
-                  isLoading={isLoading}
-                  iraqiCarSuggestions={iraqiCarSuggestions}
-                  onStopGeneration={stopGenerating}
-                  keyboardVisible={keyboardVisible}
-                />
-              </GlassEffect>
-            </div>
-          </AnimatedContainer>
+          {/* Input Area */}
+          <div className={`${keyboardVisible ? 'sticky bottom-0 z-40 bg-white dark:bg-gray-900' : ''}`}>
+          <ChatInput
+            input={input}
+            handleInputChange={handleInputChange}
+            handleSubmit={handleFormSubmitWithHistory}
+            isLoading={isLoading}
+            iraqiCarSuggestions={iraqiCarSuggestions}
+              onStopGeneration={stopGenerating}
+              keyboardVisible={keyboardVisible}
+          />
+          </div>
         </div>
         
-        {/* Enhanced Mobile Sidebar Toggle Button */}
-        <AnimatedContainer animation="scaleIn" delay={1200}>
-          <GlassEffect className="fixed bottom-20 right-4 z-30 rounded-full">
-            <Button
-              variant="outline"
-              size="icon"
-              className="rounded-full shadow-2xl bg-gradient-to-r from-blue-500 to-purple-500 hover:from-purple-500 hover:to-cyan-500 text-white border-0 h-12 w-12 flex items-center justify-center hover-lift animate-pulse"
-              onClick={toggleSidebar}
-              aria-label="فتح قائمة المحادثات"
-            >
-              <PlusCircle className="h-6 w-6" />
-            </Button>
-          </GlassEffect>
-        </AnimatedContainer>
+        {/* Mobile Sidebar Toggle Button */}
+        <Button
+          variant="outline"
+          size="icon"
+          className="fixed bottom-20 right-4 z-30 rounded-full shadow-lg bg-blue-500 hover:bg-blue-600 text-white border-0 h-10 w-10 flex items-center justify-center"
+          onClick={toggleSidebar}
+          aria-label="فتح قائمة المحادثات"
+        >
+          <PlusCircle className="h-5 w-5" />
+        </Button>
         
-        {/* Enhanced Footer with Admin Link */}
-        <AnimatedContainer animation="fadeIn" delay={1400}>
-          <GlassEffect className="absolute bottom-0 left-0 right-0 py-2 text-center text-xs text-muted-foreground hidden md:block">
-            <p>
-              {new Date().getFullYear()} © جميع الحقوق محفوظة{' '}
-              <span className="font-medium bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Car Service Chat</span>{' '}
-              <a 
-                href="/admin/login" 
-                className="text-xs text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors mx-1 hover:underline"
-              >
-                إدارة
-              </a>
-            </p>
-          </GlassEffect>
-        </AnimatedContainer>
+        {/* Footer with Admin Link */}
+        <div className="absolute bottom-0 left-0 right-0 py-1 text-center text-xs text-muted-foreground hidden md:block">
+          <p>
+            {new Date().getFullYear()} © جميع الحقوق محفوظة{' '}
+            <span className="font-medium">Car Service Chat</span>{' '}
+            <a 
+              href="/admin/login" 
+              className="text-xs text-muted-foreground hover:underline hover:text-foreground transition-colors mx-1"
+            >
+              إدارة
+            </a>
+          </p>
+        </div>
       </div>
     </TooltipProvider>
   )
