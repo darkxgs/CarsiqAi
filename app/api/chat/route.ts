@@ -781,6 +781,11 @@ export async function POST(req: Request) {
                         
             const isV6 = userQuery.toLowerCase().includes('v6') || 
                         userQuery.toLowerCase().includes('3.6');
+                        
+            const engineSpecified = isV8 || isV6 || userQuery.toLowerCase().includes('l4') || 
+                                   userQuery.toLowerCase().includes('2.0') || 
+                                   userQuery.toLowerCase().includes('تيربو') || 
+                                   userQuery.toLowerCase().includes('turbo');
             
             if (isV8) {
               // Add exact Chevrolet Camaro V8 specifications to the prompt
@@ -792,6 +797,10 @@ export async function POST(req: Request) {
               oilRecommendation.viscosity = '5W-30';
               oilRecommendation.capacity = '5.7 لتر';
               console.log('Applied special Chevrolet Camaro V6 oil correction');
+            } else if (!engineSpecified) {
+              // If no specific engine is mentioned, don't set a default capacity
+              // This will trigger the multi-option response in the prompt
+              console.log('No specific Camaro engine mentioned - will show all options');
             } else {
               // Add exact Chevrolet Camaro L4 specifications to the prompt (base model)
               oilRecommendation.viscosity = '5W-30';
@@ -929,6 +938,12 @@ ${carTrimData.model_drive ? `- نظام الدفع: ${carTrimData.model_drive}` 
                   
       const isV6 = userQuery.toLowerCase().includes('v6') || 
                   userQuery.toLowerCase().includes('3.6');
+                  
+      const engineSpecified = isV8 || isV6 || 
+                             userQuery.toLowerCase().includes('l4') || 
+                             userQuery.toLowerCase().includes('2.0') || 
+                             userQuery.toLowerCase().includes('تيربو') || 
+                             userQuery.toLowerCase().includes('turbo');
       
       if (isV8) {
         // Add exact Chevrolet Camaro V8 specifications to the prompt
@@ -955,6 +970,31 @@ ${carTrimData.model_drive ? `- نظام الدفع: ${carTrimData.model_drive}` 
 
 يجب التأكد من ذكر هذه المعلومات الدقيقة في إجابتك.
 التوصية النهائية: Valvoline MaxLife 5W-30 Full Synthetic (5.7 لتر)
+`;
+      } else if (!engineSpecified) {
+        // When no specific engine is mentioned, show all options
+        enhancedSystemPrompt += `\n\n
+معلومات دقيقة عن شيفروليت كامارو ${year}:
+شيفروليت كامارو ${year} تأتي بثلاثة خيارات من المحركات، كل منها يتطلب كمية مختلفة من الزيت:
+
+1️⃣ محرك 2.0L تيربو – 4 سلندر (LTG)
+- سعة زيت المحرك: 4.7 لتر
+- نوع الزيت الموصى به: 5W-30 Full Synthetic
+- المناسب للظروف العراقية: يتحمل درجات الحرارة العالية
+
+2️⃣ محرك 3.6L V6 (LGX)
+- سعة زيت المحرك: 5.7 لتر
+- نوع الزيت الموصى به: 5W-30 Full Synthetic
+- المناسب للظروف العراقية: يتحمل درجات الحرارة العالية
+
+3️⃣ محرك 6.2L V8 (LT1 / LT4)
+- سعة زيت المحرك: 9.5 لتر
+- نوع الزيت الموصى به: 5W-30 Full Synthetic
+- المناسب للظروف العراقية: يتحمل درجات الحرارة العالية
+
+⚠️ هام: يجب أن تعرض جميع الخيارات الثلاثة للمستخدم مع التوصية النهائية لكل محرك، لأن استخدام كمية غير صحيحة من الزيت قد يسبب أضرارًا بالغة للمحرك.
+
+لا تفترض نوع المحرك إذا لم يحدده المستخدم بوضوح. اطلب من المستخدم تحديد نوع المحرك للحصول على توصية دقيقة.
 `;
       } else {
         // Add exact Chevrolet Camaro L4 specifications to the prompt (base model)
