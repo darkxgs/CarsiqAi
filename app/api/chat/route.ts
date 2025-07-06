@@ -323,6 +323,51 @@ function enhancedExtractCarData(query: string): ExtractedCarData {
     
     // Increase confidence for Chevrolet Camaro detection
     confidence += 10;
+    
+    // Check for specific engine type indicators in the query
+    const isV8 = normalizedQuery.includes('v8') || 
+                normalizedQuery.includes('ss') || 
+                normalizedQuery.includes('اس اس') ||
+                normalizedQuery.includes('zl1') ||
+                normalizedQuery.includes('زد ال 1') ||
+                normalizedQuery.includes('6.2');
+                
+    const isV6 = normalizedQuery.includes('v6') || 
+               normalizedQuery.includes('3.6');
+               
+    // Add engine information to the return object
+    if (isV8) {
+      return {
+        carBrand: detectedBrand,
+        carModel: detectedModel,
+        year,
+        mileage,
+        engineSize: '6.2L V8',
+        isValid: true,
+        confidence: confidence + 15
+      };
+    } else if (isV6) {
+      return {
+        carBrand: detectedBrand,
+        carModel: detectedModel,
+        year,
+        mileage,
+        engineSize: '3.6L V6',
+        isValid: true,
+        confidence: confidence + 10
+      };
+    } else {
+      // Default to 2.0L L4 if no specific engine mentioned (base model)
+      return {
+        carBrand: detectedBrand,
+        carModel: detectedModel,
+        year,
+        mileage,
+        engineSize: '2.0L L4',
+        isValid: true,
+        confidence: confidence + 5
+      };
+    }
   }
   
   return {
@@ -636,7 +681,7 @@ export async function POST(req: Request) {
     const isJeepLaredoQuery = userQuery.toLowerCase().includes('جيب لاريدو') || 
                               userQuery.toLowerCase().includes('jeep laredo') || 
                               userQuery.toLowerCase().includes('جييب لاريدو') ||
-                              (userQuery.toLowerCase().includes('جيب') && userQuery.toLowerCase().includes('لاريدو')) ||
+                              (userQuery.toLowerCase().includes('جيب') && userQuery.includes('لاريدو')) ||
                               (userQuery.toLowerCase().includes('jeep') && userQuery.toLowerCase().includes('laredo'));
     
     // Get car data for oil recommendations
@@ -713,6 +758,45 @@ export async function POST(req: Request) {
               oilRecommendation.viscosity = '0W-20';
               oilRecommendation.capacity = '5.7 لتر';
               console.log('Applied special Jeep Grand Cherokee V6 oil correction');
+            }
+          }
+          
+          // Special handling for Chevrolet Camaro 2016-2018
+          const isCamaroQuery = userQuery.toLowerCase().includes('كامارو') || 
+                               userQuery.toLowerCase().includes('camaro') ||
+                               userQuery.toLowerCase().includes('كمارو');
+                               
+          if (isCamaroQuery) {
+            // Extract year if available
+            const yearMatch = userQuery.match(/20(\d{2})/);
+            const year = yearMatch ? `20${yearMatch[1]}` : '2016'; // Default to 2016 if not specified
+            
+            // Check for engine size indicators in the query
+            const isV8 = userQuery.toLowerCase().includes('v8') || 
+                        userQuery.toLowerCase().includes('ss') || 
+                        userQuery.toLowerCase().includes('اس اس') ||
+                        userQuery.toLowerCase().includes('zl1') ||
+                        userQuery.toLowerCase().includes('زد ال 1') ||
+                        userQuery.toLowerCase().includes('6.2');
+                        
+            const isV6 = userQuery.toLowerCase().includes('v6') || 
+                        userQuery.toLowerCase().includes('3.6');
+            
+            if (isV8) {
+              // Add exact Chevrolet Camaro V8 specifications to the prompt
+              oilRecommendation.viscosity = '5W-30';
+              oilRecommendation.capacity = '9.5 لتر';
+              console.log('Applied special Chevrolet Camaro V8 oil correction');
+            } else if (isV6) {
+              // Add exact Chevrolet Camaro V6 specifications to the prompt
+              oilRecommendation.viscosity = '5W-30';
+              oilRecommendation.capacity = '5.7 لتر';
+              console.log('Applied special Chevrolet Camaro V6 oil correction');
+            } else {
+              // Add exact Chevrolet Camaro L4 specifications to the prompt (base model)
+              oilRecommendation.viscosity = '5W-30';
+              oilRecommendation.capacity = '4.7 لتر';
+              console.log('Applied special Chevrolet Camaro L4 oil correction');
             }
           }
           
@@ -823,6 +907,68 @@ ${carTrimData.model_drive ? `- نظام الدفع: ${carTrimData.model_drive}` 
       }
       
       console.log('Added Jeep Grand Cherokee (Laredo) override specifications');
+    }
+    
+    // Special handling for Chevrolet Camaro 2016-2018
+    const isCamaroQuery = userQuery.toLowerCase().includes('كامارو') || 
+                         userQuery.toLowerCase().includes('camaro') ||
+                         userQuery.toLowerCase().includes('كمارو');
+                         
+    if (isCamaroQuery) {
+      // Extract year if available
+      const yearMatch = userQuery.match(/20(\d{2})/);
+      const year = yearMatch ? `20${yearMatch[1]}` : '2016'; // Default to 2016 if not specified
+      
+      // Check for engine size indicators in the query
+      const isV8 = userQuery.toLowerCase().includes('v8') || 
+                  userQuery.toLowerCase().includes('ss') || 
+                  userQuery.toLowerCase().includes('اس اس') ||
+                  userQuery.toLowerCase().includes('zl1') ||
+                  userQuery.toLowerCase().includes('زد ال 1') ||
+                  userQuery.toLowerCase().includes('6.2');
+                  
+      const isV6 = userQuery.toLowerCase().includes('v6') || 
+                  userQuery.toLowerCase().includes('3.6');
+      
+      if (isV8) {
+        // Add exact Chevrolet Camaro V8 specifications to the prompt
+        enhancedSystemPrompt += `\n\n
+معلومات دقيقة عن شيفروليت كامارو ${year} بمحرك V8:
+- سعة زيت المحرك: 9.5 لتر
+- نوع الزيت الموصى به: 5W-30 Full Synthetic
+- المناسب للظروف العراقية: يتحمل درجات الحرارة العالية
+- فترة تغيير الزيت: كل 8000 كم في الظروف العراقية
+- نوع المحرك: 6.2L V8 (LT1/LT4)
+
+يجب التأكد من ذكر هذه المعلومات الدقيقة في إجابتك، خاصة سعة الزيت الكبيرة (9.5 لتر) التي تختلف كثيراً عن الطرازات الأخرى.
+`;
+      } else if (isV6) {
+        // Add exact Chevrolet Camaro V6 specifications to the prompt
+        enhancedSystemPrompt += `\n\n
+معلومات دقيقة عن شيفروليت كامارو ${year} بمحرك V6:
+- سعة زيت المحرك: 5.7 لتر
+- نوع الزيت الموصى به: 5W-30 Full Synthetic
+- المناسب للظروف العراقية: يتحمل درجات الحرارة العالية
+- فترة تغيير الزيت: كل 8000 كم في الظروف العراقية
+- نوع المحرك: 3.6L V6 (LGX)
+
+يجب التأكد من ذكر هذه المعلومات الدقيقة في إجابتك.
+`;
+      } else {
+        // Add exact Chevrolet Camaro L4 specifications to the prompt (base model)
+        enhancedSystemPrompt += `\n\n
+معلومات دقيقة عن شيفروليت كامارو ${year} بمحرك L4:
+- سعة زيت المحرك: 4.7 لتر
+- نوع الزيت الموصى به: 5W-30 Full Synthetic
+- المناسب للظروف العراقية: يتحمل درجات الحرارة العالية
+- فترة تغيير الزيت: كل 8000 كم في الظروف العراقية
+- نوع المحرك: 2.0L L4 Turbo (LTG)
+
+يجب التأكد من ذكر هذه المعلومات الدقيقة في إجابتك.
+`;
+      }
+      
+      console.log('Added Chevrolet Camaro override specifications');
     }
     
     // Create OpenRouter client
