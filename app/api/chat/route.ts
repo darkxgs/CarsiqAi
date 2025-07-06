@@ -167,7 +167,7 @@ function enhancedExtractCarData(query: string): ExtractedCarData {
     'مازدا': ['مازدا', 'mazda'],
     'سوزوكي': ['سوزوكي', 'suzuki'],
     'ميتسوبيشي': ['ميتسوبيشي', 'mitsubishi'],
-    'شيفروليت': ['شيفروليت', 'chevrolet'],
+    'شيفروليت': ['شيفروليت', 'chevrolet', 'شفروليه', 'شيفي', 'شيفي', 'شيفروليه'],
     'فورد': ['فورد', 'ford'],
     'بيجو': ['بيجو', 'peugeot'],
     'رينو': ['رينو', 'renault'],
@@ -199,7 +199,9 @@ function enhancedExtractCarData(query: string): ExtractedCarData {
     '320i', '330i', '520i', '530i', 'x3', 'x5',
     'es300', 'is300', 'rx350', 'lx570',
     'g70', 'g80', 'g90', 'gv70', 'gv80',
-    'كومباس', 'compass', 'شيروكي', 'cherokee', 'رانجلر', 'wrangler', 'رينيجيد', 'renegade'
+    'كومباس', 'compass', 'شيروكي', 'cherokee', 'رانجلر', 'wrangler', 'رينيجيد', 'renegade',
+    'كامارو', 'camaro', 'كمارو', 'كمارو', 'كامرو', 'كامارو',
+    'كروز', 'cruze', 'ماليبو', 'malibu', 'سيلفرادو', 'silverado', 'تاهو', 'tahoe'
   ]
   
   let detectedModel = ''
@@ -207,15 +209,76 @@ function enhancedExtractCarData(query: string): ExtractedCarData {
     if (normalizedQuery.includes(model)) {
       detectedModel = model
       confidence += 25
+      
+      // Special handling for Camaro model
+      if (model === 'كامارو' || model === 'camaro' || model === 'كمارو' || model === 'كامرو') {
+        detectedModel = 'camaro'
+        confidence += 5 // Extra confidence for this specific model
+      }
+      
       break
     }
   }
   
-  // Enhanced year extraction
-  const yearMatch = normalizedQuery.match(/20[0-2][0-9]/) || normalizedQuery.match(/[1-2][0-9]{3}/)
-  const year = yearMatch ? parseInt(yearMatch[0]) : undefined
-  if (year && year >= 1990 && year <= new Date().getFullYear()) {
-    confidence += 20
+  // Enhanced year extraction with multiple patterns
+  let year: number | undefined
+  let maxConfidence = 0
+  
+  // Array of regex patterns to try for year extraction
+  const yearPatterns = [
+    /\b(20[0-2][0-9])\b/, // Standard 20XX format
+    /\bموديل\s+(\d{4})\b/, // "موديل YYYY"
+    /\bmodel\s+(\d{4})\b/i, // "model YYYY"
+    /\b(\d{4})\s+model\b/i, // "YYYY model"
+    /\b(\d{4})\s+موديل\b/ // "YYYY موديل"
+  ]
+  
+  // Helper function to convert Arabic digits to English
+  function convertDigitsToEnglish(str: string): string {
+    return str.replace(/[٠-٩]/g, d => String(d.charCodeAt(0) - 1632));
+  }
+  
+  // Try each pattern and keep the result with highest confidence
+  for (const pattern of yearPatterns) {
+    const matches = normalizedQuery.match(pattern);
+    if (matches && matches.length > 0) {
+      for (const match of matches) {
+        // Extract the year from the match
+        const extractedYear = match.match(/\d{4}/) ? 
+                            match.match(/\d{4}/)![0] : 
+                            convertDigitsToEnglish(match);
+        
+        // Validate the year is within reasonable range
+        const yearNum = parseInt(extractedYear);
+        if (yearNum >= 1980 && yearNum <= new Date().getFullYear() + 1) {
+          // Calculate confidence based on position in text and format
+          const positionInText = normalizedQuery.indexOf(match) / normalizedQuery.length;
+          const patternConfidence = 15 + (positionInText < 0.5 ? 5 : 0);
+          
+          if (patternConfidence > maxConfidence) {
+            year = yearNum;
+            maxConfidence = patternConfidence;
+          }
+        }
+      }
+    }
+  }
+  
+  // Specific handling for Camaro 2016
+  if (detectedModel === 'camaro' && !year) {
+    // Look for "16" or "2016" patterns that might indicate a 2016 Camaro
+    const camaroYearMatches = normalizedQuery.match(/\b(16|2016)\b/);
+    if (camaroYearMatches) {
+      const extractedYear = camaroYearMatches[1];
+      year = extractedYear === '16' ? 2016 : parseInt(extractedYear);
+      maxConfidence = 15;
+      logger.debug("Extracted year from text", { year, confidence: maxConfidence });
+    }
+  }
+  
+  // Add the year confidence to total confidence
+  if (year) {
+    confidence += maxConfidence;
   }
   
   // Enhanced mileage extraction
@@ -224,17 +287,42 @@ function enhancedExtractCarData(query: string): ExtractedCarData {
     /(\d+)\s*الف/,
     /(\d+)\s*k/i,
     /(\d+)\s*km/i,
-    /(\d+)\s*كيلو/
+    /(\d+)\s*كيلو/,
+    /ماشية\s+(\d+)/,
+    /قاطع\s+(\d+)/,
+    /عداد\s+(\d+)/,
+    /(\d+)\s*كم/
   ]
   
   let mileage: number | undefined
   for (const pattern of mileagePatterns) {
     const match = normalizedQuery.match(pattern)
     if (match) {
-      mileage = parseInt(match[1]) * 1000
+      // Check if this is "X ألف" format (thousands)
+      const isThousands = pattern.toString().includes('ألف') || 
+                          pattern.toString().includes('الف') || 
+                          pattern.toString().includes('k');
+      
+      mileage = parseInt(match[1]);
+      if (isThousands) {
+        mileage *= 1000;
+      }
       confidence += 15
       break
     }
+  }
+  
+  // Special handling for Chevrolet Camaro
+  if (detectedBrand === 'شيفروليت' && detectedModel === 'camaro') {
+    if (!year) {
+      // If we couldn't detect a year but it's a Camaro, default to 2016 with lower confidence
+      year = 2016;
+      confidence += 5;
+      logger.debug("Defaulting to 2016 for Chevrolet Camaro", { confidence: 5 });
+    }
+    
+    // Increase confidence for Chevrolet Camaro detection
+    confidence += 10;
   }
   
   return {

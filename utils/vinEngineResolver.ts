@@ -275,35 +275,110 @@ export async function getAccurateOilRecommendation(
   vin?: string
 ): Promise<OilRecommendation | OilRecommendation[]> {
   try {
+    // تحويل الاسم إلى الصيغة المستخدمة في officialSpecs
+    const manufacturer = make.toLowerCase();
+    const modelName = model.toLowerCase().replace(/\s+/g, '_');
+    
+    // معالجة خاصة لسيارة Camaro 2016
+    if (manufacturer === 'chevrolet' && modelName === 'camaro' && year === 2016) {
+      console.log(`Special handling for Chevrolet Camaro 2016`);
+      
+      // إذا كان VIN متاحًا، نحاول استخدامه أولاً
+      if (vin && vin.length === 17) {
+        try {
+          const engineInfo = await decodeVIN(vin);
+          if (engineInfo && engineInfo.vinEngineChar) {
+            // التحقق من رمز المحرك في VIN
+            const vinChar = engineInfo.vinEngineChar.toUpperCase();
+            
+            if (vinChar === 'A') {
+              // محرك 2.0L L4 LTG
+              return getOilRecommendations(make, model, year, { 
+                engineCode: "LTG", 
+                engineSize: "2.0L", 
+                cylinders: 4,
+                vinEngineChar: 'A'
+              });
+            } else if (vinChar === 'F') {
+              // محرك 3.6L V6 LGX
+              return getOilRecommendations(make, model, year, { 
+                engineCode: "LGX", 
+                engineSize: "3.6L", 
+                cylinders: 6,
+                vinEngineChar: 'F'
+              });
+            } else if (vinChar === 'J') {
+              // محرك 6.2L V8 LT1
+              return getOilRecommendations(make, model, year, { 
+                engineCode: "LT1", 
+                engineSize: "6.2L", 
+                cylinders: 8,
+                vinEngineChar: 'J'
+              });
+            } else if (vinChar === 'K') {
+              // محرك 6.2L V8 LT4 Supercharged
+              return getOilRecommendations(make, model, year, { 
+                engineCode: "LT4", 
+                engineSize: "6.2L", 
+                cylinders: 8,
+                vinEngineChar: 'K'
+              });
+            }
+          }
+        } catch (vinError) {
+          console.error('خطأ في تحليل VIN لسيارة Camaro 2016:', vinError);
+          // نستمر إلى الخطوة التالية
+        }
+      }
+      
+      // إذا لم نتمكن من تحديد المحرك من VIN، نعيد جميع خيارات المحركات المتاحة
+      return [
+        await getOilRecommendations(make, model, year, { engineCode: "LTG", engineSize: "2.0L", cylinders: 4 }) as OilRecommendation,
+        await getOilRecommendations(make, model, year, { engineCode: "LGX", engineSize: "3.6L", cylinders: 6 }) as OilRecommendation,
+        await getOilRecommendations(make, model, year, { engineCode: "LT1", engineSize: "6.2L", cylinders: 8 }) as OilRecommendation,
+        await getOilRecommendations(make, model, year, { engineCode: "LT4", engineSize: "6.2L", cylinders: 8 }) as OilRecommendation
+      ];
+    }
+    
     // إذا كان VIN متاحًا، نحاول استخدامه أولاً
     if (vin && vin.length === 17) {
-      const engineInfo = await decodeVIN(vin);
-      if (engineInfo) {
-        return getOilRecommendations(make, model, year, engineInfo);
+      try {
+        const engineInfo = await decodeVIN(vin);
+        if (engineInfo) {
+          return getOilRecommendations(make, model, year, engineInfo);
+        }
+      } catch (vinError) {
+        console.error('خطأ في تحليل VIN:', vinError);
+        // نستمر إلى الخطوة التالية
       }
     }
     
     // إذا لم يكن VIN متاحًا أو فشل التحليل، نحصل على قائمة المحركات المتاحة
-    const availableEngines = await getAvailableEngines(make, model, year);
-    
-    if (availableEngines.length === 1) {
-      // إذا كان هناك محرك واحد فقط متاح، نستخدمه
-      return getOilRecommendations(make, model, year, availableEngines[0]);
-    } else if (availableEngines.length > 1) {
-      // إذا كان هناك عدة محركات، نعيد جميع التوصيات المحتملة
-      const allRecommendations: OilRecommendation[] = [];
+    try {
+      const availableEngines = await getAvailableEngines(make, model, year);
       
-      for (const engine of availableEngines) {
-        const recommendations = getOilRecommendations(make, model, year, engine);
-        if (Array.isArray(recommendations)) {
-          allRecommendations.push(...recommendations);
-        } else {
-          allRecommendations.push(recommendations);
+      if (availableEngines.length === 1) {
+        // إذا كان هناك محرك واحد فقط متاح، نستخدمه
+        return getOilRecommendations(make, model, year, availableEngines[0]);
+      } else if (availableEngines.length > 1) {
+        // إذا كان هناك عدة محركات، نعيد جميع التوصيات المحتملة
+        const allRecommendations: OilRecommendation[] = [];
+        
+        for (const engine of availableEngines) {
+          const recommendations = getOilRecommendations(make, model, year, engine);
+          if (Array.isArray(recommendations)) {
+            allRecommendations.push(...recommendations);
+          } else {
+            allRecommendations.push(recommendations);
+          }
         }
+        
+        // ترتيب النتائج حسب عدد الأسطوانات
+        return allRecommendations.sort((a, b) => (a.cylinders || 0) - (b.cylinders || 0));
       }
-      
-      // ترتيب النتائج حسب عدد الأسطوانات
-      return allRecommendations.sort((a, b) => (a.cylinders || 0) - (b.cylinders || 0));
+    } catch (enginesError) {
+      console.error('خطأ في الحصول على المحركات المتاحة:', enginesError);
+      // نستمر إلى الخطوة التالية
     }
     
     // إذا لم نتمكن من العثور على معلومات المحرك، نعيد جميع التوصيات المحتملة للموديل والسنة
