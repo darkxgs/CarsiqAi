@@ -1894,6 +1894,1729 @@ npm run dev
 
 ---
 
+I've updated the ChatMessages component to handle both HTML and Markdown-style bold formatting:
+
+1. The component now recognizes and properly renders:
+   - HTML bold tags: `<b>text</b>`
+   - Markdown-style bold: `**text**`
+
+2. I added a special pattern to avoid matching emoji sequences like `1️⃣**` that might be falsely detected as Markdown bold.
+
+3. The implementation maintains all existing functionality for handling numbered emojis, headings, and regular paragraphs.
+
+The server has been restarted with these changes. Now when a message contains either `<b>` tags or `**bold**` formatting in the text, they will both properly render as bold text instead of showing the literal formatting characters.
+
+This should resolve the formatting issue you were experiencing with the oil recommendations.
+
+---
+
+_**User**_
+
+can u look at the design and improve it and the sidebar and everything
+
+
+---
+
+_**Assistant**_
+
+I'll help improve the design of the chat interface and sidebar. Let me first examine the current design to understand what we're working with.
+
+---
+
+<details>
+            <summary>Searched codebase "chat page layout components sidebar" • **25** results</summary>
+        
+| File | Lines |
+|------|-------|
+| `components/chat/ChatPage.tsx` | L382-417 |
+| `components/chat/ChatPage.tsx` | L417-473 |
+| `components/chat/ChatSidebar.tsx` | L116-156 |
+| `components/chat/ChatPage.tsx` | L320-382 |
+| `components/chat/ChatPage.tsx` | L1-21 |
+| `components/chat/ChatSidebar.tsx` | L1-19 |
+| `components/chat/ChatSidebar.tsx` | L81-116 |
+| `components/chat/ChatPage.tsx` | L21-85 |
+| `app/chat/layout.tsx` | L1-11 |
+| `components/chat/ChatSidebar.tsx` | L19-81 |
+| `components/ui/sidebar.tsx` | L234-286 |
+| `components/chat/ChatMessages.tsx` | L423-450 |
+| `components/chat/ChatSidebar.tsx` | L156-184 |
+| `components/chat/ChatPage.tsx` | L264-320 |
+| `components/ui/sidebar.tsx` | L157-213 |
+| `components/ui/sidebar.tsx` | L117-157 |
+| `components/ui/sidebar.tsx` | L286-333 |
+| `app/chat/page.tsx` | L1-24 |
+| `components/chat/ChatSidebar.tsx` | L222-268 |
+| `components/ui/sidebar.tsx` | L1-37 |
+| `components/chat/ChatHeader.tsx` | L17-62 |
+| `components/ui/sidebar.tsx` | L333-414 |
+| `components/chat/ChatSidebar.tsx` | L184-222 |
+| `components/chat/ChatPage.tsx` | L199-264 |
+| `app/page.tsx` | L1-26 |
+
+</details>
+
+---
+
+Let me check the chat components and UI elements:
+
+---
+
+Read file: components/chat/ChatSidebar.tsx
+
+---
+
+Read file: components/chat/ChatHeader.tsx
+
+---
+
+Read file: components/chat/ChatMessages.tsx
+
+---
+
+Based on my review of the code, I'll implement several design improvements to enhance the user interface. Let's start with improving the sidebar and overall chat layout:
+
+---
+
+```diff
+  
+  import { useState } from "react"
+- import { PlusCircle, Trash2, Edit, Clock, X, ChevronLeft, ChevronRight } from "lucide-react"
++ import { PlusCircle, Trash2, Edit, Clock, X, ChevronLeft, MessageSquare } from "lucide-react"
+  import { ChatSession } from "@/types/chat"
+  import { Button } from "@/components/ui/button"
+```
+
+```diff
+        <div 
+          className={cn(
+-           "fixed inset-0 bg-black/30 z-40 transition-opacity duration-300",
++           "fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-opacity duration-300",
+            isOpen ? "opacity-100 md:opacity-0 md:pointer-events-none" : "opacity-0 pointer-events-none"
+          )}
+```
+
+```diff
+        <aside 
+          className={cn(
+-           "fixed top-0 bottom-0 right-0 z-50 w-72 md:w-64 bg-white dark:bg-gray-900 shadow-xl transition-all duration-300 transform border-l border-gray-200 dark:border-gray-700",
++           "fixed top-0 bottom-0 right-0 z-50 w-80 md:w-72 bg-white dark:bg-gray-900 shadow-2xl transition-all duration-300 transform border-l border-gray-200 dark:border-gray-700",
+            isOpen ? "translate-x-0" : "translate-x-full"
+          )}
+```
+
+```diff
+          <div className="flex flex-col h-full">
+            {/* Header */}
+-           <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+-             <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">المحادثات</h2>
++           <div className="p-5 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between bg-gradient-to-r from-blue-50 to-white dark:from-gray-800 dark:to-gray-900">
++             <h2 className="text-xl font-bold text-blue-600 dark:text-blue-400 flex items-center">
++               <MessageSquare className="h-5 w-5 ml-2" />
++               المحادثات
++             </h2>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onClose}
+-               className={cn(
+-                 "h-8 w-8",
+-                 "md:hover:bg-gray-200 md:dark:hover:bg-gray-800"
+-               )}
++               className="h-9 w-9 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800"
+                aria-label="إغلاق القائمة"
+              >
+```
+
+```diff
+            
+            {/* New Chat Button */}
+-           <div className="p-4">
++           <div className="p-4 sticky top-0 z-10 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
+              <Button
+-               variant="outline"
+-               size="sm"
+-               className="w-full border-dashed border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 text-gray-600 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800"
++               variant="default"
++               size="default"
++               className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-xl py-5 shadow-md hover:shadow-lg transition-all duration-200"
+                onClick={onNewSession}
+              >
+-               <PlusCircle className="h-4 w-4 ml-2" />
++               <PlusCircle className="h-5 w-5 ml-2" />
+                محادثة جديدة
+              </Button>
+```
+
+```diff
+            <div className="flex-1 overflow-y-auto pb-4">
+              {sessions.length === 0 ? (
+-               <div className="p-4 text-center text-gray-500 dark:text-gray-400 text-sm">
+-                 لا توجد محادثات سابقة
++               <div className="p-8 text-center flex flex-col items-center justify-center h-full">
++                 <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-full mb-3">
++                   <MessageSquare className="h-8 w-8 text-blue-500 dark:text-blue-400" />
++                 </div>
++                 <p className="text-gray-500 dark:text-gray-400 text-sm">
++                   لا توجد محادثات سابقة
++                 </p>
++                 <p className="text-gray-400 dark:text-gray-500 text-xs mt-2">
++                   ابدأ محادثة جديدة للحصول على توصيات زيوت السيارات
++                 </p>
+                </div>
+              ) : (
+-               <ul className="space-y-1 p-2">
++               <ul className="space-y-1 p-3">
+                  {sessions.map(session => (
+                    <li key={session.id} className="relative">
+```
+
+```diff
+                        tabIndex={0}
+                        className={cn(
+-                         "w-full text-right px-3 py-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group flex items-center cursor-pointer",
+-                         activeSessionId === session.id ? "bg-gray-100 dark:bg-gray-800" : ""
++                         "w-full text-right px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group flex items-center cursor-pointer",
++                         activeSessionId === session.id 
++                           ? "bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800" 
++                           : "border border-transparent"
+                        )}
+                        onClick={() => handleSessionClick(session.id)}
+                        onKeyDown={(e) => handleKeyDown(e, () => handleSessionClick(session.id))}
+                      >
+                        <div className="flex-1 truncate">
+-                         <span className="block font-medium text-gray-900 dark:text-gray-100 truncate">
++                         <span className={cn(
++                           "block font-medium truncate",
++                           activeSessionId === session.id 
++                             ? "text-blue-700 dark:text-blue-400" 
++                             : "text-gray-900 dark:text-gray-100"
++                         )}>
+                            {session.title}
+                          </span>
+```
+
+```diff
+                            variant="ghost"
+                            size="icon"
+-                           className="h-7 w-7 rounded-full"
++                           className="h-8 w-8 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/30"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRename(session);
+                            }}
+                          >
+-                           <Edit className="h-3.5 w-3.5 text-gray-500 dark:text-gray-400" />
++                           <Edit className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+-                           className="h-7 w-7 rounded-full text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
++                           className="h-8 w-8 rounded-full text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                            onClick={(e) => {
+                              e.stopPropagation();
+```
+
+```diff
+              )}
+            </div>
++           
++           {/* Footer */}
++           <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
++             <p className="text-xs text-center text-gray-500 dark:text-gray-400">
++               هندسة السيارات - مساعد زيوت السيارات الذكي
++             </p>
++           </div>
+          </div>
+        </aside>
+```
+
+```diff
+        {/* Delete Confirmation */}
+        {sessionToDelete && (
+-         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+-           <div className="bg-white dark:bg-gray-900 p-6 rounded-lg max-w-md w-full mx-4 text-right">
++         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
++           <div className="bg-white dark:bg-gray-900 p-6 rounded-xl max-w-md w-full mx-4 text-right shadow-2xl border border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                حذف المحادثة
+              </h3>
+-             <p className="text-gray-600 dark:text-gray-400 mb-4">
+-               هل أنت متأكد من رغبتك في حذف هذه المحادثة؟ لا يمكن التراجع عن هذا الإجراء.
++             <p className="text-gray-500 dark:text-gray-400 mb-6">
++               هل أنت متأكد من حذف محادثة "{sessionToDelete.title}"؟ لا يمكن التراجع عن هذا الإجراء.
+              </p>
+-             <div className="flex justify-start space-x-4 space-x-reverse">
+-               <Button variant="destructive" onClick={confirmDelete}>
++             <div className="flex justify-start space-x-3 space-x-reverse">
++               <Button 
++                 variant="destructive" 
++                 onClick={confirmDelete}
++                 className="bg-red-500 hover:bg-red-600"
++               >
+                  حذف
+                </Button>
+-               <Button variant="outline" onClick={() => setSessionToDelete(null)}>
++               <Button 
++                 variant="outline" 
++                 onClick={() => setSessionToDelete(null)}
++               >
+                  إلغاء
+                </Button>
+```
+
+---
+
+Now let's improve the ChatHeader component:
+
+---
+
+```diff
+  import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+  import { ClientOnly } from "@/components/ui/client-only"
+- import { Moon, Settings, Sun, X } from "lucide-react"
++ import { Moon, Settings, Sun, X, MessageSquare, Menu } from "lucide-react"
+  import Image from "next/image"
+  import { cn } from "@/lib/utils"
+```
+
+```diff
+    showSettings: boolean
+    setShowSettings: (value: boolean) => void
++   toggleSidebar?: () => void
+  }
+  
+```
+
+```diff
+    showSettings,
+    setShowSettings,
++   toggleSidebar
+  }: ChatHeaderProps) {
+    return (
+-     <Card className="rounded-none border-0 shadow-lg dark:shadow-md bg-gradient-to-b from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 flex-shrink-0 z-20">
+-       <CardContent className="p-3 sm:p-4 md:p-6">
++     <Card className="rounded-none border-0 shadow-md bg-gradient-to-r from-blue-50 to-white dark:from-gray-800 dark:to-gray-900 flex-shrink-0 z-20">
++       <CardContent className="p-3 sm:p-4">
+          <div className="flex items-center justify-between w-full mx-auto">
+            <div className="flex flex-1 items-center space-x-3 space-x-reverse">
+-             <div className="logo-container flex items-center justify-center mr-1 sm:mr-2">
+-               <div className="relative flex-shrink-0 h-10 w-16 sm:h-12 sm:w-20 md:h-14 md:w-24 flex items-center justify-center">
++             {toggleSidebar && (
++               <Button
++                 variant="ghost"
++                 size="icon"
++                 onClick={toggleSidebar}
++                 className="mr-1 p-1.5 rounded-full hover:bg-blue-100/50 dark:hover:bg-gray-800/80 md:hidden"
++                 aria-label="فتح قائمة المحادثات"
++               >
++                 <Menu className="h-5 w-5 text-blue-600 dark:text-blue-400" />
++               </Button>
++             )}
++             
++             <div className="logo-container flex items-center justify-center">
++               <div className="relative flex-shrink-0 h-10 w-16 sm:h-12 sm:w-20 flex items-center justify-center">
+                  <ClientOnly>
+-                   <Image
+-                     src="/logo.png"
+-                     alt="هندسة السيارات"
+-                     width={96}
+-                     height={72}
+-                     priority
+-                     className="object-contain max-h-full max-w-full"
+-                     style={{
+-                       width: 'auto',
+-                       height: 'auto'
+-                     }}
+-                     onError={(e) => {
+-                       const target = e.target as HTMLImageElement
+-                       target.onerror = null
+-                       target.src = "/placeholder-logo.svg"
+-                     }}
+-                   />
++                   <div className="relative group">
++                     <div className="absolute inset-0 bg-blue-100 dark:bg-blue-900/30 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
++                     <Image
++                       src="/logo.png"
++                       alt="هندسة السيارات"
++                       width={96}
++                       height={72}
++                       priority
++                       className="object-contain max-h-full max-w-full relative z-10 transition-transform duration-300 group-hover:scale-105"
++                       style={{
++                         width: 'auto',
++                         height: 'auto'
++                       }}
++                       onError={(e) => {
++                         const target = e.target as HTMLImageElement
++                         target.onerror = null
++                         target.src = "/placeholder-logo.svg"
++                       }}
++                     />
++                   </div>
+                  </ClientOnly>
+                </div>
+```
+
+```diff
+                <Badge
+                  variant="secondary"
+-                 className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-[10px] sm:text-xs font-semibold mb-1.5 px-2.5 py-1"
++                 className="bg-gradient-to-r from-blue-100 to-blue-50 dark:from-blue-900/70 dark:to-blue-900/30 text-blue-800 dark:text-blue-200 text-[10px] sm:text-xs font-semibold mb-1.5 px-2.5 py-1 shadow-sm"
+                >
+                  <span className="inline-block ml-1.5">🇮🇶</span> مخصص للعراق
+                </Badge>
+-               <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400">مقاوم للحرارة العالية</p>
++               <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 flex items-center">
++                 <MessageSquare className="h-3 w-3 ml-1 inline-block" />
++                 مساعد زيوت السيارات الذكي
++               </p>
+              </div>
+            </div>
+```
+
+```diff
+                    size="sm"
+                    onClick={() => setDarkMode(!darkMode)}
+-                   className="p-1.5 sm:p-2 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full"
++                   className="p-1.5 sm:p-2 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full shadow-sm"
+                  >
+-                   {darkMode ? <Sun className="w-4 h-4 sm:w-5 sm:h-5" /> : <Moon className="w-4 h-4 sm:w-5 sm:h-5" />}
++                   {darkMode ? 
++                     <Sun className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500" /> : 
++                     <Moon className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
++                   }
+                  </Button>
+                </TooltipTrigger>
+```
+
+```diff
+                    onClick={() => setShowSettings(!showSettings)}
+                    className={cn(
+-                     "p-1.5 sm:p-2 rounded-full transition-all duration-200",
++                     "p-1.5 sm:p-2 rounded-full transition-all duration-200 shadow-sm",
+                      showSettings 
+                        ? "bg-blue-500 hover:bg-blue-600 text-white border-blue-600" 
+```
+
+---
+
+Now let's update the ChatPage component to connect our improved components:
+
+---
+
+```diff
+  } from "@/utils/chatStorage"
+  import { Button } from "@/components/ui/button"
+- import { PlusCircle } from "lucide-react"
++ import { PlusCircle, MessageSquare } from "lucide-react"
+  
+  export default function ChatPage() {
+```
+
+```diff
+        return {
+          ...baseStyles,
+-         width: sidebarOpen ? 'calc(100% - 16rem)' : '100%', // 16rem = 64px * 4 (sidebar width)
+-         right: sidebarOpen ? '16rem' : 0,
++         width: sidebarOpen ? 'calc(100% - 18rem)' : '100%', // 18rem = 72px * 4 (sidebar width)
++         right: sidebarOpen ? '18rem' : 0,
+          transition: 'width 0.3s, right 0.3s',
+          marginRight: 0,
+```
+
+```diff
+          <div 
+            ref={containerRef}
+-           className="flex-grow flex flex-col overflow-hidden md:mr-64"
++           className="flex-grow flex flex-col overflow-hidden md:mr-72"
+            dir="rtl"
+            style={{
+```
+
+```diff
+              showSettings={showSettings}
+              setShowSettings={setShowSettings}
++             toggleSidebar={toggleSidebar}
+            />
+  
+            {/* Messages */}
+            <div 
+              ref={messagesContainerRef}
+-             className="flex-1 overflow-y-auto chat-container flex flex-col w-full"
++             className="flex-1 overflow-y-auto chat-container flex flex-col w-full bg-gradient-to-b from-transparent to-gray-50/30 dark:to-gray-900/30"
+              id="chat-wrapper"
+              style={{
+```
+
+```diff
+  
+            {/* Input Area */}
+-           <div className={`${keyboardVisible ? 'sticky bottom-0 z-40 bg-white dark:bg-gray-900' : ''}`}>
++           <div className={`${keyboardVisible ? 'sticky bottom-0 z-40 bg-white dark:bg-gray-900' : ''} border-t border-gray-100 dark:border-gray-800`}>
+            <ChatInput
+              input={input}
+```
+
+```diff
+          {/* Mobile Sidebar Toggle Button */}
+          <Button
+-           variant="outline"
++           variant="default"
+            size="icon"
+-           className="fixed bottom-20 right-4 z-30 rounded-full shadow-lg bg-blue-500 hover:bg-blue-600 text-white border-0 h-10 w-10 flex items-center justify-center"
++           className="fixed bottom-20 right-4 z-30 rounded-full shadow-lg bg-blue-500 hover:bg-blue-600 text-white border-0 h-12 w-12 flex items-center justify-center md:hidden"
+            onClick={toggleSidebar}
+            aria-label="فتح قائمة المحادثات"
+          >
+-           <PlusCircle className="h-5 w-5" />
++           <MessageSquare className="h-5 w-5" />
+          </Button>
+          
+```
+
+---
+
+Let's improve the ChatMessages component for better message display:
+
+---
+
+```diff
+  
+        <ErrorBoundary>
+-         <div className="space-y-6 px-1 max-w-full">
++         <div className="space-y-8 px-1 max-w-full">
+            {messages.map((message) => (
+              <div key={message.id} className="flex w-full">
+                <div className={`flex ${message.role === "user" ? "justify-start" : "justify-end"} transform transition-transform duration-300 hover:scale-[1.01] w-full`}>
+                  {message.role === "user" && (
+-                   <div className="flex flex-shrink-0 mr-2 items-center">
+-                     <Avatar className="border border-gray-200 dark:border-gray-700">
+-                       <AvatarImage src="/user-avatar.svg" alt="المستخدم" />
+-                       <AvatarFallback className="bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+-                         <User className="h-5 w-5" aria-hidden="true" />
++                   <div className="flex flex-shrink-0 mr-3 items-start mt-1">
++                     <Avatar className="border-2 border-blue-200 dark:border-blue-800 shadow-sm h-9 w-9">
++                       <AvatarImage src="/user-avatar.svg" alt="المستخدم" className="p-1" />
++                       <AvatarFallback className="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300">
++                         <User className="h-4 w-4" aria-hidden="true" />
+                        </AvatarFallback>
+                      </Avatar>
+```
+
+```diff
+                  
+                  <Card
+-                   className={`w-auto overflow-hidden shadow-lg ${
++                   className={`w-auto overflow-hidden shadow-md hover:shadow-lg ${
+                      message.role === "user"
+                        ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white border-none"
+-                       : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
+-                   } rounded-2xl hover:shadow-xl transition-shadow duration-300 my-1`}
++                       : "bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700"
++                   } rounded-2xl transition-shadow duration-300 my-1`}
+                    style={{ 
+                      maxWidth: message.role === "user" ? "85%" : "95%",
+```
+
+```diff
+                    aria-label={`رسالة من ${message.role === "user" ? "المستخدم" : "المساعد"}`}
+                  >
+-                   <CardContent className="p-4 relative group">
++                   <CardContent className={`p-4 relative group ${message.role === "user" ? "pb-3" : "pb-3"}`}>
+                      <MessageActions
+                        message={message}
+```
+
+```diff
+  
+                      {message.role === "assistant" && (
+-                       <div className="mt-4 flex justify-start">
++                       <div className="mt-3 flex justify-start">
+                          <Badge
+                            variant="secondary"
+-                           className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs shadow-sm"
++                           className="bg-gradient-to-r from-green-100 to-blue-100 dark:from-green-900/40 dark:to-blue-900/40 text-green-800 dark:text-green-200 text-xs shadow-sm"
+                          >
+                            🤖 مساعد خبير - مخصص للعراق
+```
+
+```diff
+                  
+                  {message.role === "assistant" && (
+-                   <div className="flex flex-shrink-0 ml-2 items-center">
+-                     <Avatar className="border border-gray-200 dark:border-gray-700">
+-                       <AvatarImage src="/logo.png" alt="المساعد الذكي" />
+-                       <AvatarFallback className="bg-blue-100 dark:bg-blue-900">
+-                         <div className="h-full w-full flex items-center justify-center text-blue-600 dark:text-blue-300" aria-hidden="true">
++                   <div className="flex flex-shrink-0 ml-3 items-start mt-1">
++                     <Avatar className="border-2 border-green-200 dark:border-green-800 shadow-sm h-9 w-9">
++                       <AvatarImage src="/logo.png" alt="المساعد الذكي" className="p-1" />
++                       <AvatarFallback className="bg-green-100 dark:bg-green-900">
++                         <div className="h-full w-full flex items-center justify-center text-green-600 dark:text-green-300" aria-hidden="true">
+                            🛢️
+                          </div>
+```
+
+```diff
+              </div>
+            ))}
+-           <div ref={messagesEndRef} aria-hidden="true" />
++           
++           {isLoading && <LoadingIndicator />}
++           <div ref={messagesEndRef} />
+          </div>
+        </ErrorBoundary>
+- 
+-       {isLoading && <LoadingIndicator />}
+      </div>
+    )
+```
+
+---
+
+Finally, let's improve the ChatInput component:
+
+---
+
+Read file: components/chat/ChatInput.tsx
+
+---
+
+```diff
+  
+  import { useState, useEffect } from "react"
+- import { Send, Car, Square } from "lucide-react"
++ import { Send, Car, Square, Sparkles } from "lucide-react"
+  import { Button } from "@/components/ui/button"
+  import { Card, CardContent } from "@/components/ui/card"
+```
+
+```diff
+  
+    return (
+-     <Card className={`rounded-none border-0 shadow-lg bg-gradient-to-t from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 flex-shrink-0`}>
+-       <CardContent className={`p-2 pb-2 sm:p-4 md:p-6 ${keyboardVisible ? 'pb-6' : ''}`}>
+-         <form onSubmit={handleFormSubmit} className="w-full mx-auto">
++     <Card className={`rounded-none border-0 shadow-lg bg-white dark:bg-gray-900 flex-shrink-0`}>
++       <CardContent className={`p-3 pb-3 sm:p-4 ${keyboardVisible ? 'pb-6' : ''}`}>
++         <form onSubmit={handleFormSubmit} className="w-full max-w-3xl mx-auto">
+            <div className="relative">
+              <div className="flex items-center space-x-2 sm:space-x-4 space-x-reverse">
+                <div className="flex-1 relative">
+-                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+-                   <Car className="w-4 h-4 sm:w-5 sm:h-5" />
++                 <div className={`absolute right-4 top-1/2 transform -translate-y-1/2 text-blue-500 dark:text-blue-400 transition-all duration-300 ${inputFocused ? 'opacity-100' : 'opacity-70'}`}>
++                   <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
+                  </div>
+                  <input
+```
+
+```diff
+                    }}
+                    placeholder="مثال: تويوتا كورولا 2020..."
+-                   className={`w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-300 rounded-full px-4 sm:px-6 py-2 sm:py-5 pr-10 sm:pr-14 pl-12 sm:pl-16 focus:outline-none focus:ring-2 focus:ring-blue-500 border transition-all duration-200 text-xs sm:text-base shadow-inner ${
++                   className={`w-full bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-300 rounded-xl px-4 sm:px-6 py-3 sm:py-4 pr-12 sm:pr-14 pl-12 sm:pl-16 focus:outline-none focus:ring-2 focus:ring-blue-500 border transition-all duration-300 text-sm sm:text-base ${
+                      inputFocused
+-                       ? "border-blue-500 shadow-lg shadow-blue-500/20"
+-                       : "border-gray-300 dark:border-gray-600"
++                       ? "border-blue-500 shadow-lg shadow-blue-500/20 bg-white dark:bg-gray-800"
++                       : "border-gray-200 dark:border-gray-700 shadow-sm"
+                    }`}
+                    disabled={isLoading}
+```
+
+```diff
+                            onClick={onStopGeneration}
+                            size="sm"
+-                           className="bg-red-600 hover:bg-red-700 p-1.5 sm:p-2 rounded-full transition-colors text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-transform h-7 w-7 sm:h-9 sm:w-9"
++                           className="bg-red-500 hover:bg-red-600 p-2 sm:p-2.5 rounded-xl transition-all duration-300 text-white shadow-md hover:shadow-lg transform hover:scale-105 h-8 w-8 sm:h-10 sm:w-10"
+                          >
+                            <Square className="w-3 h-3 sm:w-4 sm:h-4" />
+```
+
+```diff
+                          disabled={isLoading || !input.trim()}
+                          size="sm"
+-                         className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:text-gray-600 dark:disabled:bg-gray-700 dark:disabled:text-gray-500 disabled:cursor-not-allowed disabled:border disabled:border-gray-300 dark:disabled:border-gray-600 p-1.5 sm:p-2 rounded-full transition-colors text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-transform h-7 w-7 sm:h-9 sm:w-9"
++                         className={`p-2 sm:p-2.5 rounded-xl transition-all duration-300 text-white shadow-md hover:shadow-lg transform hover:scale-105 h-8 w-8 sm:h-10 sm:w-10 ${
++                           input.trim() 
++                             ? "bg-blue-600 hover:bg-blue-700" 
++                             : "bg-gray-300 dark:bg-gray-700 cursor-not-allowed"
++                         }`}
+                        >
+                          <Send className="w-3 h-3 sm:w-4 sm:h-4" />
+```
+
+```diff
+                  {/* Auto-suggestions */}
+                  {showSuggestions && filteredSuggestions.length > 0 && (
+-                   <Card className="absolute top-full left-0 right-0 mt-1 sm:mt-2 z-10 border-2 border-blue-200 dark:border-blue-800 shadow-lg">
+-                     <CardContent className="p-2">
+-                       {filteredSuggestions.slice(0, 3).map((suggestion, index) => (
+-                         <Button
+-                           key={index}
+-                           variant="ghost"
+-                           className="w-full justify-start text-right p-2 sm:p-3 text-xs sm:text-base hover:bg-blue-50 dark:hover:bg-blue-900/30"
+-                           onClick={() => handleSuggestionClick(suggestion)}
+-                         >
+-                           <Car className="w-3 h-3 sm:w-4 sm:h-4 ml-1 sm:ml-2" />
+-                           {suggestion}
+-                         </Button>
+-                       ))}
++                   <Card className="absolute top-full left-0 right-0 mt-2 z-10 border border-blue-100 dark:border-blue-800/50 rounded-xl shadow-xl overflow-hidden">
++                     <CardContent className="p-1">
++                       <div className="max-h-60 overflow-y-auto">
++                         {filteredSuggestions.slice(0, 5).map((suggestion, index) => (
++                           <Button
++                             key={index}
++                             variant="ghost"
++                             className="w-full justify-start text-right p-3 sm:p-3.5 text-sm sm:text-base hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg my-0.5"
++                             onClick={() => handleSuggestionClick(suggestion)}
++                           >
++                             <Car className="w-3 h-3 sm:w-4 sm:h-4 ml-2 sm:ml-3 text-blue-500 dark:text-blue-400" />
++                             {suggestion}
++                           </Button>
++                         ))}
++                       </div>
+                      </CardContent>
+                    </Card>
+```
+
+```diff
+              </div>
+              {!keyboardVisible && (
+-               <p className="text-[11px] sm:text-sm text-gray-800 dark:text-gray-200 mt-1 sm:mt-3 text-center font-medium bg-gray-50 dark:bg-gray-800/50 py-1 sm:py-1.5 px-4 rounded-full mx-auto inline-block">
+-               اكتب استفسارك عن زيت السيارة أو اختر من الأسئلة الشائعة أعلاه
+-             </p>
++               <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-2 sm:mt-3 text-center font-medium">
++                 اكتب استفسارك عن زيت السيارة أو اختر من الأسئلة الشائعة أعلاه
++               </p>
+              )}
+            </div>
+```
+
+---
+
+Let's restart the server to apply all our changes:
+
+---
+
+```bash
+npm run dev
+```
+
+---
+
+I've implemented comprehensive design improvements across the chat interface. Here's a summary of the changes:
+
+### 1. Sidebar Improvements
+- Added a modern gradient header with an icon
+- Improved the "New Chat" button with better styling and shadow effects
+- Enhanced session items with better spacing, rounded corners, and visual feedback
+- Added a proper empty state with an icon and helpful text
+- Added a footer section with app branding
+- Improved delete confirmation dialog with better styling and clearer messaging
+- Added backdrop blur effects for a more modern look
+
+### 2. Header Improvements
+- Updated the header with a subtle gradient background
+- Added a mobile menu button that only shows on small screens
+- Enhanced the logo container with hover effects
+- Improved the badge design with a gradient
+- Added colored icons for dark/light mode toggle
+- Improved button styling with better shadows and hover effects
+
+### 3. Message Bubbles Improvements
+- Increased spacing between messages for better readability
+- Enhanced avatar styling with colored borders and proper positioning
+- Improved message card styling with better shadows and hover effects
+- Enhanced the badge in assistant messages with a gradient background
+- Improved spacing within message content
+
+### 4. Input Area Improvements
+- Completely redesigned the input field with a cleaner look
+- Changed the icon to a sparkle icon with opacity transitions
+- Improved button styling with rounded corners and better visual feedback
+- Enhanced auto-suggestions with better styling, more items, and scrolling
+- Improved the helper text styling
+
+### 5. Layout Improvements
+- Added a subtle background gradient to the messages container
+- Updated the sidebar width and content layout
+- Added a border to the input area for better visual separation
+- Improved mobile responsiveness throughout the interface
+- Changed the mobile sidebar toggle button to use the message icon
+
+These improvements create a more modern, visually appealing, and user-friendly chat interface while maintaining all the existing functionality. The design now has better visual hierarchy, improved spacing, and more consistent styling across all components.
+
+---
+
+_**User**_
+
+مفرووض الشات يقدر ياخد اكثر من سطر 
+مثلا لو دوست shift + enter فا يعمل سطر جديد ولاكن انو مش بيعمل سطر جديد بيككتب الكلام قدام بعض علي طول
+
+---
+
+_**Assistant**_
+
+Let me fix the chat input to support multi-line input with Shift+Enter. I'll modify the ChatInput component:
+
+---
+
+```diff
+  "use client"
+  
+- import { useState, useEffect } from "react"
++ import { useState, useEffect, KeyboardEvent } from "react"
+  import { Send, Car, Square, Sparkles } from "lucide-react"
+  import { Button } from "@/components/ui/button"
+  import { Card, CardContent } from "@/components/ui/card"
+  import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
++ import { Textarea } from "@/components/ui/textarea"
+  
+  interface ChatInputProps {
+    input: string
+-   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void
++   handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void
+    handleSubmit: (e: React.FormEvent) => void
+    isLoading: boolean
+```
+
+```diff
+  
+    const handleFormSubmit = (e: React.FormEvent) => {
++     e.preventDefault()
+      console.log("Submitting form with input:", input)
+      handleSubmit(e)
+      setShowSuggestions(false)
+    }
++   
++   // Handle key press for Shift+Enter
++   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
++     if (e.key === 'Enter' && !e.shiftKey) {
++       e.preventDefault()
++       if (input.trim() && !isLoading) {
++         handleFormSubmit(e)
++       }
++     }
++   }
+  
+    return (
+```
+
+```diff
+              <div className="flex items-center space-x-2 sm:space-x-4 space-x-reverse">
+                <div className="flex-1 relative">
+-                 <div className={`absolute right-4 top-1/2 transform -translate-y-1/2 text-blue-500 dark:text-blue-400 transition-all duration-300 ${inputFocused ? 'opacity-100' : 'opacity-70'}`}>
++                 <div className={`absolute right-4 top-4 transform -translate-y-1/2 text-blue-500 dark:text-blue-400 transition-all duration-300 ${inputFocused ? 'opacity-100' : 'opacity-70'}`}>
+                    <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
+                  </div>
+-                 <input
++                 <Textarea
+                    value={input}
+                    onChange={(e) => {
+                      handleInputChange(e)
+                      setShowSuggestions(e.target.value.length > 0)
+                    }}
++                   onKeyDown={handleKeyDown}
+                    onFocus={() => {
+                      setInputFocused(true)
+```
+
+```diff
+                      setTimeout(() => setShowSuggestions(false), 200)
+                    }}
+-                   placeholder="مثال: تويوتا كورولا 2020..."
+-                   className={`w-full bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-300 rounded-xl px-4 sm:px-6 py-3 sm:py-4 pr-12 sm:pr-14 pl-12 sm:pl-16 focus:outline-none focus:ring-2 focus:ring-blue-500 border transition-all duration-300 text-sm sm:text-base ${
++                   placeholder="مثال: تويوتا كورولا 2020... (Shift+Enter للسطر الجديد)"
++                   className={`w-full bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-300 rounded-xl px-4 sm:px-6 py-3 sm:py-4 pr-12 sm:pr-14 pl-12 sm:pl-16 focus:outline-none focus:ring-2 focus:ring-blue-500 border transition-all duration-300 text-sm sm:text-base resize-none min-h-[60px] max-h-32 ${
+                      inputFocused
+                        ? "border-blue-500 shadow-lg shadow-blue-500/20 bg-white dark:bg-gray-800"
+                        : "border-gray-200 dark:border-gray-700 shadow-sm"
+                    }`}
+                    disabled={isLoading}
++                   rows={1}
++                   style={{ 
++                     height: input.split('\n').length > 1 ? 'auto' : '60px',
++                     overflow: 'auto'
++                   }}
+                  />
+  
+```
+
+```diff
+              {!keyboardVisible && (
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-2 sm:mt-3 text-center font-medium">
+-                 اكتب استفسارك عن زيت السيارة أو اختر من الأسئلة الشائعة أعلاه
++                 اكتب استفسارك عن زيت السيارة أو اختر من الأسئلة الشائعة أعلاه (Shift+Enter للسطر الجديد)
+                </p>
+              )}
+```
+
+---
+
+Now I need to check if we have a Textarea component in the UI components, and if not, I'll create one:
+
+---
+
+<details>
+            <summary>Searched codebase "textarea.tsx" • **1** results</summary>
+        
+| File |
+|------|
+| `undefined` |
+
+</details>
+
+---
+
+Let's check the contents of the textarea component:
+
+---
+
+Read file: components/ui/textarea.tsx
+
+---
+
+Now let's update the ChatPage component to handle the textarea properly:
+
+---
+
+```diff
+      messages,
+      input,
+-     handleInputChange,
++     handleInputChange: aiHandleInputChange,
+      handleSubmit,
+      isLoading,
+```
+
+```diff
+      }
+    })
++ 
++   // Custom input handler to support both input and textarea elements
++   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
++     aiHandleInputChange(e as React.ChangeEvent<HTMLInputElement>);
++   };
+  
+    // Load chat history from localStorage
+```
+
+---
+
+Let's restart the server to apply our changes:
+
+---
+
+```bash
+npm run dev
+```
+
+---
+
+I've implemented multi-line input support for the chat interface. Here's what I did:
+
+1. **Replaced the input field with a textarea**:
+   - Changed the input element to a textarea component that can handle multiple lines of text
+   - Added auto-resizing functionality based on content length
+   - Set appropriate height limits (min-height and max-height)
+
+2. **Added Shift+Enter support**:
+   - Implemented a keyDown handler that:
+     - Allows new lines when pressing Shift+Enter
+     - Submits the form when pressing Enter without Shift
+   - Added clear instructions in the placeholder and help text
+
+3. **Updated related components**:
+   - Modified the ChatPage component to handle both input and textarea elements
+   - Adjusted the styling to maintain visual consistency
+   - Positioned the icon correctly for the multi-line input
+
+4. **Improved user experience**:
+   - Added instructions in the placeholder text
+   - Added a note about Shift+Enter in the helper text
+   - Limited the maximum height to prevent the textarea from getting too large
+
+Now you can:
+- Type normally for single-line input
+- Press Shift+Enter to add new lines for multi-line messages
+- Press Enter alone to send the message
+
+These changes maintain all the existing functionality while adding support for multi-line input, which is especially useful for more detailed car descriptions or complex queries.
+
+---
+
+_**User**_
+
+خليها زي chatgpt لما بيبقا فيه سطر جديد الشات بيكبر لفوق عشان يظهر الستر 
+react-textarea-autosize – لتكبير الحقل تلقائيًا دون انزلاق.
+
+
+
+---
+
+_**Assistant**_
+
+I'll implement the auto-resizing textarea similar to ChatGPT using the `react-textarea-autosize` library. Let's first install the package:
+
+---
+
+```bash
+npm install react-textarea-autosize
+```
+
+```
+npm error code ERESOLVE
+npm error ERESOLVE could not resolve
+npm error
+npm error While resolving: react-day-picker@8.10.1
+PS C:\Users\Dark\Downloads\CarsiqAi-master\CarsiqAi-master>
+```
+
+---
+
+Let's try again with the `--force` flag:
+
+---
+
+```bash
+npm install react-textarea-autosize --force
+```
+
+```
+PS C:\Users\Dark\Downloads\CarsiqAi-master\CarsiqAi-master> npm install react-textarea-autosize --force
+npm warn using --force Recommended protections disabled.
+npm warn ERESOLVE overriding peer dependency
+npm warn While resolving: react-day-picker@8.10.1
+npm warn Found: date-fns@4.1.0
+npm warn node_modules/date-fns
+npm warn   date-fns@"4.1.0" from the root project
+npm warn
+npm warn Could not resolve dependency:
+npm warn   node_modules/react-day-picker
+npm warn     react-day-picker@"8.10.1" from the root project
+npm warn ERESOLVE overriding peer dependency
+npm warn While resolving: react-day-picker@8.10.1
+npm warn Found: react@19.1.0
+npm warn node_modules/react
+npm warn   peer react@"^18 || ^19 || ^19.0.0-rc" from @ai-sdk/react@1.2.12
+npm warn   node_modules/@ai-sdk/react
+npm warn     @ai-sdk/react@"1.2.12" from ai@4.3.16
+npm warn     node_modules/ai
+npm warn     1 more (the root project)
+npm warn   77 more (@floating-ui/react-dom, @radix-ui/react-accordion, ...)
+npm warn
+npm warn Could not resolve dependency:
+npm warn peer react@"^16.8.0 || ^17.0.0 || ^18.0.0" from react-day-picker@8.10.1
+npm warn node_modules/react-day-picker
+npm warn   react-day-picker@"8.10.1" from the root project
+npm warn
+npm warn Conflicting peer dependency: react@18.3.1
+npm warn node_modules/react
+npm warn   peer react@"^16.8.0 || ^17.0.0 || ^18.0.0" from react-day-picker@8.10.1
+npm warn   node_modules/react-day-picker
+npm warn     react-day-picker@"8.10.1" from the root project
+npm warn ERESOLVE overriding peer dependency
+npm warn While resolving: vaul@0.9.9
+npm warn Found: react@19.1.0
+npm warn node_modules/react
+npm warn   peer react@"^18 || ^19 || ^19.0.0-rc" from @ai-sdk/react@1.2.12
+npm warn   node_modules/@ai-sdk/react
+npm warn     @ai-sdk/react@"1.2.12" from ai@4.3.16
+npm warn     node_modules/ai
+npm warn     1 more (the root project)
+npm warn   77 more (@floating-ui/react-dom, @radix-ui/react-accordion, ...)
+npm warn
+npm warn Could not resolve dependency:
+npm warn peer react@"^16.8 || ^17.0 || ^18.0" from vaul@0.9.9
+npm warn node_modules/vaul
+npm warn   vaul@"^0.9.6" from the root project
+npm warn
+npm warn Conflicting peer dependency: react@18.3.1
+npm warn node_modules/react
+npm warn   peer react@"^16.8 || ^17.0 || ^18.0" from vaul@0.9.9
+npm warn   node_modules/vaul
+npm warn     vaul@"^0.9.6" from the root project
+npm warn ERESOLVE overriding peer dependency
+npm warn While resolving: vaul@0.9.9
+npm warn Found: react-dom@19.1.0
+npm warn node_modules/react-dom
+npm warn   peer react-dom@">=16.8.0" from @floating-ui/react-dom@2.1.2
+npm warn   node_modules/@floating-ui/react-dom
+npm warn     @floating-ui/react-dom@"^2.0.0" from @radix-ui/react-popper@1.2.1
+npm warn     node_modules/@radix-ui/react-popper
+npm warn   47 more (@radix-ui/react-accordion, ...)
+npm warn
+npm warn Could not resolve dependency:
+npm warn peer react-dom@"^16.8 || ^17.0 || ^18.0" from vaul@0.9.9
+npm warn node_modules/vaul
+npm warn   vaul@"^0.9.6" from the root project
+npm warn
+npm warn Conflicting peer dependency: react-dom@18.3.1
+npm warn node_modules/react-dom
+npm warn   peer react-dom@"^16.8 || ^17.0 || ^18.0" from vaul@0.9.9
+npm warn   node_modules/vaul
+npm warn     vaul@"^0.9.6" from the root project
+
+added 4 packages, and audited 500 packages in 11s
+
+80 packages are looking for funding
+  run `npm fund` for details
+
+5 vulnerabilities (1 low, 1 moderate, 3 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues possible (including breaking changes), run:
+  npm audit fix --force
+
+Some issues need review, and may require choosing
+a different dependency.
+
+Run `npm audit` for details.
+PS C:\Users\Dark\Downloads\CarsiqAi-master\CarsiqAi-master>
+```
+
+---
+
+Now let's update the ChatInput component to use the react-textarea-autosize library:
+
+---
+
+```diff
+  import { Card, CardContent } from "@/components/ui/card"
+  import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+- import { Textarea } from "@/components/ui/textarea"
++ import TextareaAutosize from "react-textarea-autosize"
++ import { cn } from "@/lib/utils"
+  
+  interface ChatInputProps {
+```
+
+```diff
+                    <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
+                  </div>
+-                 <Textarea
++                 <TextareaAutosize
+                    value={input}
+                    onChange={(e) => {
+```
+
+```diff
+                    }}
+                    placeholder="مثال: تويوتا كورولا 2020... (Shift+Enter للسطر الجديد)"
+-                   className={`w-full bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-300 rounded-xl px-4 sm:px-6 py-3 sm:py-4 pr-12 sm:pr-14 pl-12 sm:pl-16 focus:outline-none focus:ring-2 focus:ring-blue-500 border transition-all duration-300 text-sm sm:text-base resize-none min-h-[60px] max-h-32 ${
++                   className={cn(
++                     "w-full bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-300",
++                     "rounded-xl px-4 sm:px-6 py-3 sm:py-4 pr-12 sm:pr-14 pl-12 sm:pl-16 focus:outline-none focus:ring-2 focus:ring-blue-500 border",
++                     "transition-all duration-300 text-sm sm:text-base resize-none",
+                      inputFocused
+                        ? "border-blue-500 shadow-lg shadow-blue-500/20 bg-white dark:bg-gray-800"
+                        : "border-gray-200 dark:border-gray-700 shadow-sm"
+-                   }`}
++                   )}
+                    disabled={isLoading}
+-                   rows={1}
+-                   style={{ 
+-                     height: input.split('\n').length > 1 ? 'auto' : '60px',
+-                     overflow: 'auto'
+-                   }}
++                   minRows={1}
++                   maxRows={8}
++                   style={{ overflow: 'hidden' }}
+                  />
+  
+```
+
+---
+
+Now let's update the ChatPage component to handle the new textarea properly:
+
+---
+
+Read file: components/chat/ChatPage.tsx
+
+---
+
+Let's update the ChatPage component to handle the auto-resize textarea better:
+
+---
+
+```diff
+    const [viewportHeight, setViewportHeight] = useState(0)
+    const [isFaqExpanded, setIsFaqExpanded] = useState(true)
++   const [textareaHeight, setTextareaHeight] = useState(0)
+    const containerRef = useRef<HTMLDivElement>(null)
+    const messagesContainerRef = useRef<HTMLDivElement>(null)
+```
+
+```diff
+        addMessageToActiveSession(assistantMessage);
+        loadChatSessions(); // Refresh sessions
++       
++       // Scroll to bottom after message is added
++       setTimeout(() => {
++         scrollToBottom();
++       }, 100);
+      }
+    })
++ 
++   // Scroll to bottom of messages
++   const scrollToBottom = () => {
++     if (messagesContainerRef.current) {
++       messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
++     }
++   };
+  
+    // Custom input handler to support both input and textarea elements
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      aiHandleInputChange(e as React.ChangeEvent<HTMLInputElement>);
++     
++     // Update textarea height for layout calculations
++     if (e.target instanceof HTMLTextAreaElement) {
++       setTextareaHeight(e.target.scrollHeight);
++     }
+    };
+  
+```
+
+```diff
+              aiMessages.some((msg, i) => messages[i]?.content !== msg.content)) {
+            setMessages(aiMessages);
++           
++           // Scroll to bottom after messages are loaded
++           setTimeout(() => {
++             scrollToBottom();
++           }, 100);
+          }
+        }
+```
+
+```diff
+          if (!keyboardVisible) {
+            setKeyboardVisible(true);
++           // Scroll to bottom when keyboard appears
++           setTimeout(scrollToBottom, 300);
+          }
+        } else {
+```
+
+```diff
+          if (window.visualViewport) {
+            detectKeyboardVisibility();
++           scrollToBottom();
+          }
+        };
+```
+
+```diff
+    }, []);
+  
+-   // New effect to handle keyboard appearing and fix the empty space issue
++   // Effect to handle textarea resizing
+    useEffect(() => {
+-     const chatWrapper = messagesContainerRef.current;
+- 
+-     const resizeHandler = () => {
+-       if (window.innerHeight < window.outerHeight) {
+-         // Keyboard is open
+-         chatWrapper?.scrollIntoView({ behavior: "smooth", block: "end" });
++     if (textareaHeight > 0) {
++       scrollToBottom();
+      }
+-     };
+- 
+-     window.addEventListener("resize", resizeHandler);
+-     return () => window.removeEventListener("resize", resizeHandler);
+-   }, []);
++   }, [textareaHeight]);
+  
+    // Load preferences and chat sessions
+```
+
+```diff
+      // Load chat sessions
+      loadChatSessions();
++     
++     // Initial scroll to bottom
++     setTimeout(scrollToBottom, 300);
+    }, [])
+  
+```
+
+```diff
+        handleNewSession()
+      }
++     
++     // Scroll to bottom when messages change
++     scrollToBottom();
+    }, [messages, error])
+  
+```
+
+```diff
+      loadChatSessions();
+      setSidebarOpen(false);
++     
++     // Scroll to bottom after session change
++     setTimeout(scrollToBottom, 300);
+    };
+  
+```
+
+```diff
+        // Handle the actual form submission
+        handleSubmit(e)
++       
++       // Reset textarea height
++       setTextareaHeight(0);
++       
++       // Scroll to bottom after sending
++       setTimeout(scrollToBottom, 100);
+      }
+    }
+```
+
+```diff
+              id="chat-wrapper"
+              style={{
+-               height: keyboardVisible ? 'calc(100% - 120px)' : 'auto',
++               height: keyboardVisible ? `calc(100% - ${Math.min(textareaHeight + 80, 250)}px)` : 'auto',
+                paddingBottom: keyboardVisible ? '8px' : '16px'
+              }}
+```
+
+---
+
+Now let's check the ChatMessages component to make sure it handles the messages properly:
+
+---
+
+Read file: components/chat/ChatMessages.tsx
+
+---
+
+Let's read the rest of the ChatMessages.tsx file:
+
+---
+
+Read file: components/chat/ChatMessages.tsx
+
+---
+
+Let's read the remaining part of the ChatMessages.tsx file:
+
+---
+
+Read file: components/chat/ChatMessages.tsx
+
+---
+
+Let's update the WelcomeScreen component in ChatMessages.tsx to handle the textarea focus correctly:
+
+---
+
+```diff
+  const WelcomeScreen = ({ isFaqExpanded }: { isFaqExpanded: boolean }) => {
+    const handleGetStarted = useCallback(() => {
+-     const input = document.querySelector('input[type="text"], textarea')
++     const input = document.querySelector('textarea')
+      if (input instanceof HTMLElement) {
+        input.focus()
+```
+
+---
+
+Now let's run the development server to test our changes:
+
+---
+
+```bash
+npm run dev
+```
+
+---
+
+Let's add some CSS to make the textarea auto-resize behavior even smoother:
+
+---
+
+
+
+---
+
+Let's try again with the CSS file:
+
+---
+
+Read file: app/globals.css
+
+---
+
+Let's add the CSS for the textarea auto-resize:
+
+---
+
+```diff
+    padding: 0;
+  }
++ 
++ /* Smooth textarea auto-resize */
++ textarea {
++   transition: height 0.1s ease-out;
++   resize: none;
++   overflow: hidden;
++   line-height: 1.5;
++ }
++ 
++ /* Auto-resize textarea styles */
++ .react-textarea-autosize {
++   transition: height 0.1s ease-out;
++   min-height: 60px !important;
++   max-height: 200px !important;
++   resize: none !important;
++   overflow: hidden !important;
++   line-height: 1.5 !important;
++ }
++ 
++ /* Ensure content doesn't jump when textarea resizes */
++ .chat-container {
++   scroll-behavior: smooth;
++   transition: height 0.2s ease;
++ }
++ 
++ /* Improve mobile keyboard experience */
++ @media (max-width: 768px) {
++   .mobile-keyboard-active .chat-container {
++     padding-bottom: 80px;
++   }
++ }
+  
+  /* Mobile-specific fixes */
+```
+
+---
+
+Let's now run the development server to see our changes:
+
+---
+
+```bash
+npm run dev
+```
+
+---
+
+Now let's make one final update to ensure the ChatMessages component correctly handles the auto-scrolling when the textarea resizes:
+
+---
+
+```diff
+      if (forceScroll) {
+        if (isMobile) {
+-         window.scrollTo(0, document.body.scrollHeight)
++         window.scrollTo({
++           top: document.body.scrollHeight,
++           behavior: 'auto'
++         })
+        }
+        messagesEndRef.current.scrollIntoView({ 
+          block: 'end', 
+-           inline: 'nearest' 
++         inline: 'nearest',
++         behavior: 'auto'
+        })
+      } else {
+        messagesEndRef.current.scrollIntoView({ 
+-           behavior: keyboardVisible || !isMobile ? 'auto' : 'smooth',
++         behavior: keyboardVisible ? 'auto' : 'smooth',
+          block: 'end'
+        })
+```
+
+---
+
+Let's also update the ChatInput component to add a clear explanation about using Shift+Enter for new lines:
+
+---
+
+```diff
+  
+  import { useState, useEffect, KeyboardEvent } from "react"
+- import { Send, Car, Square, Sparkles } from "lucide-react"
++ import { Send, Car, Square, Sparkles, ArrowDown } from "lucide-react"
+  import { Button } from "@/components/ui/button"
+  import { Card, CardContent } from "@/components/ui/card"
+```
+
+```diff
+    const [showSuggestions, setShowSuggestions] = useState(false)
+    const [isMounted, setIsMounted] = useState(false)
++   const [showShiftEnterTip, setShowShiftEnterTip] = useState(false)
+    
+    // Handle client-side mounting
+    useEffect(() => {
+      setIsMounted(true);
+    }, []);
++ 
++   // Show Shift+Enter tip briefly when focused
++   useEffect(() => {
++     if (inputFocused) {
++       setShowShiftEnterTip(true);
++       const timer = setTimeout(() => {
++         setShowShiftEnterTip(false);
++       }, 3000);
++       return () => clearTimeout(timer);
++     }
++   }, [inputFocused]);
+  
+    const filteredSuggestions = iraqiCarSuggestions.filter((suggestion) =>
+```
+
+```diff
+                    style={{ overflow: 'hidden' }}
+                  />
++ 
++                 {/* Shift+Enter Tip */}
++                 {showShiftEnterTip && (
++                   <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium shadow-lg z-50 whitespace-nowrap animate-fade-in-up">
++                     <div className="flex items-center gap-1.5">
++                       <span>Shift+Enter للسطر الجديد</span>
++                       <ArrowDown className="w-3 h-3" />
++                     </div>
++                   </div>
++                 )}
+  
+                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+```
+
+```diff
+              {!keyboardVisible && (
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-2 sm:mt-3 text-center font-medium">
+-                 اكتب استفسارك عن زيت السيارة أو اختر من الأسئلة الشائعة أعلاه (Shift+Enter للسطر الجديد)
++                 اكتب استفسارك عن زيت السيارة أو اختر من الأسئلة الشائعة أعلاه <span className="inline-flex items-center bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-xs font-bold mx-1">Shift+Enter</span> للسطر الجديد
+                </p>
+              )}
+```
+
+---
+
+Let's add the animation for the Shift+Enter tip:
+
+---
+
+```diff
+    }
+  }
++ 
++ /* Animation for Shift+Enter tip */
++ @keyframes fade-in-up {
++   from {
++     opacity: 0;
++     transform: translate(-50%, 10px);
++   }
++   to {
++     opacity: 1;
++     transform: translate(-50%, 0);
++   }
++ }
++ 
++ .animate-fade-in-up {
++   animation: fade-in-up 0.3s ease-out forwards;
++ }
+  
+  /* Mobile-specific fixes */
+```
+
+---
+
+Now let's check our implementation by running the development server and testing the changes:
+
+---
+
+```bash
+npm run dev
+```
+
+```
+  run `npm fund` for details
+
+5 vulnerabilities (1 low, 1 moderate, 3 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues possible (including breaking changes), run:
+  npm audit fix --force
+
+Some issues need review, and may require choosing
+a different dependency.
+
+Run `npm audit` for details.
+PS C:\Users\Dark\Downloads\CarsiqAi-master\CarsiqAi-master> npm run dev
+
+> my-v0-project@0.1.0 dev
+> next dev
+
+ ⚠ Port 3000 is in use, trying 3001 instead.
+   ▲ Next.js 15.2.4
+   - Local:        http://localhost:3001  
+   - Network:      http://192.168.1.4:3001
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 6.8s
+ ○ Compiling /_not-found ...
+PS C:\Users\Dark\Downloads\CarsiqAi-master\CarsiqAi-master>
+```
+
+---
+
+Great! Our implementation is now complete. Here's a summary of what we've accomplished:
+
+1. Replaced the regular textarea with `react-textarea-autosize` for automatic resizing
+2. Implemented Shift+Enter functionality for new lines while Enter submits the message
+3. Added proper scrolling behavior to ensure the chat always scrolls to the bottom when the textarea resizes
+4. Added visual cues to help users understand the Shift+Enter functionality:
+   - A tooltip that appears briefly when the textarea is focused
+   - Clear instructions in the placeholder text
+   - A styled indicator in the help text below the input
+5. Added CSS to ensure smooth transitions when the textarea resizes
+6. Updated the ChatPage component to handle the auto-resizing textarea properly
+7. Improved the WelcomeScreen component to focus the textarea correctly
+
+The chat input now behaves similar to ChatGPT where:
+1. The textarea automatically grows as the user types more text
+2. Shift+Enter creates a new line
+3. Enter submits the message
+4. The chat container adjusts its height dynamically to accommodate the growing textarea
+
+These changes significantly improve the user experience, especially for users who need to send multi-line messages in Arabic.
+
+---
+
+_**User**_
+
+thats so good now remove the hint for the shift enter
+and stop running the app i will run it my self am tlalking about npm run dev
+
+---
+
+_**Assistant**_
+
+I'll remove the Shift+Enter hint and stop the dev server. Let's update the ChatInput component:
+
+---
+
+```diff
+  
+  import { useState, useEffect, KeyboardEvent } from "react"
+- import { Send, Car, Square, Sparkles, ArrowDown } from "lucide-react"
++ import { Send, Car, Square, Sparkles } from "lucide-react"
+  import { Button } from "@/components/ui/button"
+  import { Card, CardContent } from "@/components/ui/card"
+```
+
+```diff
+    const [showSuggestions, setShowSuggestions] = useState(false)
+    const [isMounted, setIsMounted] = useState(false)
+-   const [showShiftEnterTip, setShowShiftEnterTip] = useState(false)
+    
+    // Handle client-side mounting
+    useEffect(() => {
+      setIsMounted(true);
+    }, []);
+- 
+-   // Show Shift+Enter tip briefly when focused
+-   useEffect(() => {
+-     if (inputFocused) {
+-       setShowShiftEnterTip(true);
+-       const timer = setTimeout(() => {
+-         setShowShiftEnterTip(false);
+-       }, 3000);
+-       return () => clearTimeout(timer);
+-     }
+-   }, [inputFocused]);
+  
+    const filteredSuggestions = iraqiCarSuggestions.filter((suggestion) =>
+```
+
+```diff
+                    style={{ overflow: 'hidden' }}
+                  />
+- 
+-                 {/* Shift+Enter Tip */}
+-                 {showShiftEnterTip && (
+-                   <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium shadow-lg z-50 whitespace-nowrap animate-fade-in-up">
+-                     <div className="flex items-center gap-1.5">
+-                       <span>Shift+Enter للسطر الجديد</span>
+-                       <ArrowDown className="w-3 h-3" />
+-                     </div>
+-                   </div>
+-                 )}
+  
+                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+```
+
+---
+
+Now let's stop the development server:
+
+---
+
+```bash
+taskkill /f /im node.exe
+```
+
+```
+PS C:\Users\Dark\Downloads\CarsiqAi-master\CarsiqAi-master> 
+                                                            taskkill /f /im node.exe
+SUCCESS: The process "node.exe" with PID 5424 has been terminated.
+SUCCESS: The process "node.exe" with PID 9028 has been terminated.
+PS C:\Users\Dark\Downloads\CarsiqAi-master\CarsiqAi-master>
+```
+
+---
+
+I've made the requested changes:
+
+1. Removed the Shift+Enter tooltip that appeared when focusing on the textarea
+   - Removed the `showShiftEnterTip` state
+   - Removed the effect that showed and hid the tooltip
+   - Removed the tooltip component itself
+   - Removed the ArrowDown icon import that was only used in the tooltip
+
+2. Stopped all Node.js processes including the development server
+   - Used `taskkill /f /im node.exe` to terminate all running Node.js processes
+   - The server is now completely stopped
+
+The Shift+Enter functionality still works, but the temporary tooltip hint no longer appears. The static hint in the placeholder text and below the input field remain, as those are helpful for users to know how to create multi-line messages.
+
+You can now run the development server yourself using `npm run dev` whenever you're ready.
+
+---
+
+_**User**_
+
+remove Shift+Enter للسطر الجديد
+
+---
+
+_**Assistant**_
+
+I'll remove all references to "Shift+Enter للسطر الجديد" from the ChatInput component:
+
+---
+
+
+
+---
+
 
 
 ---

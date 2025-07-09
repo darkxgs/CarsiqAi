@@ -38,18 +38,22 @@ const useScrollToBottom = (keyboardVisible: boolean) => {
 
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
       
-      if (forceScroll) {
-        if (isMobile) {
-        window.scrollTo(0, document.body.scrollHeight)
-        }
-        messagesEndRef.current.scrollIntoView({ 
-          block: 'end', 
-          inline: 'nearest' 
+    if (forceScroll) {
+      if (isMobile) {
+        window.scrollTo({
+          top: document.body.scrollHeight,
+          behavior: 'auto'
+        })
+      }
+      messagesEndRef.current.scrollIntoView({ 
+        block: 'end', 
+        inline: 'nearest',
+        behavior: 'auto'
       })
-      } else {
-        messagesEndRef.current.scrollIntoView({ 
-          behavior: keyboardVisible || !isMobile ? 'auto' : 'smooth',
-          block: 'end'
+    } else {
+      messagesEndRef.current.scrollIntoView({ 
+        behavior: keyboardVisible ? 'auto' : 'smooth',
+        block: 'end'
       })
     }
   }, [keyboardVisible])
@@ -332,7 +336,7 @@ const LoadingIndicator = () => (
 // Welcome screen component
 const WelcomeScreen = ({ isFaqExpanded }: { isFaqExpanded: boolean }) => {
   const handleGetStarted = useCallback(() => {
-    const input = document.querySelector('input[type="text"], textarea')
+    const input = document.querySelector('textarea')
     if (input instanceof HTMLElement) {
       input.focus()
     }
@@ -434,27 +438,27 @@ export function ChatMessages({
       )}
 
       <ErrorBoundary>
-        <div className="space-y-6 px-1 max-w-full">
+        <div className="space-y-8 px-1 max-w-full">
           {messages.map((message) => (
             <div key={message.id} className="flex w-full">
               <div className={`flex ${message.role === "user" ? "justify-start" : "justify-end"} transform transition-transform duration-300 hover:scale-[1.01] w-full`}>
                 {message.role === "user" && (
-                  <div className="flex flex-shrink-0 mr-2 items-center">
-                    <Avatar className="border border-gray-200 dark:border-gray-700">
-                      <AvatarImage src="/user-avatar.svg" alt="المستخدم" />
-                      <AvatarFallback className="bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
-                        <User className="h-5 w-5" aria-hidden="true" />
+                  <div className="flex flex-shrink-0 mr-3 items-start mt-1">
+                    <Avatar className="border-2 border-blue-200 dark:border-blue-800 shadow-sm h-9 w-9">
+                      <AvatarImage src="/user-avatar.svg" alt="المستخدم" className="p-1" />
+                      <AvatarFallback className="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300">
+                        <User className="h-4 w-4" aria-hidden="true" />
                       </AvatarFallback>
                     </Avatar>
                   </div>
                 )}
                 
                 <Card
-                  className={`w-auto overflow-hidden shadow-lg ${
+                  className={`w-auto overflow-hidden shadow-md hover:shadow-lg ${
                     message.role === "user"
                       ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white border-none"
-                      : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
-                  } rounded-2xl hover:shadow-xl transition-shadow duration-300 my-1`}
+                      : "bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700"
+                  } rounded-2xl transition-shadow duration-300 my-1`}
                   style={{ 
                     maxWidth: message.role === "user" ? "85%" : "95%",
                     wordBreak: "break-word",
@@ -463,7 +467,7 @@ export function ChatMessages({
                   role="article"
                   aria-label={`رسالة من ${message.role === "user" ? "المستخدم" : "المساعد"}`}
                 >
-                  <CardContent className="p-4 relative group">
+                  <CardContent className={`p-4 relative group ${message.role === "user" ? "pb-3" : "pb-3"}`}>
                     <MessageActions
                       message={message}
                       copiedMessageId={copiedMessageId}
@@ -477,10 +481,10 @@ export function ChatMessages({
                     </div>
 
                     {message.role === "assistant" && (
-                      <div className="mt-4 flex justify-start">
+                      <div className="mt-3 flex justify-start">
                         <Badge
                           variant="secondary"
-                          className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs shadow-sm"
+                          className="bg-gradient-to-r from-green-100 to-blue-100 dark:from-green-900/40 dark:to-blue-900/40 text-green-800 dark:text-green-200 text-xs shadow-sm"
                         >
                           🤖 مساعد خبير - مخصص للعراق
                         </Badge>
@@ -490,11 +494,11 @@ export function ChatMessages({
                 </Card>
                 
                 {message.role === "assistant" && (
-                  <div className="flex flex-shrink-0 ml-2 items-center">
-                    <Avatar className="border border-gray-200 dark:border-gray-700">
-                      <AvatarImage src="/logo.png" alt="المساعد الذكي" />
-                      <AvatarFallback className="bg-blue-100 dark:bg-blue-900">
-                        <div className="h-full w-full flex items-center justify-center text-blue-600 dark:text-blue-300" aria-hidden="true">
+                  <div className="flex flex-shrink-0 ml-3 items-start mt-1">
+                    <Avatar className="border-2 border-green-200 dark:border-green-800 shadow-sm h-9 w-9">
+                      <AvatarImage src="/logo.png" alt="المساعد الذكي" className="p-1" />
+                      <AvatarFallback className="bg-green-100 dark:bg-green-900">
+                        <div className="h-full w-full flex items-center justify-center text-green-600 dark:text-green-300" aria-hidden="true">
                           🛢️
                         </div>
                       </AvatarFallback>
@@ -504,11 +508,11 @@ export function ChatMessages({
               </div>
             </div>
           ))}
-          <div ref={messagesEndRef} aria-hidden="true" />
+          
+          {isLoading && <LoadingIndicator />}
+          <div ref={messagesEndRef} />
         </div>
       </ErrorBoundary>
-
-      {isLoading && <LoadingIndicator />}
     </div>
   )
 } 

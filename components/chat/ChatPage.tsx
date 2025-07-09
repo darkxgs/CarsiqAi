@@ -18,7 +18,7 @@ import {
   getActiveSession
 } from "@/utils/chatStorage"
 import { Button } from "@/components/ui/button"
-import { PlusCircle } from "lucide-react"
+import { PlusCircle, MessageSquare } from "lucide-react"
 
 export default function ChatPage() {
   // State
@@ -29,6 +29,7 @@ export default function ChatPage() {
   const [keyboardVisible, setKeyboardVisible] = useState(false)
   const [viewportHeight, setViewportHeight] = useState(0)
   const [isFaqExpanded, setIsFaqExpanded] = useState(true)
+  const [textareaHeight, setTextareaHeight] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
   
@@ -55,7 +56,7 @@ export default function ChatPage() {
   const {
     messages,
     input,
-    handleInputChange,
+    handleInputChange: aiHandleInputChange,
     handleSubmit,
     isLoading,
     error,
@@ -81,8 +82,30 @@ export default function ChatPage() {
       }
       addMessageToActiveSession(assistantMessage);
       loadChatSessions(); // Refresh sessions
+      
+      // Scroll to bottom after message is added
+      setTimeout(() => {
+        scrollToBottom();
+      }, 100);
     }
   })
+
+  // Scroll to bottom of messages
+  const scrollToBottom = () => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
+  };
+
+  // Custom input handler to support both input and textarea elements
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    aiHandleInputChange(e as React.ChangeEvent<HTMLInputElement>);
+    
+    // Update textarea height for layout calculations
+    if (e.target instanceof HTMLTextAreaElement) {
+      setTextareaHeight(e.target.scrollHeight);
+    }
+  };
 
   // Load chat history from localStorage
   const loadChatSessions = () => {
@@ -104,6 +127,11 @@ export default function ChatPage() {
         if (aiMessages.length !== messages.length || 
             aiMessages.some((msg, i) => messages[i]?.content !== msg.content)) {
           setMessages(aiMessages);
+          
+          // Scroll to bottom after messages are loaded
+          setTimeout(() => {
+            scrollToBottom();
+          }, 100);
         }
       }
     }
@@ -127,6 +155,8 @@ export default function ChatPage() {
       if (decreasePercentage > 0.2) {
         if (!keyboardVisible) {
           setKeyboardVisible(true);
+          // Scroll to bottom when keyboard appears
+          setTimeout(scrollToBottom, 300);
         }
       } else {
         if (keyboardVisible) {
@@ -176,6 +206,7 @@ export default function ChatPage() {
       const handleResize = () => {
         if (window.visualViewport) {
           detectKeyboardVisibility();
+          scrollToBottom();
         }
       };
       
@@ -198,20 +229,12 @@ export default function ChatPage() {
     }
   }, []);
 
-  // New effect to handle keyboard appearing and fix the empty space issue
+  // Effect to handle textarea resizing
   useEffect(() => {
-    const chatWrapper = messagesContainerRef.current;
-
-    const resizeHandler = () => {
-      if (window.innerHeight < window.outerHeight) {
-        // Keyboard is open
-        chatWrapper?.scrollIntoView({ behavior: "smooth", block: "end" });
-      }
-    };
-
-    window.addEventListener("resize", resizeHandler);
-    return () => window.removeEventListener("resize", resizeHandler);
-  }, []);
+    if (textareaHeight > 0) {
+      scrollToBottom();
+    }
+  }, [textareaHeight]);
 
   // Load preferences and chat sessions
   useEffect(() => {
@@ -229,6 +252,9 @@ export default function ChatPage() {
     
     // Load chat sessions
     loadChatSessions();
+    
+    // Initial scroll to bottom
+    setTimeout(scrollToBottom, 300);
   }, [])
 
   // Add resize listener for responsive scaling
@@ -261,6 +287,9 @@ export default function ChatPage() {
     if (messages.length === 0 && !activeSessionId) {
       handleNewSession()
     }
+    
+    // Scroll to bottom when messages change
+    scrollToBottom();
   }, [messages, error])
 
   // Handle session selection
@@ -268,6 +297,9 @@ export default function ChatPage() {
     setActiveSession(sessionId);
     loadChatSessions();
     setSidebarOpen(false);
+    
+    // Scroll to bottom after session change
+    setTimeout(scrollToBottom, 300);
   };
 
   // Handle new session creation
@@ -316,6 +348,12 @@ export default function ChatPage() {
       
       // Handle the actual form submission
       handleSubmit(e)
+      
+      // Reset textarea height
+      setTextareaHeight(0);
+      
+      // Scroll to bottom after sending
+      setTimeout(scrollToBottom, 100);
     }
   }
 
@@ -334,8 +372,8 @@ export default function ChatPage() {
     if (typeof window !== 'undefined' && window.innerWidth >= 768) {
       return {
         ...baseStyles,
-        width: sidebarOpen ? 'calc(100% - 16rem)' : '100%', // 16rem = 64px * 4 (sidebar width)
-        right: sidebarOpen ? '16rem' : 0,
+        width: sidebarOpen ? 'calc(100% - 18rem)' : '100%', // 18rem = 72px * 4 (sidebar width)
+        right: sidebarOpen ? '18rem' : 0,
         transition: 'width 0.3s, right 0.3s',
         marginRight: 0,
         paddingRight: 0
@@ -399,7 +437,7 @@ export default function ChatPage() {
         
         <div 
           ref={containerRef}
-          className="flex-grow flex flex-col overflow-hidden md:mr-64"
+          className="flex-grow flex flex-col overflow-hidden md:mr-72"
           dir="rtl"
           style={{
             ...getContentStyles(),
@@ -412,15 +450,16 @@ export default function ChatPage() {
             setDarkMode={setDarkMode}
             showSettings={showSettings}
             setShowSettings={setShowSettings}
+            toggleSidebar={toggleSidebar}
           />
 
           {/* Messages */}
           <div 
             ref={messagesContainerRef}
-            className="flex-1 overflow-y-auto chat-container flex flex-col w-full"
+            className="flex-1 overflow-y-auto chat-container flex flex-col w-full bg-gradient-to-b from-transparent to-gray-50/30 dark:to-gray-900/30"
             id="chat-wrapper"
             style={{
-              height: keyboardVisible ? 'calc(100% - 120px)' : 'auto',
+              height: keyboardVisible ? `calc(100% - ${Math.min(textareaHeight + 80, 250)}px)` : 'auto',
               paddingBottom: keyboardVisible ? '8px' : '16px'
             }}
           >
@@ -448,7 +487,7 @@ export default function ChatPage() {
           </div>
 
           {/* Input Area */}
-          <div className={`${keyboardVisible ? 'sticky bottom-0 z-40 bg-white dark:bg-gray-900' : ''}`}>
+          <div className={`${keyboardVisible ? 'sticky bottom-0 z-40 bg-white dark:bg-gray-900' : ''} border-t border-gray-100 dark:border-gray-800`}>
           <ChatInput
             input={input}
             handleInputChange={handleInputChange}
@@ -463,13 +502,13 @@ export default function ChatPage() {
         
         {/* Mobile Sidebar Toggle Button */}
         <Button
-          variant="outline"
+          variant="default"
           size="icon"
-          className="fixed bottom-20 right-4 z-30 rounded-full shadow-lg bg-blue-500 hover:bg-blue-600 text-white border-0 h-10 w-10 flex items-center justify-center"
+          className="fixed bottom-20 right-4 z-30 rounded-full shadow-lg bg-blue-500 hover:bg-blue-600 text-white border-0 h-12 w-12 flex items-center justify-center md:hidden"
           onClick={toggleSidebar}
           aria-label="فتح قائمة المحادثات"
         >
-          <PlusCircle className="h-5 w-5" />
+          <MessageSquare className="h-5 w-5" />
         </Button>
         
         {/* Footer with Admin Link */}

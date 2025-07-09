@@ -87,6 +87,53 @@ body {
   padding: 0;
 }
 
+/* Smooth textarea auto-resize */
+textarea {
+  transition: height 0.1s ease-out;
+  resize: none;
+  overflow: hidden;
+  line-height: 1.5;
+}
+
+/* Auto-resize textarea styles */
+.react-textarea-autosize {
+  transition: height 0.1s ease-out;
+  min-height: 60px !important;
+  max-height: 200px !important;
+  resize: none !important;
+  overflow: hidden !important;
+  line-height: 1.5 !important;
+}
+
+/* Ensure content doesn't jump when textarea resizes */
+.chat-container {
+  scroll-behavior: smooth;
+  transition: height 0.2s ease;
+}
+
+/* Improve mobile keyboard experience */
+@media (max-width: 768px) {
+  .mobile-keyboard-active .chat-container {
+    padding-bottom: 80px;
+  }
+}
+
+/* Animation for Shift+Enter tip */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 10px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.3s ease-out forwards;
+}
+
 /* Mobile-specific fixes */
 @media screen and (max-width: 767px) {
   body, html {
