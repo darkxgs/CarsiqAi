@@ -3613,6 +3613,84 @@ I'll remove all references to "Shift+Enter للسطر الجديد" from the Cha
 
 ---
 
+```diff
+                      setTimeout(() => setShowSuggestions(false), 200)
+                    }}
+-                   placeholder="مثال: تويوتا كورولا 2020... (Shift+Enter للسطر الجديد)"
++                   placeholder="مثال: تويوتا كورولا 2020..."
+                    className={cn(
+                      "w-full bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-300",
+```
+
+```diff
+              {!keyboardVisible && (
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-2 sm:mt-3 text-center font-medium">
+-                 اكتب استفسارك عن زيت السيارة أو اختر من الأسئلة الشائعة أعلاه <span className="inline-flex items-center bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-xs font-bold mx-1">Shift+Enter</span> للسطر الجديد
++                 اكتب استفسارك عن زيت السيارة أو اختر من الأسئلة الشائعة أعلاه
+                </p>
+              )}
+```
+
+---
+
+I've removed all references to "Shift+Enter للسطر الجديد" from the ChatInput component:
+
+1. Removed it from the placeholder text, which now simply shows "مثال: تويوتا كورولا 2020..." instead of "مثال: تويوتا كورولا 2020... (Shift+Enter للسطر الجديد)"
+
+2. Removed the entire styled span and text from the help message below the input field, which now just says "اكتب استفسارك عن زيت السيارة أو اختر من الأسئلة الشائعة أعلاه" without any mention of Shift+Enter
+
+The Shift+Enter functionality still works (users can still press Shift+Enter to add a new line), but there are no visible hints about this functionality anywhere in the interface now.
+
+---
+
+_**User**_
+
+the logo should be with the link like above am talking about the tab
+
+---
+
+_**Assistant**_
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
 
 
 ---

@@ -15,6 +15,32 @@ const vazir = Vazirmatn({
 export const metadata: Metadata = {
   title: 'هندسة السيارات - مساعد الزيوت الذكي',
   description: 'محادثة ذكية للحصول على استشارات السيارات وتوصيات الشراء بشكل فوري',
+  icons: {
+    icon: '/logo.png',
+    shortcut: '/logo.png',
+    apple: '/logo.png',
+  },
+  manifest: '/manifest.json',
+  themeColor: '#1a73e8',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'هندسة السيارات'
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'ar_IQ',
+    url: 'https://carsiq.ai/',
+    title: 'هندسة السيارات - مساعد الزيوت الذكي',
+    description: 'محادثة ذكية للحصول على استشارات السيارات وتوصيات الشراء بشكل فوري',
+    siteName: 'هندسة السيارات',
+    images: [{
+      url: '/logo.png',
+      width: 800,
+      height: 600,
+      alt: 'هندسة السيارات - مساعد الزيوت الذكي'
+    }]
+  }
 }
 
 export default function RootLayout({
@@ -29,7 +55,9 @@ export default function RootLayout({
         <title>هندسة السيارات - مساعد الزيوت الذكي</title>
         <meta name="description" content="محادثة ذكية للحصول على استشارات السيارات وتوصيات الشراء بشكل فوري" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/logo.png" />
+        <link rel="apple-touch-icon" href="/logo.png" />
+        <link rel="shortcut icon" href="/logo.png" type="image/png" />
         {/* Add custom Arabic font directly */}
         <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet" />
         
