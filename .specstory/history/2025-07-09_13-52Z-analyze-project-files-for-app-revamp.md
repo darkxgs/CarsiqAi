@@ -1448,7 +1448,449 @@ Read file: app/page.tsx
 
 ---
 
+```bash
+npm run dev
+```
 
+---
+
+تم تنفيذ المهمة بنجاح! إليك ملخص التغييرات التي قمنا بها:
+
+1. **إنشاء مجلد للصورة**:
+   - أنشأنا مجلد `/public/images` لتخزين الصور
+
+2. **نسخ الصورة**:
+   - نسخنا صورة البانر إلى مسار `/public/images/oil-brands-banner.jpg`
+
+3. **إضافة قسم البانر في الصفحة الرئيسية**:
+   - أضفنا قسم `Official Partner Banner` بين قسم مميزات الخدمة وقسم نماذج السيارات المدعومة
+   - طبقنا المواصفات المطلوبة:
+     - خلفية رمادية (#eeeeee)
+     - عرض متجاوب للصورة
+     - مسافات داخلية مناسبة (padding: 40px)
+     - نص Alt للـ SEO
+   - استخدمنا مكون Image من Next.js لتحسين أداء الصورة
+
+الآن يمكن للمستخدمين رؤية أن المتجر هو الوكيل الرسمي لهذه العلامات التجارية المعروفة لزيوت المحركات، مما سيعزز من مصداقية الخدمة ويزيد ثقة المستخدمين.
+
+خادم التطوير يعمل الآن في الخلفية، ويمكنك الوصول إلى الموقع على `http://localhost:3000` لمشاهدة التغييرات.
+
+---
+
+_**User**_
+
+تويوتا كورولا 2020 ماشية 150الف كم
+
+
+
+🚗 تويوتا كورولا 2020 تأتي بمحركين حسب السوق:
+1️⃣
+<b>2.0L 4-cylinder M20A-FKS</b> 🛢️ سعة الزيت: 4.4 لتر ⚙️ اللزوجة: 0W-20 🔧 نوع الزيت: Full Synthetic 🌡️ مناسب لحرارة العراق: ✅ 🎯 التوصية النهائية: Castrol EDGE 0W-20 Full Synthetic (4.4 لتر)
+2️⃣
+<b>1.6L 4-cylinder 1ZR-FE (أقل شيوعًا)</b> 🛢️ سعة الزيت: 3.7 لتر ⚙️ اللزوجة: 5W-30 🔧 نوع الزيت: Full Synthetic 🌡️ مناسب لحرارة العراق: ✅ 🎯 التوصية النهائية: Mobil 1 5W-30 Full Synthetic (3.7 لتر)
+⚠️ يرجى تحديد نوع المحرك بدقة لاختيار الزيت الأنسب.
+
+الكتابه مكتوبه بطريقه غريبه مكتوب <b>صلح المشكله
+
+---
+
+_**Assistant**_
+
+<think><details><summary>Thought Process</summary>The user has pointed out an issue with the formatting in the Toyota Corolla 2020 oil recommendation response. I can see the text contains HTML bold tags (`<b>...</b>`) that are being displayed as literal text instead of being interpreted as formatting.
+
+The issue is that in the response, the bold tags are being shown as-is (`<b>2.0L 4-cylinder M20A-FKS</b>` and `<b>1.6L 4-cylinder 1ZR-FE (أقل شيوعًا)</b>`) rather than properly formatting the text they enclose as bold.
+
+Based on the previous conversation summary, there was a formatting fix that changed Markdown bold syntax (`**text**`) to HTML bold tags (`<b>text</b>`) because Gemini was showing the Markdown syntax as-is. However, it seems the HTML tags are now also being displayed as literal text.
+
+I need to investigate how the oil recommendation text is being generated and fix the formatting issue. I should look at:
+
+1. The oil recommendation service code
+2. Any UI components that display these recommendations
+3. How text formatting is handled in the application
+
+Let me start by examining the oil recommendation service or relevant components.</details></think>
+
+---
+
+Let me fix this formatting issue. First I'll check how the oil recommendation responses are generated.
+
+---
+
+<details>
+            <summary>Searched codebase "oil recommendation service or formatter" • **0** results</summary>
+        
+No results found
+</details>
+
+---
+
+Let me search for the oil recommendation implementation more specifically:
+
+---
+
+<details>
+            <summary>Searched codebase "oil recommendation implementation Arabic language" • **25** results</summary>
+        
+| File | Lines |
+|------|-------|
+| `services/oilRecommendationService.ts` | L45-97 |
+| `utils/carAnalyzer.ts` | L292-338 |
+| `utils/vinEngineResolver.ts` | L158-203 |
+| `utils/carQueryApi.ts` | L1315-1341 |
+| `utils/trackingCarAnalyzer.ts` | L423-438 |
+| `utils/carAnalyzer.ts` | L511-557 |
+| `utils/vinEngineResolver.ts` | L203-245 |
+| `utils/carAnalyzer.ts` | L425-468 |
+| `app/api/oil-recommendation/route.ts` | L27-56 |
+| `utils/carAnalyzer.ts` | L66-76 |
+| `app/api/oil-recommendation/route.ts` | L1-27 |
+| `utils/trackingCarAnalyzer.ts` | L282-307 |
+| `utils/enhancedCarAnalyzer.ts` | L317-342 |
+| `utils/enhancedCarAnalyzer.ts` | L458-472 |
+| `utils/vinEngineResolver.ts` | L266-287 |
+| `app/api/chat/route.ts` | L924-946 |
+| `utils/trackingCarAnalyzer.ts` | L438-488 |
+| `utils/carQueryApi.ts` | L1444-1502 |
+| `app/api/chat/route.ts` | L846-878 |
+| `utils/carAnalyzer.ts` | L468-489 |
+| `app/api/chat/route.ts` | L878-903 |
+| `utils/trackingCarAnalyzer.ts` | L534-579 |
+| `utils/carAnalyzer.ts` | L489-511 |
+| `utils/enhancedCarAnalyzer.ts` | L552-596 |
+| `utils/enhancedCarAnalyzer.ts` | L472-515 |
+
+</details>
+
+---
+
+Let me look for the formatting function specifically:
+
+---
+
+<details>
+            <summary>Searched codebase "formatRecommendation function oil recommendation" • **25** results</summary>
+        
+| File | Lines |
+|------|-------|
+| `services/oilRecommendationService.ts` | L97-121 |
+| `services/oilRecommendationService.ts` | L45-97 |
+| `services/oilRecommendationService.ts` | L1-18 |
+| `utils/trackingCarAnalyzer.ts` | L534-579 |
+| `utils/enhancedCarAnalyzer.ts` | L552-596 |
+| `utils/carAnalyzer.ts` | L511-557 |
+| `utils/trackingCarAnalyzer.ts` | L20-49 |
+| `services/oilRecommendationService.ts` | L27-45 |
+| `utils/enhancedCarAnalyzer.ts` | L20-37 |
+| `utils/trackingCarAnalyzer.ts` | L502-534 |
+| `utils/carAnalyzer.ts` | L66-76 |
+| `utils/vinEngineResolver.ts` | L11-28 |
+| `app/api/chat/route.ts` | L34-48 |
+| `services/oilRecommendationService.ts` | L18-27 |
+| `utils/carAnalyzer.ts` | L489-511 |
+| `utils/enhancedCarAnalyzer.ts` | L527-552 |
+| `utils/vinEngineResolver.ts` | L266-287 |
+| `utils/trackingCarAnalyzer.ts` | L361-394 |
+| `utils/vinEngineResolver.ts` | L158-203 |
+| `utils/trackingCarAnalyzer.ts` | L423-438 |
+| `utils/carQueryApi.ts` | L1293-1315 |
+| `utils/trackingCarAnalyzer.ts` | L488-502 |
+| `utils/enhancedCarAnalyzer.ts` | L515-527 |
+| `utils/enhancedCarAnalyzer.ts` | L396-429 |
+| `utils/trackingCarAnalyzer.ts` | L438-488 |
+
+</details>
+
+---
+
+Now let me look for where the HTML formatting is implemented (specifically for `<b>` tags):
+
+---
+
+<details>
+            <summary>Searched codebase "convert markdown to HTML bold" • **25** results</summary>
+        
+| File | Lines |
+|------|-------|
+| `components/chat/ChatMessages.tsx` | L134-176 |
+| `components/chat/ChatMessages.tsx` | L398-438 |
+| `utils/enhancedCarAnalyzer.ts` | L552-596 |
+| `utils/trackingCarAnalyzer.ts` | L534-579 |
+| `app/globals.css` | L586-689 |
+| `utils/carAnalyzer.ts` | L511-557 |
+| `utils/enhancedCarAnalyzer.ts` | L527-552 |
+| `utils/trackingCarAnalyzer.ts` | L502-534 |
+| `utils/carAnalyzer.ts` | L489-511 |
+| `app/layout.tsx` | L18-44 |
+| `app/landingpagedesign.md` | L1-31 |
+| `app/page.tsx` | L26-65 |
+| `components/chat/ChatHeader.tsx` | L17-62 |
+| `components/chat/ChatMessages.tsx` | L278-321 |
+| `app/globals.css` | L173-277 |
+| `components/ui/badge.tsx` | L1-28 |
+| `README.md` | L1-45 |
+| `app/test-car-api/page.tsx` | L120-155 |
+| `app/globals.css` | L1-91 |
+| `app/faq/page.tsx` | L86-124 |
+| `components/chat/ChatMessages.tsx` | L371-398 |
+| `components/chat/ChatMessages.tsx` | L321-337 |
+| `tailwind.config.ts` | L1-64 |
+| `app/layout.tsx` | L1-18 |
+| `scripts/import-car-data.ts` | L167-221 |
+
+</details>
+
+---
+
+Let me look at how the chat messages are rendered in the UI to understand the problem better:
+
+---
+
+Read file: components/chat/ChatMessages.tsx
+
+---
+
+Let's also check for any API routes or chat route files that might be handling the formatting:
+
+---
+
+<details>
+            <summary>Searched codebase "html formatting ai messages bold" • **25** results</summary>
+        
+| File | Lines |
+|------|-------|
+| `components/chat/ChatMessages.tsx` | L134-176 |
+| `components/chat/ChatMessages.tsx` | L398-438 |
+| `utils/enhancedCarAnalyzer.ts` | L552-596 |
+| `utils/trackingCarAnalyzer.ts` | L534-579 |
+| `utils/carAnalyzer.ts` | L511-557 |
+| `components/chat/ChatMessages.tsx` | L371-398 |
+| `components/chat/ChatPage.tsx` | L21-85 |
+| `utils/trackingCarAnalyzer.ts` | L502-534 |
+| `components/chat/ChatMessages.tsx` | L1-19 |
+| `app/api/chat/route.ts` | L56-142 |
+| `app/globals.css` | L586-689 |
+| `utils/carQueryApi.ts` | L651-692 |
+| `components/chat/ChatMessages.tsx` | L438-462 |
+| `utils/carAnalyzer.ts` | L489-511 |
+| `components/chat/ChatMessages.tsx` | L176-219 |
+| `utils/enhancedCarAnalyzer.ts` | L527-552 |
+| `app/api/chat/route.ts` | L660-683 |
+| `README.md` | L1-45 |
+| `utils/chatStorage.ts` | L71-114 |
+| `app/api/chat/route.ts` | L683-744 |
+| `app/api/chat/route.ts` | L1-34 |
+| `app/api/chat/route.ts` | L1085-1107 |
+| `app/api/chat/route.ts` | L1301-1356 |
+| `app/api/chat/route.ts` | L1270-1301 |
+| `components/chat/ChatMessages.tsx` | L219-260 |
+
+</details>
+
+---
+
+Let me check the route file that processes chat requests to see how the chat API handles formatting:
+
+---
+
+Read file: app/api/chat/route.ts
+
+---
+
+After reviewing the code, I've identified the issue. The chat response in ChatMessages.tsx component doesn't parse HTML tags. Let me fix this issue:
+
+---
+
+```diff
+      if (role !== "assistant") return content
+  
+-     return content.split('\n\n').map((paragraph, i) => {
+-       const isNumberedEmoji = /^(\d️⃣|\d\uFE0F\u20E3)/.test(paragraph)
+-       const isHeading = paragraph.trim().endsWith(':') && paragraph.length < MAX_HEADING_LENGTH
+-       
+-       if (isNumberedEmoji) {
+-         const emoji = paragraph.match(/^(\d️⃣|\d\uFE0F\u20E3)/)?.[0]
+-         const text = paragraph.replace(/^(\d️⃣|\d\uFE0F\u20E3)/, '').trim()
+-         return (
+-           <div key={i} className="my-2 flex gap-2 items-start">
+-             <div className="text-lg flex-shrink-0" aria-hidden="true">{emoji}</div>
+-             <div className="flex-1">{text}</div>
+-           </div>
+-         )
+-       } else if (isHeading) {
+-         return (
+-           <h3 key={i} className="font-bold text-md mt-3 mb-1" role="heading" aria-level={3}>
+-             {paragraph}
+-           </h3>
+-         )
+-       } else {
+-         const hasEmoji = /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/.test(paragraph)
+-         return (
+-           <p key={i} className={`my-1.5 text-sm ${hasEmoji ? 'emoji-content' : ''}`}>
+-             {paragraph}
+-           </p>
+-         )
+-       }
+-     })
++     // First, parse and render HTML tags by converting to React elements
++     const parseHtml = (htmlContent: string) => {
++       // Replace <b>text</b> with temporary markers that won't be split
++       const markedContent = htmlContent.replace(/<b>(.*?)<\/b>/g, '___BOLD_START___$1___BOLD_END___');
++       
++       // Process paragraphs and then restore bold tags as React elements
++       return markedContent.split('\n\n').map((paragraph, i) => {
++         const isNumberedEmoji = /^(\d️⃣|\d\uFE0F\u20E3)/.test(paragraph)
++         const isHeading = paragraph.trim().endsWith(':') && paragraph.length < MAX_HEADING_LENGTH
++         
++         // Process the paragraph content to restore bold tags
++         const processParagraphContent = (text: string) => {
++           // Split by bold markers
++           const parts = text.split(/(___BOLD_START___|___BOLD_END___)/g);
++           
++           const result: React.ReactNode[] = [];
++           let isBold = false;
++           let currentText = '';
++           
++           parts.forEach((part) => {
++             if (part === '___BOLD_START___') {
++               // End current non-bold text if any
++               if (currentText) {
++                 result.push(currentText);
++                 currentText = '';
++               }
++               isBold = true;
++             } else if (part === '___BOLD_END___') {
++               // End current bold text
++               if (currentText) {
++                 result.push(<b key={`bold-${result.length}`}>{currentText}</b>);
++                 currentText = '';
++               }
++               isBold = false;
++             } else {
++               currentText += part;
++               // If we're at the end of parts or the next part is a marker, push the current text
++               if (parts.indexOf(part) === parts.length - 1) {
++                 if (isBold) {
++                   result.push(<b key={`bold-${result.length}`}>{currentText}</b>);
++                 } else {
++                   result.push(currentText);
++                 }
++                 currentText = '';
++               }
++             }
++           });
++           
++           return result;
++         };
++         
++         if (isNumberedEmoji) {
++           const emoji = paragraph.match(/^(\d️⃣|\d\uFE0F\u20E3)/)?.[0]
++           const text = paragraph.replace(/^(\d️⃣|\d\uFE0F\u20E3)/, '').trim()
++           return (
++             <div key={i} className="my-2 flex gap-2 items-start">
++               <div className="text-lg flex-shrink-0" aria-hidden="true">{emoji}</div>
++               <div className="flex-1">{processParagraphContent(text)}</div>
++             </div>
++           )
++         } else if (isHeading) {
++           return (
++             <h3 key={i} className="font-bold text-md mt-3 mb-1" role="heading" aria-level={3}>
++               {processParagraphContent(paragraph)}
++             </h3>
++           )
++         } else {
++           const hasEmoji = /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/.test(paragraph)
++           return (
++             <p key={i} className={`my-1.5 text-sm ${hasEmoji ? 'emoji-content' : ''}`}>
++               {processParagraphContent(paragraph)}
++             </p>
++           )
++         }
++       })
++     }
++     
++     return parseHtml(content);
+    }, [content, role])
+  
+```
+
+---
+
+Now let's restart the server to apply these changes:
+
+---
+
+```bash
+npm run dev
+```
+
+---
+
+I've implemented a fix for the HTML formatting issue in the ChatMessages component. Here's what the solution does:
+
+1. I added HTML parsing functionality to properly render the `<b>` tags in the chat messages instead of showing them as literal text.
+
+2. The solution uses a two-step approach:
+   - First, it temporarily replaces `<b>` tags with special markers that won't get split when we process paragraphs
+   - Then it processes each paragraph and replaces the markers with actual React `<b>` elements
+
+3. The implementation maintains all the existing functionality for handling numbered emojis, headings, and regular paragraphs.
+
+The server has been restarted with these changes. Now when a message contains `<b>` tags in the text, they will properly render as bold text instead of showing the literal HTML tags.
+
+You can now see proper formatting for messages like:
+```
+1️⃣ <b>2.0L 4-cylinder M20A-FKS</b>
+```
+
+Where the engine type will appear in bold as intended, rather than showing the literal `<b>` and `</b>` tags.
+
+---
+
+_**User**_
+
+تويوتا كورولا 2020 ماشية 150الف كم
+
+
+
+🚗 تويوتا كورولا 2020 تأتي بمحركين حسب السوق:
+1️⃣
+**2.0L 4-cylinder M20A-FKS** 🛢️ سعة الزيت: 4.4 لتر ⚙️ اللزوجة: 0W-20 🔧 نوع الزيت: Full Synthetic 🌡️ مناسب لحرارة العراق: ✅ 🎯 **التوصية النهائية:** Castrol EDGE 0W-20 Full Synthetic (4.4 لتر)
+2️⃣
+**1.6L 4-cylinder 1ZR-FE (أقل شيوعًا)** 🛢️ سعة الزيت: 3.7 لتر ⚙️ اللزوجة: 5W-30 🔧 نوع الزيت: Full Synthetic 🌡️ مناسب لحرارة العراق: ✅ 🎯 **التوصية النهائية:** Mobil 1 5W-30 Full Synthetic (4 لتر)
+❗ يرجى تحديد نوع المحرك بدقة للحصول على التوصية الأنسب. المسافة المقطوعة (150 ألف كم) لا تؤثر على نوع الزيت الموصى به.
+
+🤖 مساعد خبير - مخصص للعراق
+
+---
+
+_**Assistant**_
+
+I notice we need to update our solution to handle both `<b>` tags and Markdown-style `**bold**` formatting. Let me modify the ChatMessages component to handle both formats:
+
+---
+
+```diff
+      // First, parse and render HTML tags by converting to React elements
+      const parseHtml = (htmlContent: string) => {
+-       // Replace <b>text</b> with temporary markers that won't be split
+-       const markedContent = htmlContent.replace(/<b>(.*?)<\/b>/g, '___BOLD_START___$1___BOLD_END___');
++       // Replace both <b>text</b> and **text** with temporary markers that won't be split
++       let markedContent = htmlContent.replace(/<b>(.*?)<\/b>/g, '___BOLD_START___$1___BOLD_END___');
++       // Also handle markdown-style bold with ** (but avoid matching emoji sequences like 1️⃣**)
++       markedContent = markedContent.replace(/(?<!\d️⃣|\d\uFE0F\u20E3)\*\*(.*?)\*\*/g, '___BOLD_START___$1___BOLD_END___');
+        
+        // Process paragraphs and then restore bold tags as React elements
+```
+
+---
+
+Let's restart the server to apply our changes:
+
+---
+
+```bash
+npm run dev
+```
 
 ---
 

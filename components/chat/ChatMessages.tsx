@@ -138,34 +138,86 @@ const MessageContent = ({ content, role }: { content: string; role: string }) =>
   const renderedContent = useMemo(() => {
     if (role !== "assistant") return content
 
-    return content.split('\n\n').map((paragraph, i) => {
-      const isNumberedEmoji = /^(\d️⃣|\d\uFE0F\u20E3)/.test(paragraph)
-      const isHeading = paragraph.trim().endsWith(':') && paragraph.length < MAX_HEADING_LENGTH
+    // First, parse and render HTML tags by converting to React elements
+    const parseHtml = (htmlContent: string) => {
+      // Replace both <b>text</b> and **text** with temporary markers that won't be split
+      let markedContent = htmlContent.replace(/<b>(.*?)<\/b>/g, '___BOLD_START___$1___BOLD_END___');
+      // Also handle markdown-style bold with ** (but avoid matching emoji sequences like 1️⃣**)
+      markedContent = markedContent.replace(/(?<!\d️⃣|\d\uFE0F\u20E3)\*\*(.*?)\*\*/g, '___BOLD_START___$1___BOLD_END___');
       
-      if (isNumberedEmoji) {
-        const emoji = paragraph.match(/^(\d️⃣|\d\uFE0F\u20E3)/)?.[0]
-        const text = paragraph.replace(/^(\d️⃣|\d\uFE0F\u20E3)/, '').trim()
-        return (
-          <div key={i} className="my-2 flex gap-2 items-start">
-            <div className="text-lg flex-shrink-0" aria-hidden="true">{emoji}</div>
-            <div className="flex-1">{text}</div>
-          </div>
-        )
-      } else if (isHeading) {
-        return (
-          <h3 key={i} className="font-bold text-md mt-3 mb-1" role="heading" aria-level={3}>
-            {paragraph}
-          </h3>
-        )
-      } else {
-        const hasEmoji = /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/.test(paragraph)
-        return (
-          <p key={i} className={`my-1.5 text-sm ${hasEmoji ? 'emoji-content' : ''}`}>
-            {paragraph}
-          </p>
-        )
-      }
-    })
+      // Process paragraphs and then restore bold tags as React elements
+      return markedContent.split('\n\n').map((paragraph, i) => {
+        const isNumberedEmoji = /^(\d️⃣|\d\uFE0F\u20E3)/.test(paragraph)
+        const isHeading = paragraph.trim().endsWith(':') && paragraph.length < MAX_HEADING_LENGTH
+        
+        // Process the paragraph content to restore bold tags
+        const processParagraphContent = (text: string) => {
+          // Split by bold markers
+          const parts = text.split(/(___BOLD_START___|___BOLD_END___)/g);
+          
+          const result: React.ReactNode[] = [];
+          let isBold = false;
+          let currentText = '';
+          
+          parts.forEach((part) => {
+            if (part === '___BOLD_START___') {
+              // End current non-bold text if any
+              if (currentText) {
+                result.push(currentText);
+                currentText = '';
+              }
+              isBold = true;
+            } else if (part === '___BOLD_END___') {
+              // End current bold text
+              if (currentText) {
+                result.push(<b key={`bold-${result.length}`}>{currentText}</b>);
+                currentText = '';
+              }
+              isBold = false;
+            } else {
+              currentText += part;
+              // If we're at the end of parts or the next part is a marker, push the current text
+              if (parts.indexOf(part) === parts.length - 1) {
+                if (isBold) {
+                  result.push(<b key={`bold-${result.length}`}>{currentText}</b>);
+                } else {
+                  result.push(currentText);
+                }
+                currentText = '';
+              }
+            }
+          });
+          
+          return result;
+        };
+        
+        if (isNumberedEmoji) {
+          const emoji = paragraph.match(/^(\d️⃣|\d\uFE0F\u20E3)/)?.[0]
+          const text = paragraph.replace(/^(\d️⃣|\d\uFE0F\u20E3)/, '').trim()
+          return (
+            <div key={i} className="my-2 flex gap-2 items-start">
+              <div className="text-lg flex-shrink-0" aria-hidden="true">{emoji}</div>
+              <div className="flex-1">{processParagraphContent(text)}</div>
+            </div>
+          )
+        } else if (isHeading) {
+          return (
+            <h3 key={i} className="font-bold text-md mt-3 mb-1" role="heading" aria-level={3}>
+              {processParagraphContent(paragraph)}
+            </h3>
+          )
+        } else {
+          const hasEmoji = /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/.test(paragraph)
+          return (
+            <p key={i} className={`my-1.5 text-sm ${hasEmoji ? 'emoji-content' : ''}`}>
+              {processParagraphContent(paragraph)}
+            </p>
+          )
+        }
+      })
+    }
+    
+    return parseHtml(content);
   }, [content, role])
 
   if (role === "assistant") {
