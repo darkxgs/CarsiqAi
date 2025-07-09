@@ -5,6 +5,9 @@ import logger from "@/utils/logger"
 import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 import { z } from 'zod'
 import { normalizeArabicCarInput, getCarModels, extractOilRecommendationData, suggestOil } from '@/utils/carQueryApi'
+// استيراد قاعدة البيانات الداخلية والمساعدة في معالجة VIN
+import officialSpecs from '@/data/officialSpecs'
+import { getAccurateOilRecommendation, decodeVIN } from '@/utils/vinEngineResolver'
 
 // Input validation schemas
 const MessageSchema = z.object({
@@ -27,6 +30,7 @@ interface ExtractedCarData {
   transmission?: string;
   isValid: boolean;
   confidence: number;
+  vin?: string; // Add VIN to the interface
 }
 
 // Enhanced oil recommendation interface
@@ -63,55 +67,82 @@ const apiStatus: ApiStatus = {
 const openRouter = {
   baseURL: "https://openrouter.ai/api/v1",
   key: process.env.OPENROUTER_API_KEY || '',
-  primaryModel: "anthropic/claude-3-haiku",
-  fallbackModel: "anthropic/claude-instant-v1",
-  mistralModel: "mistralai/mistral-nemo:free",
+  primaryModel: "google/gemini-2.0-flash-001",
+fallbackModel: "rekaai/reka-flash-3:free",
+mistralModel: "google/gemma-3-27b-it:free"
+,
   maxRetries: 3,
   timeout: 30000,
-  systemPrompt: `
-أنت مساعد تقني متخصص في زيوت محركات السيارات، تعمل ضمن فريق الدعم الفني لمتجر "هندسة السيارات" 🇮🇶.
+  systemPrompt: `أنت مساعد تقني متخصص في زيوت محركات السيارات، تمثل فريق الدعم الفني لمتجر "هندسة السيارات" 🇮🇶.
 
-🎯 هدفك الأساسي:
-تقديم توصية دقيقة ومضمونة لزيت المحرك المناسب لأي سيارة، اعتمادًا فقط على بيانات الشركات المصنعة الرسمية، ومراعاة ظروف المناخ القاسية في العراق.
+🎯 المهمة الأساسية:
+تقديم توصيات دقيقة ومضمونة 100% لزيوت المحركات المناسبة لكل سيارة، اعتماداً فقط على بيانات الشركات المصنعة الرسمية، مع مراعاة الظروف المناخية الشديدة في العراق.
 
-🚗 مسؤولياتك:
-1. تحديد نوع المحرك بدقة (إذا ذكره المستخدم أو عبر VIN أو منطق ذكي)
-2. ذكر سعة الزيت **الحقيقية** بدقة من دليل المصنع (وليس حجم المحرك)
-3. ترشيح زيت واحد فقط (رئيسي) + بديل واحد فقط إن لزم
-4. تنسيق الرد بطريقة سهلة وقوية واحترافية
+🚗 المسؤوليات الأساسية:
+
+1. تحديد نوع المحرك بدقة:
+- استخرج نوع المحرك من المعلومات المتوفرة (الوصف أو رقم VIN أو الاستنتاج الذكي)
+- ❌ لا تفترض أو تخمّن نوع المحرك إن لم يُذكر بوضوح
+- ✅ إذا لم يتم تحديد نوع المحرك: <b>اعرض كل الخيارات الممكنة بوضوح</b>ذ  1
+
+2. تحديد سعة الزيت الحقيقية:
+- ✅ استخدم سعة الزيت الفعلية من دليل المصنع (وليس حجم المحرك)
+- ❗ لا تخلط بين Engine Size و Oil Capacity أبداً
+- تحقق من الرقم بدقة قبل تقديمه للمستخدم
+
+3. التوصية بالزيت:
+- قدم زيتاً واحداً فقط رئيسي
+- بديل واحد فقط عند الضرورة
+- لا تُقدم أكثر من خيارين إطلاقاً
 
 🌡️ مناخ العراق:
-- حرارة تصل إلى 50°C
-- غبار كثيف وازدحام مروري
-- قيادة بطيئة وقاسية
-→ يجب استخدام زيوت مقاومة للحرارة والغبار (Full Synthetic فقط)
+- درجات حرارة تصل إلى 50°C
+- غبار كثيف ومزمن
+- قيادة متكررة في الزحام وعلى طرق صعبة
+✅ يتطلب ذلك زيوت Full Synthetic عالية التحمل فقط
 
-🛢️ التوكيلات المعتمدة فقط:
+🛢️ العلامات التجارية المعتمدة فقط:
 Castrol, Mobil 1, Liqui Moly, Valvoline, Motul, Meguin, Hanata  
-❌ لا تُوصِ بأي زيت غير من هذه القائمة
+❌ لا تستخدم أو تقترح أي زيت خارج هذه القائمة، حتى كمثال
 
-📄 تنسيق الرد يجب أن يكون كالتالي:
-1️⃣ العنوان: نوع المحرك  
-🛢️ سعة الزيت: (مثلاً: 5.7 لتر)  
-⚙️ اللزوجة: (مثلاً: 5W-30)  
+📋 تنسيق الإجابة الإجباري:
+
+1️⃣ <b>[نوع المحرك]</b>  
+🛢️ سعة الزيت: [X.X لتر]  
+⚙️ اللزوجة: [XW-XX]  
 🔧 نوع الزيت: Full Synthetic  
-🧭 مناسب لحرارة العراق: ✅
+🌡️ مناسب لحرارة العراق: ✅
 
-🎯 **يجب إنهاء الرد دائماً بهذا الشكل:**
-التوصية النهائية: [اسم الزيت + اللزوجة] ([سعة الزيت] لتر)
+🎯 <b>التوصية النهائية:</b> [اسم الزيت + اللزوجة] ([سعة الزيت] لتر)
 
-❌ لا تستخدم engine size بدلاً من oil capacity  
-✅ لو لم يحدد المستخدم نوع المحرك، اعرض جميع الخيارات بوضوح، ولا تفترض أي شيء
+❗ عدم الالتزام بالتنسيق أو التوصية بزيت غير معتمد = خطأ فادح
 
-🧠 مثال مثالي:
-شيفروليه كامارو 2016 بمحرك V8:
-- سعة الزيت: 9.5 لتر
-- اللزوجة: 5W-30
-- نوع الزيت: Full Synthetic
-التوصية النهائية: Mobil 1 5W-30 Full Synthetic (9.5 لتر)`,
+🧠 في حال عدم تحديد نوع المحرك:
+- لا تفترض أي شيء
+- اعرض كل المحركات المتوفرة للسيارة المطلوبة
+- اطلب من المستخدم توضيح نوع المحرك بدقة
+
+🔍 مثال:
+1️⃣ <b>شيفروليه كامارو 2016 - محرك V8 6.2L</b>  
+🛢️ سعة الزيت: 9.5 لتر  
+⚙️ اللزوجة: 5W-30  
+🔧 نوع الزيت: Full Synthetic  
+🌡️ مناسب لحرارة العراق: ✅  
+🎯 <b>التوصية النهائية:</b> Mobil 1 5W-30 Full Synthetic (9.5 لتر)
+
+⚠️ تحذيرات إلزامية:
+1. لا تخلط بين سعة المحرك وسعة الزيت  
+2. لا تفترض أو تستنتج نوع المحرك من موديل السيارة فقط  
+3. لا تستخدم أي زيت خارج القائمة المعتمدة  
+4. لا تخرج عن التنسيق المحدد  
+5. لا تُقدم أكثر من توصيتين (رئيسي + بديل فقط)
+
+🎯 هدفك النهائي:
+تقديم توصية <b>موثوقة، دقيقة، بسيطة، ومناسبة تماماً للمناخ العراقي القاسي</b>، مع الالتزام الكامل بالتعليمات أعلاه.
+`,
   headers: {
-    "HTTP-Referer": "https://car-service-chat.vercel.app/",
-    "X-Title": "Car Service Chat - Enhanced",
+    "HTTP-Referer": "https://www.carsiqai.com",
+    "X-Title": "Car Service Chat - CarsiqAi",
   },
 }
 
@@ -122,7 +153,7 @@ const createOpenRouterClient = () => {
   baseURL: "https://openrouter.ai/api/v1",
   headers: {
       "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
-      "X-Title": "Car Service Chat - Enhanced"
+      "X-Title": "Car Service Chat - CarsiqAi"
     }
   })
 }
@@ -323,6 +354,27 @@ function enhancedExtractCarData(query: string): ExtractedCarData {
     }
   }
   
+  // VIN extraction from query
+  let vinNumber: string | undefined;
+  const vinPatterns = [
+    /\bVIN\s*[:#]?\s*([A-HJ-NPR-Z0-9]{17})\b/i,
+    /\bرقم الهيكل\s*[:#]?\s*([A-HJ-NPR-Z0-9]{17})\b/i,
+    /\b([A-HJ-NPR-Z0-9]{17})\b/i
+  ];
+  
+  for (const pattern of vinPatterns) {
+    const match = normalizedQuery.match(pattern);
+    if (match && match[1]) {
+      // Verify this looks like a valid VIN (17 characters, no I,O,Q)
+      const potentialVin = match[1].toUpperCase();
+      if (/^[A-HJ-NPR-Z0-9]{17}$/.test(potentialVin) && !potentialVin.includes('I') && !potentialVin.includes('O') && !potentialVin.includes('Q')) {
+        vinNumber = potentialVin;
+        confidence += 35; // High confidence for VIN detection
+        break;
+      }
+    }
+  }
+  
   // Special handling for Chevrolet Camaro
   if (detectedBrand === 'شيفروليت' && detectedModel === 'camaro') {
     if (!year) {
@@ -386,6 +438,7 @@ function enhancedExtractCarData(query: string): ExtractedCarData {
     carModel: detectedModel,
     year,
     mileage,
+    vin: vinNumber, // Add VIN to extracted data
     isValid: confidence >= 50,
     confidence
   }
@@ -694,6 +747,18 @@ export async function POST(req: Request) {
                               userQuery.toLowerCase().includes('جييب لاريدو') ||
                               (userQuery.toLowerCase().includes('جيب') && userQuery.includes('لاريدو')) ||
                               (userQuery.toLowerCase().includes('jeep') && userQuery.toLowerCase().includes('laredo'));
+    const isNissanSunnyQuery = userQuery.toLowerCase().includes('نيسان صني') || 
+                               userQuery.toLowerCase().includes('nissan sunny') ||
+                              (userQuery.toLowerCase().includes('نيسان') && 
+                               (userQuery.toLowerCase().includes('صني') || userQuery.toLowerCase().includes('sunny')));
+    const isToyotaCorollaQuery = userQuery.toLowerCase().includes('تويوتا كورولا') || 
+                              userQuery.toLowerCase().includes('toyota corolla') ||
+                             (userQuery.toLowerCase().includes('تويوتا') && 
+                              (userQuery.toLowerCase().includes('كورولا') || userQuery.toLowerCase().includes('corolla')));
+    const isKiaCeratoQuery = userQuery.toLowerCase().includes('كيا سيراتو') || 
+                          userQuery.toLowerCase().includes('kia cerato') ||
+                         (userQuery.toLowerCase().includes('كيا') && 
+                          (userQuery.toLowerCase().includes('سيراتو') || userQuery.toLowerCase().includes('cerato')));
     
     // Get car data for oil recommendations
     let carData: ExtractedCarData | undefined;
@@ -703,6 +768,42 @@ export async function POST(req: Request) {
     try {
       // First, try to use enhanced CarQuery API
       const normalizedData = await normalizeArabicCarInput(userQuery);
+      
+      // Check for VIN in query for more accurate info
+      let extractedVin = '';
+      const vinPatterns = [
+        /\bVIN\s*[:#]?\s*([A-HJ-NPR-Z0-9]{17})\b/i,
+        /\bرقم الهيكل\s*[:#]?\s*([A-HJ-NPR-Z0-9]{17})\b/i,
+        /\b([A-HJ-NPR-Z0-9]{17})\b/i
+      ];
+      
+      for (const pattern of vinPatterns) {
+        const match = userQuery.match(pattern);
+        if (match && match[1]) {
+          const potentialVin = match[1].toUpperCase();
+          if (/^[A-HJ-NPR-Z0-9]{17}$/.test(potentialVin)) {
+            extractedVin = potentialVin;
+            console.log('Detected VIN:', extractedVin);
+            
+            // Try to decode the VIN for enhanced info
+            try {
+              const vinData = await decodeVIN(extractedVin);
+              console.log('Decoded VIN data:', vinData);
+              
+              // If VIN is decoded successfully, update normalized data
+              if (vinData) {
+                if (!normalizedData.make || !normalizedData.model) {
+                  // Use vinData to improve car identification
+                  console.log('Enhanced car identification using VIN');
+                }
+              }
+            } catch (vinError) {
+              console.error('Error decoding VIN:', vinError);
+            }
+            break;
+          }
+        }
+      }
       
       // Special handling for specific car models not well-detected by default algorithms
       if (isJeepCompassQuery && !normalizedData.make) {
@@ -717,6 +818,30 @@ export async function POST(req: Request) {
         console.log('Special handling for Jeep Grand Cherokee (Laredo)');
         normalizedData.make = 'jeep';
         normalizedData.model = 'grand cherokee';
+        normalizedData.confidence = 80;
+      }
+      
+      // Special handling for Nissan Sunny
+      if (isNissanSunnyQuery && (!normalizedData.make || !normalizedData.model)) {
+        console.log('Special handling for Nissan Sunny');
+        normalizedData.make = 'nissan';
+        normalizedData.model = 'sunny';
+        normalizedData.confidence = 80;
+      }
+
+      // Special handling for Toyota Corolla
+      if (isToyotaCorollaQuery && (!normalizedData.make || !normalizedData.model)) {
+        console.log('Special handling for Toyota Corolla');
+        normalizedData.make = 'toyota';
+        normalizedData.model = 'corolla';
+        normalizedData.confidence = 80;
+      }
+
+      // Special handling for Kia Cerato
+      if (isKiaCeratoQuery && (!normalizedData.make || !normalizedData.model)) {
+        console.log('Special handling for Kia Cerato');
+        normalizedData.make = 'kia';
+        normalizedData.model = 'cerato';
         normalizedData.confidence = 80;
       }
       
@@ -867,67 +992,225 @@ ${carTrimData.model_drive ? `- نظام الدفع: ${carTrimData.model_drive}` 
       enhancedSystemPrompt += "\n\n" + carSpecsPrompt;
     } else if (carData && carData.isValid) {
       enhancedSystemPrompt += `\n\nالمستخدم سأل عن ${carData.carBrand} ${carData.carModel} ${carData.year || ''}`;
+        
+        // استخدام vinEngineResolver إذا تم اكتشاف VIN
+        if (carData.vin) {
+          try {
+            // الحصول على توصيات الزيت باستخدام VIN
+            const vinRecommendations = await getAccurateOilRecommendation(
+              carData.carBrand,
+              carData.carModel,
+              carData.year || new Date().getFullYear(),
+              carData.vin
+            );
+            
+            if (vinRecommendations) {
+              console.log('Successfully retrieved oil recommendations using VIN');
+              enhancedSystemPrompt += `\n\nتم استخراج بيانات دقيقة باستخدام رقم الهيكل (VIN).`;
+            }
+          } catch (vinError) {
+            console.error('Failed to get VIN recommendations:', vinError);
+          }
+        }
     }
     
     // Special handling for specific car models that require exact specifications
     // This is a fallback when the API and other methods don't provide accurate data
-    if (isJeepCompassQuery) {
+      
+      // ✅ Nissan Sunny override
+      if (isNissanSunnyQuery) {
       // Extract year if available
       const yearMatch = userQuery.match(/20(\d{2})/);
-      const year = yearMatch ? `20${yearMatch[1]}` : '2019'; // Default to 2019 if not specified
+        const year = yearMatch ? `20${yearMatch[1]}` : '2019';
       
-      // Add exact Jeep Compass specifications to the prompt
       enhancedSystemPrompt += `\n\n
-معلومات دقيقة عن جيب كومباس ${year}:
-- سعة زيت المحرك: 5.2 لتر
-- نوع الزيت الموصى به: 0W-20 Full Synthetic
-- المناسب للظروف العراقية: يتحمل درجات الحرارة العالية
-- فترة تغيير الزيت: كل 8000 كم في الظروف العراقية
+🚗 نيسان صني ${year} تأتي بمحركين حسب السوق:
 
-يجب التأكد من ذكر هذه المعلومات الدقيقة في إجابتك.
-`;
+1️⃣ <b>HR15DE - سعة 1.5 لتر (الأكثر شيوعًا)</b>
+🛢️ سعة الزيت: 3.4 لتر (مع الفلتر)
+⚙️ اللزوجة: 5W-30
+🔧 نوع الزيت: Full Synthetic
+🌡️ مناسب لحرارة العراق: ✅
+🎯 التوصية النهائية: Mobil 1 5W-30 Full Synthetic (3.4 لتر)
+
+2️⃣ <b>HR16DE - سعة 1.6 لتر (أقل شيوعًا)</b>
+🛢️ سعة الزيت: 4.4 لتر (مع الفلتر)
+⚙️ اللزوجة: 5W-30
+🔧 نوع الزيت: Full Synthetic
+🌡️ مناسب لحرارة العراق: ✅
+🎯 التوصية النهائية: Valvoline 5W-30 Full Synthetic (4.4 لتر)
+
+⚠️ لا تفترض نوع المحرك. إذا لم يذكر المستخدم النوع، اطلب منه تحديده بدقة.`;
+        
+        console.log('Added Nissan Sunny override specifications');
+      }
+      
+      // ✅ Toyota Corolla override
+      if (isToyotaCorollaQuery) {
+        const yearMatch = userQuery.match(/20(\d{2})/);
+        const year = yearMatch ? `20${yearMatch[1]}` : '2018';
+        
+        // استخدام بيانات officialSpecs بدلاً من تكرار القيم بشكل ثابت
+        let corollaSpecs: Record<string, any> = {};
+        try {
+          const toyotaData = officialSpecs['toyota']?.['corolla'] || {};
+          const isOlderModel = parseInt(year) < 2020;
+          
+          // اختيار نطاق السنوات المناسب
+          const yearRange = isOlderModel ? '2014-2019' : '2020-2024';
+          corollaSpecs = toyotaData[yearRange] || {};
+          
+          console.log(`Using officialSpecs for Toyota Corolla ${year}, year range: ${yearRange}`);
+        } catch (specError) {
+          console.error('Error accessing officialSpecs for Toyota Corolla:', specError);
+        }
+        
+        // استخدام بيانات officialSpecs إذا كانت متوفرة، وإلا استخدام قيم افتراضية
+        const newModel: Record<string, string> = {
+          capacity: corollaSpecs['capacity'] || '4.4L',
+          viscosity: corollaSpecs['viscosity'] || '0W-20',
+          engineSize: corollaSpecs['engineSize'] || '2.0L',
+          oilType: corollaSpecs['oilType'] || 'Full Synthetic',
+          recommended: 'Castrol EDGE 0W-20'
+        };
+        
+        const oldModel: Record<string, string> = {
+          capacity: corollaSpecs['capacity'] || '4.2L',
+          viscosity: corollaSpecs['viscosity'] || '5W-30',
+          engineSize: corollaSpecs['engineSize'] || '1.8L',
+          oilType: corollaSpecs['oilType'] || 'Full Synthetic',
+          recommended: 'Mobil 1 5W-30'
+        };
+        
+        const isOlderModel = parseInt(year) < 2020;
+        
+        enhancedSystemPrompt += `\n\n
+🚗 تويوتا كورولا ${year} تأتي بمحركين حسب السوق:
+
+1️⃣ <b>${isOlderModel ? '1.8L 4-cylinder 2ZR-FE' : '2.0L 4-cylinder M20A-FKS'}</b>
+🛢️ سعة الزيت: ${isOlderModel ? oldModel.capacity.replace('L', '') : newModel.capacity.replace('L', '')} لتر
+⚙️ اللزوجة: ${isOlderModel ? oldModel.viscosity : newModel.viscosity}
+🔧 نوع الزيت: ${isOlderModel ? oldModel.oilType : newModel.oilType}
+🌡️ مناسب لحرارة العراق: ✅
+🎯 التوصية النهائية: ${isOlderModel ? oldModel.recommended : newModel.recommended} ${isOlderModel ? oldModel.viscosity : newModel.viscosity} ${isOlderModel ? oldModel.oilType : newModel.oilType} (${isOlderModel ? oldModel.capacity.replace('L', '') : newModel.capacity.replace('L', '')} لتر)
+
+2️⃣ <b>1.6L 4-cylinder 1ZR-FE (أقل شيوعًا)</b>
+🛢️ سعة الزيت: 3.7 لتر
+⚙️ اللزوجة: 5W-30
+🔧 نوع الزيت: Full Synthetic
+🌡️ مناسب لحرارة العراق: ✅
+🎯 التوصية النهائية: Mobil 1 5W-30 Full Synthetic (3.7 لتر)
+
+⚠️ لا تفترض نوع المحرك. إذا لم يذكر المستخدم النوع، اطلب منه تحديده بدقة.`;
+        
+        console.log('Added Toyota Corolla override specifications');
+      }
+      
+      // ✅ Kia Cerato override
+      if (isKiaCeratoQuery) {
+        const yearMatch = userQuery.match(/20(\d{2})/);
+        const year = yearMatch ? `20${yearMatch[1]}` : '2018';
+        
+        // استخدام بيانات officialSpecs إذا كانت متوفرة لكيا سيراتو
+        let ceratoSpecs: Record<string, any> = {};
+        try {
+          const kiaData = officialSpecs['kia']?.['cerato'] || {};
+          
+          // محاولة العثور على نطاق سنوات مناسب
+          for (const yearRange of Object.keys(kiaData)) {
+            const rangeParts = yearRange.split('-');
+            if (rangeParts.length === 2) {
+              const startYear = parseInt(rangeParts[0]);
+              const endYear = parseInt(rangeParts[1]);
+              if (parseInt(year) >= startYear && parseInt(year) <= endYear) {
+                ceratoSpecs = kiaData[yearRange] || {};
+                console.log(`Found matching year range ${yearRange} for Kia Cerato ${year}`);
+                break;
+              }
+            }
+          }
+        } catch (specError) {
+          console.error('Error accessing officialSpecs for Kia Cerato:', specError);
+        }
+        
+        // استخدام البيانات من officialSpecs أو القيم الافتراضية
+        const model20L: Record<string, string> = {
+          capacity: ceratoSpecs['capacity'] || '4.0L',
+          viscosity: ceratoSpecs['viscosity'] || '5W-30',
+          engineSize: ceratoSpecs['engineSize'] || '2.0L',
+          oilType: ceratoSpecs['oilType'] || 'Full Synthetic',
+          recommended: 'Liqui Moly 5W-30'
+        };
+        
+        enhancedSystemPrompt += `\n\n
+🚗 كيا سيراتو ${year} تأتي بمحركين حسب السوق:
+
+1️⃣ <b>2.0L 4-cylinder Nu MPI (الأكثر شيوعًا)</b>
+🛢️ سعة الزيت: ${model20L.capacity.replace('L', '')} لتر
+⚙️ اللزوجة: ${model20L.viscosity}
+🔧 نوع الزيت: ${model20L.oilType}
+🌡️ مناسب لحرارة العراق: ✅
+🎯 التوصية النهائية: ${model20L.recommended} ${model20L.viscosity} ${model20L.oilType} (${model20L.capacity.replace('L', '')} لتر)
+
+2️⃣ <b>1.6L 4-cylinder Gamma MPI (أقل شيوعًا)</b>
+🛢️ سعة الزيت: 3.3 لتر
+⚙️ اللزوجة: 5W-30
+🔧 نوع الزيت: Full Synthetic
+🌡️ مناسب لحرارة العراق: ✅
+🎯 التوصية النهائية: Motul 8100 5W-30 Full Synthetic (3.3 لتر)
+
+⚠️ لا تفترض نوع المحرك. إذا لم يذكر المستخدم النوع، اطلب منه تحديده بدقة.`;
+        
+        console.log('Added Kia Cerato override specifications');
+      }
+      
+      // ✅ Jeep Compass override
+      if (isJeepCompassQuery) {
+        const yearMatch = userQuery.match(/20(\d{2})/);
+        const year = yearMatch ? `20${yearMatch[1]}` : '2019';
+      
+        enhancedSystemPrompt += `\n\n
+🚗 جيب كومباس ${year}:
+🛢️ سعة الزيت: 5.2 لتر
+⚙️ اللزوجة: 0W-20
+🔧 نوع الزيت: Full Synthetic
+🌡️ مناسب لحرارة العراق: ✅
+🎯 التوصية النهائية: Mobil 1 0W-20 Full Synthetic (5.2 لتر)`;
       
       console.log('Added Jeep Compass override specifications');
     }
     
-    // Special handling for Jeep Grand Cherokee (Laredo)
+      // ✅ Jeep Grand Cherokee (Laredo) override
     if (isJeepLaredoQuery) {
-      // Extract year if available
       const yearMatch = userQuery.match(/20(\d{2})/);
-      const year = yearMatch ? `20${yearMatch[1]}` : '2020'; // Default to 2020 if not specified
+        const year = yearMatch ? `20${yearMatch[1]}` : '2020';
       
-      // Check for engine size indicators in the query
       const isV8 = userQuery.toLowerCase().includes('5.7') || 
                   userQuery.toLowerCase().includes('v8') || 
                   userQuery.toLowerCase().includes('هيمي') ||
                   userQuery.toLowerCase().includes('hemi');
       
       if (isV8) {
-        // Add exact Jeep Grand Cherokee V8 specifications to the prompt
         enhancedSystemPrompt += `\n\n
-معلومات دقيقة عن جيب جراند شيروكي (لاريدو) ${year} بمحرك V8 HEMI:
-- سعة زيت المحرك: 6.6 لتر
-- نوع الزيت الموصى به: 5W-20 Full Synthetic
-- المناسب للظروف العراقية: يتحمل درجات الحرارة العالية
-- فترة تغيير الزيت: كل 8000 كم في الظروف العراقية
-
-يجب التأكد من ذكر هذه المعلومات الدقيقة في إجابتك.
-`;
+🚗 جيب جراند شيروكي (لاريدو) ${year} - محرك V8 HEMI:
+🛢️ سعة الزيت: 6.6 لتر
+⚙️ اللزوجة: 5W-20
+🔧 نوع الزيت: Full Synthetic
+🌡️ مناسب لحرارة العراق: ✅
+🎯 التوصية النهائية: Castrol EDGE 5W-20 Full Synthetic (6.6 لتر)`;
       } else {
-        // Add exact Jeep Grand Cherokee V6 specifications to the prompt (most common)
         enhancedSystemPrompt += `\n\n
-معلومات دقيقة عن جيب جراند شيروكي (لاريدو) ${year} بمحرك V6:
-- سعة زيت المحرك: 5.7 لتر
-- نوع الزيت الموصى به: 0W-20 Full Synthetic
-- المناسب للظروف العراقية: يتحمل درجات الحرارة العالية
-- فترة تغيير الزيت: كل 8000 كم في الظروف العراقية
-
-يجب التأكد من ذكر هذه المعلومات الدقيقة في إجابتك.
-`;
+🚗 جيب جراند شيروكي (لاريدو) ${year} - محرك V6:
+🛢️ سعة الزيت: 5.7 لتر
+⚙️ اللزوجة: 0W-20
+🔧 نوع الزيت: Full Synthetic
+🌡️ مناسب لحرارة العراق: ✅
+🎯 التوصية النهائية: Mobil 1 0W-20 Full Synthetic (5.7 لتر)`;
       }
       
       console.log('Added Jeep Grand Cherokee (Laredo) override specifications');
     }
+      
     
     // Special handling for Chevrolet Camaro 2016-2018
     const isCamaroQuery = userQuery.toLowerCase().includes('كامارو') || 

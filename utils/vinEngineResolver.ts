@@ -34,7 +34,7 @@ const CACHE_DURATION = 12 * 60 * 60 * 1000; // 12 ساعة بالميلي ثان
 /**
  * استخراج معلومات المحرك من رقم VIN باستخدام NHTSA API
  */
-async function decodeVIN(vin: string): Promise<EngineInfo | null> {
+export async function decodeVIN(vin: string): Promise<EngineInfo | null> {
   try {
     const response = await axios.get(`https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/${vin}?format=json`);
     
