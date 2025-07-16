@@ -1,6 +1,7 @@
 import "./globals.css"
 import Script from "next/script"
 import { Analytics } from "@vercel/analytics/react"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import { ThemeProvider } from '@/components/theme-provider'
 import type { Metadata } from 'next'
 import { Vazirmatn } from 'next/font/google'
@@ -118,6 +119,9 @@ export default function RootLayout({
 
         {/* Analytics */}
         <Analytics />
+        
+        {/* Speed Insights */}
+        <SpeedInsights />
         
         {/* Loader script */}
         <Script id="loader-script" strategy="afterInteractive">

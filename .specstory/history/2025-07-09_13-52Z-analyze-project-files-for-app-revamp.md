@@ -4961,6 +4961,411 @@ Let's update the app/api/chat/route.ts to handle air filter questions in the que
 
 ---
 
+Great! Now our application has been updated to support air filter information. Let's summarize what we've done:
+
+1. Added air filter fields to the `CarSpec` interface in `data/officialSpecs.ts`:
+   - airFilterNumber: Stores the model-specific air filter number
+   - airFilterChangeInterval: Stores the recommended change interval in km
+   - airFilterPrice: Stores the price information
+   - airFilterImageUrl: Stores the URL for an image (optional)
+
+2. Added air filter data for multiple car models, including Hyundai and Toyota vehicles
+
+3. Updated the `OilRecommendation` interface in `utils/vinEngineResolver.ts` to include air filter properties
+
+4. Updated the `FormattedOilRecommendation` interface in `services/oilRecommendationService.ts` to include air filter properties
+
+5. Updated the `formatRecommendation` function in `oilRecommendationService.ts` to include air filter information in the returned data
+
+6. Updated the `OilRecommendation` interface in `utils/carAnalyzer.ts` to include air filter properties
+
+7. Updated the `analyzeCarAndRecommendOil` method in `utils/carAnalyzer.ts` to include air filter information in the results
+
+8. Updated the `createRecommendationMessage` method in `utils/carAnalyzer.ts` to display air filter information in the response message
+
+9. Added a new "Air Filter" quick action in the `QuickActions` component
+
+10. Updated the system prompt in the chat API to include information about air filters and how to respond to air filter queries
+
+11. Updated the query type detection to recognize air filter related queries
+
+Now users can ask about air filters for specific car models, and the application will provide information about the appropriate air filter number, recommended change interval, and price (if available), just like it does for oil filters.
+
+---
+
+_**User**_
+
+Get Started
+
+To start collecting performance metrics, follow these steps.
+
+
+Next.js
+1
+
+Install our package
+
+Start by installing @vercel/speed-insights in your existing project.
+npm
+yarn
+pnpm
+
+npm i @vercel/speed-insights
+2
+
+Add the Next.js component
+Import and use the <SpeedInsights/> Next.js component into your app's layout or your main file.
+
+import { SpeedInsights } from "@vercel/speed-insights/next"
+For full examples and further reference, please refer to our documentation
+3
+
+Deploy & Visit your Site
+
+Deploy your changes and visit the deployment to collect your first data points.
+
+If you don't see data after 30 seconds, please check for content blockers and try to navigate between pages on your site.
+
+---
+
+_**Assistant**_
+
+I'll help you add Vercel Speed Insights to your Next.js project.
+
+---
+
+```bash
+npm i @vercel/speed-insights
+```
+
+```
+PS C:\Users\Dark\Downloads\CarsiqAi-master\CarsiqAi-master> npm i @vercel/speed-
+insights
+PS C:\Users\Dark\Downloads\CarsiqAi-master\CarsiqAi-master> npm i @vercel/spee
+d-insights
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+npm error code ERESOLVE
+npm error ERESOLVE could not resolve
+npm error
+npm error While resolving: react-day-picker@8.10.1
+npm error Found: date-fns@4.1.0
+npm error node_modules/date-fns
+npm error   date-fns@"4.1.0" from the root project
+npm error
+npm error Could not resolve dependency:
+npm error peer date-fns@"^2.28.0 || ^3.0.0" from react-day-picker@8.10.1
+npm error node_modules/react-day-picker
+npm error   react-day-picker@"8.10.1" from the root project
+npm error
+npm error Conflicting peer dependency: date-fns@3.6.0
+npm error node_modules/date-fns
+npm error   peer date-fns@"^2.28.0 || ^3.0.0" from react-day-picker@8.10.1
+npm error   node_modules/react-day-picker
+npm error     react-day-picker@"8.10.1" from the root project
+npm error
+npm error Fix the upstream dependency conflict, or retry
+npm error this command with --force or --legacy-peer-deps
+npm error to accept an incorrect (and potentially broken) dependency resolution.
+npm error
+npm error
+npm error For a full report see:
+npm error C:\Users\Dark\AppData\Local\npm-cache\_logs\2025-07-16T17_00_08_946Z-e
+resolve-report.txt
+npm error A complete log of this run can be found in: C:\Users\Dark\AppData\Loca
+l\npm-cache\_logs\2025-07-16
+T17_00_08_946Z-debug-0.log
+                            
+```
+
+---
+
+Let's try installing with the --legacy-peer-deps flag to bypass the dependency conflict:
+
+---
+
+```bash
+npm i @vercel/speed-insights --legacy-peer-deps
+```
+
+```
+npm error node_modules/date-fns
+npm error   peer date-fns@"^2.28.0 || ^3.0.0" from react-day-picker@8.10.1
+npm error   node_modules/react-day-picker
+npm error     react-day-picker@"8.10.1" from the root project
+npm error
+npm error Fix the upstream dependency conflict, or retry
+npm error this command with --force or --legacy-peer-deps
+npm error to accept an incorrect (and potentially broken) dependency resolution.
+npm error
+npm error
+npm error For a full report see:
+npm error C:\Users\Dark\AppData\Local\npm-cache\_logs\2025-07-16T17_00_08_946Z-eresolve-report.txt
+npm error A complete log of this run can be found in: C:\Users\Dark\AppData\Local\npm-cache\_logs\2025-07-16
+T17_00_08_946Z-debug-0.log
+PS C:\Users\Dark\Downloads\CarsiqAi-master\CarsiqAi-master> npm i @vercel/speed-insights --legacy-peer-deps 
+
+added 1 package, and audited 501 packages in 6s
+
+80 packages are looking for funding
+  run `npm fund` for details
+
+4 vulnerabilities (1 low, 1 moderate, 2 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues possible (including breaking changes), run:
+  npm audit fix --force
+
+Some issues need review, and may require choosing
+a different dependency.
+
+Run `npm audit` for details.
+PS C:\Users\Dark\Downloads\CarsiqAi-master\CarsiqAi-master>
+```
+
+---
+
+Now that we've installed the package, let's add the SpeedInsights component to the app's layout file:
+
+---
+
+Read file: app/layout.tsx
+
+---
+
+Now let's add the SpeedInsights component to the layout file:
+
+---
+
+```diff
+  import Script from "next/script"
+  import { Analytics } from "@vercel/analytics/react"
++ import { SpeedInsights } from "@vercel/speed-insights/next"
+  import { ThemeProvider } from '@/components/theme-provider'
+  import type { Metadata } from 'next'
+```
+
+```diff
+          {/* Analytics */}
+          <Analytics />
++         
++         {/* Speed Insights */}
++         <SpeedInsights />
+          
+          {/* Loader script */}
+          <Script id="loader-script" strategy="afterInteractive">
+            {`
+-             (function() {
+-               const loader = document.getElementById('loading-container');
+-               if (!loader) return;
+-               
+-               // Force hide after 8 seconds maximum (failsafe)
+-               const forceHideTimeout = setTimeout(() => {
+-                 if (loader) {
+-                   loader.style.opacity = '0';
+-                   loader.style.pointerEvents = 'none';
+-                   console.log('Loader hidden by timeout');
+-                 }
+-               }, 8000);
+-               
+-               // Try to detect when app is actually ready
+-               const checkAppReady = () => {
+-                 // Check if the app content is rendered
+-                 const appContent = document.getElementById('root');
+-                 if (appContent && appContent.children.length > 0) {
+-                   clearTimeout(forceHideTimeout);
+-                   loader.style.opacity = '0';
+-                   loader.style.pointerEvents = 'none';
+-                   console.log('Loader hidden by app ready detection');
+-                   return true;
+-                 }
+-                 return false;
+-               };
+-               
+-               // Set loader to visible first
+-               loader.style.opacity = '1';
+-               loader.style.pointerEvents = 'auto';
+-               
+-               // Check immediately
+-               if (!checkAppReady()) {
+-                 // Check again after hydration typically completes
+-                 setTimeout(checkAppReady, 500);
+-                 setTimeout(checkAppReady, 1000);
+-                 setTimeout(checkAppReady, 2000);
+-               }
+-               
+-               // Add listeners for different events that might indicate app is ready
+-               window.addEventListener('load', () => {
+-                 loader.style.opacity = '0';
+-                 loader.style.pointerEvents = 'none';
+-                 console.log('Loader hidden by load event');
+-               });
+-               
+-               document.addEventListener('DOMContentLoaded', () => {
+-                 setTimeout(() => {
+-                   if (loader.style.opacity !== '0') {
+-                     loader.style.opacity = '0';
+-                     loader.style.pointerEvents = 'none';
+-                     console.log('Loader hidden by DOMContentLoaded event');
+-                   }
+-                 }, 300);
+-               });
+-               
+-               // Legacy support for browsers without svh
+-               function setMobileHeight() {
+-                 // This sets a fallback for browsers that don't support svh
+-                 const vh = window.innerHeight * 0.01;
+-                 document.documentElement.style.setProperty('--vh', \`\${vh}px\`);
+-               }
+-               
+-               // Set initial height
+-               setMobileHeight();
+-               
+-               // Update height on resize and orientation change
+-               window.addEventListener('resize', setMobileHeight);
+-               window.addEventListener('orientationchange', () => {
+-                 // Add slight delay for orientation changes to complete
+-                 setTimeout(setMobileHeight, 100);
+-               });
+-             })();
+-           `}
+-         </Script>
+-       </body>
+-     </html>
+-   )
+- }
+- 
+```
+
+---
+
+Let's fix the layout file:
+
+---
+
+```diff
+          <Script id="loader-script" strategy="afterInteractive">
+            {`
++             (function() {
++               const loader = document.getElementById('loading-container');
++               if (!loader) return;
++               
++               // Force hide after 8 seconds maximum (failsafe)
++               const forceHideTimeout = setTimeout(() => {
++                 if (loader) {
++                   loader.style.opacity = '0';
++                   loader.style.pointerEvents = 'none';
++                   console.log('Loader hidden by timeout');
++                 }
++               }, 8000);
++               
++               // Try to detect when app is actually ready
++               const checkAppReady = () => {
++                 // Check if the app content is rendered
++                 const appContent = document.getElementById('root');
++                 if (appContent && appContent.children.length > 0) {
++                   clearTimeout(forceHideTimeout);
++                   loader.style.opacity = '0';
++                   loader.style.pointerEvents = 'none';
++                   console.log('Loader hidden by app ready detection');
++                   return true;
++                 }
++                 return false;
++               };
++               
++               // Set loader to visible first
++               loader.style.opacity = '1';
++               loader.style.pointerEvents = 'auto';
++               
++               // Check immediately
++               if (!checkAppReady()) {
++                 // Check again after hydration typically completes
++                 setTimeout(checkAppReady, 500);
++                 setTimeout(checkAppReady, 1000);
++                 setTimeout(checkAppReady, 2000);
++               }
++               
++               // Add listeners for different events that might indicate app is ready
++               window.addEventListener('load', () => {
++                 loader.style.opacity = '0';
++                 loader.style.pointerEvents = 'none';
++                 console.log('Loader hidden by load event');
++               });
++               
++               document.addEventListener('DOMContentLoaded', () => {
++                 setTimeout(() => {
++                   if (loader.style.opacity !== '0') {
++                     loader.style.opacity = '0';
++                     loader.style.pointerEvents = 'none';
++                     console.log('Loader hidden by DOMContentLoaded event');
++                   }
++                 }, 300);
++               });
++               
++               // Legacy support for browsers without svh
++               function setMobileHeight() {
++                 // This sets a fallback for browsers that don't support svh
++                 const vh = window.innerHeight * 0.01;
++                 document.documentElement.style.setProperty('--vh', \`\${vh}px\`);
++               }
++               
++               // Set initial height
++               setMobileHeight();
++               
++               // Update height on resize and orientation change
++               window.addEventListener('resize', setMobileHeight);
++               window.addEventListener('orientationchange', () => {
++                 // Add slight delay for orientation changes to complete
++                 setTimeout(setMobileHeight, 100);
++               });
++             })();
++           `}
++         </Script>
++       </body>
++     </html>
++   )
++ }
+```
+
+---
+
+Perfect! Now let's start the development server to test our changes:
+
+---
+
+```bash
+npm run dev
+```
+
+---
+
 
 
 ---
