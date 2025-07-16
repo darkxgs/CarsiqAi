@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
-import { RefreshCw, Fuel, Clock, ChevronDown, ChevronUp, Settings, Droplets, Wrench } from "lucide-react"
+import { RefreshCw, Fuel, Clock, ChevronDown, ChevronUp, Settings, Droplets, Wrench, Wind } from "lucide-react"
 
 interface QuickActionsProps {
   onActionSelected: (action: string) => void
@@ -21,10 +21,16 @@ export function QuickActions({ onActionSelected, onFaqExpandChange }: QuickActio
       content: "الحرارة العالية في العراق تسرع من تدهور حالة زيت المحرك. من المستحسن تغيير الزيت كل 5,000 كم في الصيف، وكل 7,500 كم في الشتاء."
     },
     "filter-info": {
-      title: "الفلتر",
+      title: "فلتر الزيت",
       icon: <Wrench className="w-5 h-5" />,
       question: "ما هو رقم فلتر الزيت المناسب؟",
       content: "يختلف رقم فلتر الزيت حسب موديل ونوع السيارة. يمكنك اختيار السيارة من القائمة لمعرفة رقم الفلتر المناسب."
+    },
+    "air-filter-info": {
+      title: "فلتر الهواء",
+      icon: <Wind className="w-5 h-5" />,
+      question: "ما هو رقم فلتر الهواء المناسب لسيارتي؟",
+      content: "يختلف رقم فلتر الهواء حسب موديل ونوع السيارة. في العراق، ينصح بتغيير فلتر الهواء كل 15,000 كم بسبب الغبار والظروف البيئية."
     },
     "oil-types": {
       title: "أنواع الزيوت",

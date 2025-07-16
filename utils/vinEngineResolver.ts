@@ -16,6 +16,10 @@ interface OilRecommendation {
   viscosity: string;
   oilType: string;
   filterNumber: string;
+  airFilterNumber?: string;          // رقم فلتر الهواء
+  airFilterChangeInterval?: string;  // فترة تغيير فلتر الهواء (بالكيلومتر)
+  airFilterPrice?: string;          // سعر فلتر الهواء (اختياري)
+  airFilterImageUrl?: string;       // رابط لصورة فلتر الهواء (اختياري)
   engineSize: string;
   apiSpec?: string;
   changeInterval?: string;

@@ -73,10 +73,10 @@ mistralModel: "google/gemma-3-27b-it:free"
 ,
   maxRetries: 3,
   timeout: 30000,
-  systemPrompt: `أنت مساعد تقني متخصص في زيوت محركات السيارات، تمثل فريق الدعم الفني لمتجر "هندسة السيارات" 🇮🇶.
+  systemPrompt: `أنت مساعد تقني متخصص في زيوت محركات السيارات وفلاتر السيارات، تمثل فريق الدعم الفني لمتجر "هندسة السيارات" 🇮🇶.
 
 🎯 المهمة الأساسية:
-تقديم توصيات دقيقة ومضمونة 100% لزيوت المحركات المناسبة لكل سيارة، اعتماداً فقط على بيانات الشركات المصنعة الرسمية، مع مراعاة الظروف المناخية الشديدة في العراق.
+تقديم توصيات دقيقة ومضمونة 100% لزيوت المحركات وفلاتر الزيت وفلاتر الهواء المناسبة لكل سيارة، اعتماداً فقط على بيانات الشركات المصنعة الرسمية، مع مراعاة الظروف المناخية الشديدة في العراق.
 
 🚗 المسؤوليات الأساسية:
 
@@ -89,19 +89,26 @@ mistralModel: "google/gemma-3-27b-it:free"
 - ✅ استخدم سعة الزيت الفعلية من دليل المصنع (وليس حجم المحرك)
 - ❗ لا تخلط بين Engine Size و Oil Capacity
 
-3. التوصية بالزيت:
+3. التوصية بالزيت والفلاتر:
 - قدم توصية رئيسية واحدة فقط لكل محرك
 - بديل واحد فقط إن لزم
 - لا تُقدم أكثر من خيارين إطلاقاً لكل محرك
+- قدم معلومات عن رقم فلتر الزيت المناسب
+- قدم معلومات عن رقم فلتر الهواء المناسب، والتغيير الموصى به، والسعر (إن وجدت)
 
 🌡️ مناخ العراق:
 - حرارة تصل إلى 50°C
 - غبار دائم وقيادة بطيئة في الزحام
 ✅ يتطلب زيوت Full Synthetic فقط من علامات معتمدة
+✅ يحتاج إلى فلاتر هواء عالية الجودة بسبب الغبار المستمر
 
-🛢️ العلامات التجارية المسموح بها:
+🛢️ العلامات التجارية المسموح بها للزيوت:
 Castrol, Mobil 1, Liqui Moly, Valvoline, Motul, Meguin, Hanata  
 ❌ لا تقترح أي زيت خارج هذه القائمة، حتى كمثال
+
+🔧 العلامات التجارية المسموح بها للفلاتر:
+Denkermann, Mahle, Mann, Bosch, Fram
+❌ لا تقترح أي فلتر خارج هذه القائمة، حتى كمثال
 
 📋 تنسيق الإجابة الإجباري:
 
@@ -111,6 +118,8 @@ Castrol, Mobil 1, Liqui Moly, Valvoline, Motul, Meguin, Hanata
 🔧 نوع الزيت: Full Synthetic  
 🌡️ مناسب لحرارة العراق: ✅  
 🎯 <b>التوصية النهائية:</b> [اسم الزيت + اللزوجة] ([سعة الزيت] لتر)
+📦 <b>فلتر الزيت:</b> [رقم فلتر الزيت]
+🌬️ <b>فلتر الهواء:</b> [رقم فلتر الهواء] (تغيير كل [عدد] كم)
 
 ❗ عدم الالتزام بالتنسيق أو بزيت غير معتمد = خطأ فادح
 
@@ -490,57 +499,104 @@ async function saveQueryToAnalytics(
  * Enhanced query type determination with better accuracy
  */
 function determineQueryType(query: string): string {
-  const normalizedQuery = query.toLowerCase()
+  const lowerQuery = query.toLowerCase()
   
-  const queryTypeMappings = [
-    { 
-      type: 'OIL_RECOMMENDATION', 
-      keywords: ['زيت', 'تغيير زيت', 'نوع زيت', 'أفضل زيت'], 
-      weight: 3 
-    },
-    { 
-      type: 'SPECIFICATIONS', 
-      keywords: ['مواصفات', 'سعة', 'قوة المحرك', 'حجم المحرك'], 
-      weight: 2 
-    },
-    { 
-      type: 'MAINTENANCE', 
-      keywords: ['صيانة', 'إصلاح', 'عطل', 'مشكلة', 'قطع غيار', 'فلتر'], 
-      weight: 2 
-    },
-    { 
-      type: 'PRICE', 
-      keywords: ['سعر', 'تكلفة', 'قيمة', 'كم سعر'], 
-      weight: 1 
-    },
-    { 
-      type: 'COMPARISON', 
-      keywords: ['مقارنة', 'أفضل من', 'أحسن من', 'ايهما أفضل'], 
-      weight: 2 
-    },
-    { 
-      type: 'FUEL_CONSUMPTION', 
-      keywords: ['استهلاك الوقود', 'صرفية', 'كفاءة', 'بنزين'], 
-      weight: 1 
-    }
-  ]
-
-  let bestMatch = { type: 'OTHER', score: 0 }
-
-  for (const mapping of queryTypeMappings) {
-    let score = 0
-    for (const keyword of mapping.keywords) {
-      if (normalizedQuery.includes(keyword)) {
-        score += mapping.weight
-      }
-    }
-    
-    if (score > bestMatch.score) {
-      bestMatch = { type: mapping.type, score }
-    }
+  // Car Specifications
+  if (
+    lowerQuery.includes('مواصفات') || 
+    lowerQuery.includes('سعة المحرك') || 
+    lowerQuery.includes('engine size') || 
+    lowerQuery.includes('cc') ||
+    lowerQuery.includes('سي سي')
+  ) {
+    return 'SPECIFICATIONS'
   }
   
-  return bestMatch.type
+  // Oil Change/Service
+  if (
+    lowerQuery.includes('زيت') ||
+    lowerQuery.includes('oil') ||
+    lowerQuery.includes('تغيير') ||
+    lowerQuery.includes('فلتر الزيت') ||
+    lowerQuery.includes('oil filter')
+  ) {
+    return 'SERVICE'
+  }
+  
+  // Air Filter
+  if (
+    lowerQuery.includes('فلتر الهواء') ||
+    lowerQuery.includes('air filter') ||
+    lowerQuery.includes('فلتر هواء')
+  ) {
+    return 'SERVICE'
+  }
+  
+  // Maintenance
+  if (
+    lowerQuery.includes('صيانة') || 
+    lowerQuery.includes('maintenance') ||
+    lowerQuery.includes('خدمة')
+  ) {
+    return 'MAINTENANCE'
+  }
+  
+  // Price
+  if (
+    lowerQuery.includes('سعر') || 
+    lowerQuery.includes('تكلفة') || 
+    lowerQuery.includes('price') || 
+    lowerQuery.includes('cost')
+  ) {
+    return 'PRICE'
+  }
+  
+  // Comparison
+  if (
+    lowerQuery.includes('مقارنة') || 
+    lowerQuery.includes('أفضل من') || 
+    lowerQuery.includes('vs') || 
+    lowerQuery.includes('compare')
+  ) {
+    return 'COMPARISON'
+  }
+  
+  // Features
+  if (
+    lowerQuery.includes('ميزات') || 
+    lowerQuery.includes('خصائص') || 
+    lowerQuery.includes('features')
+  ) {
+    return 'FEATURES'
+  }
+  
+  // Fuel consumption
+  if (
+    lowerQuery.includes('استهلاك الوقود') || 
+    lowerQuery.includes('fuel') || 
+    lowerQuery.includes('كم يصرف')
+  ) {
+    return 'FUEL_CONSUMPTION'
+  }
+  
+  // Insurance
+  if (
+    lowerQuery.includes('تأمين') || 
+    lowerQuery.includes('insurance')
+  ) {
+    return 'INSURANCE'
+  }
+  
+  // Reviews
+  if (
+    lowerQuery.includes('تقييم') || 
+    lowerQuery.includes('review') ||
+    lowerQuery.includes('رأي')
+  ) {
+    return 'REVIEWS'
+  }
+  
+  return 'OTHER'
 }
 
 /**

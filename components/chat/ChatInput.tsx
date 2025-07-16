@@ -148,16 +148,16 @@ export function ChatInput({
                     <CardContent className="p-1">
                       <div className="max-h-60 overflow-y-auto">
                         {filteredSuggestions.slice(0, 5).map((suggestion, index) => (
-                          <Button
-                            key={index}
-                            variant="ghost"
+                        <Button
+                          key={index}
+                          variant="ghost"
                             className="w-full justify-start text-right p-3 sm:p-3.5 text-sm sm:text-base hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg my-0.5"
-                            onClick={() => handleSuggestionClick(suggestion)}
-                          >
+                          onClick={() => handleSuggestionClick(suggestion)}
+                        >
                             <Car className="w-3 h-3 sm:w-4 sm:h-4 ml-2 sm:ml-3 text-blue-500 dark:text-blue-400" />
-                            {suggestion}
-                          </Button>
-                        ))}
+                          {suggestion}
+                        </Button>
+                      ))}
                       </div>
                     </CardContent>
                   </Card>
@@ -166,8 +166,8 @@ export function ChatInput({
             </div>
             {!keyboardVisible && (
               <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-2 sm:mt-3 text-center font-medium">
-                اكتب استفسارك عن زيت السيارة أو اختر من الأسئلة الشائعة أعلاه
-              </p>
+              اكتب استفسارك عن زيت السيارة أو اختر من الأسئلة الشائعة أعلاه
+            </p>
             )}
           </div>
         </form>

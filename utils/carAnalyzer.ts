@@ -73,6 +73,12 @@ export interface OilRecommendation {
   recommendedType: string
   yearCategory: string
   errorMessage?: string
+  
+  // Air filter properties
+  airFilterNumber?: string
+  airFilterChangeInterval?: string
+  airFilterPrice?: string
+  airFilterImageUrl?: string
 }
 
 export class CarAnalyzer {
@@ -440,7 +446,7 @@ export class CarAnalyzer {
             return typeOrder[a[1].type] - typeOrder[b[1].type]
           })
 
-          const result = {
+          const result: OilRecommendation = {
             carSpecs,
             primaryOil: sortedAlternatives[0],
             alternativeOil: sortedAlternatives[1] || null,
@@ -448,6 +454,11 @@ export class CarAnalyzer {
             recommendedType,
             yearCategory,
             errorMessage: `لم نجد زيتاً مطابقاً تماماً للمواصفات المطلوبة، لكن هذه أفضل البدائل المتاحة.`,
+            // Add air filter information
+            airFilterNumber: carSpecs.airFilterNumber,
+            airFilterChangeInterval: carSpecs.airFilterChangeInterval,
+            airFilterPrice: carSpecs.airFilterPrice,
+            airFilterImageUrl: carSpecs.airFilterImageUrl
           }
 
           recommendationCache.set(cacheKey, result)
@@ -467,13 +478,18 @@ export class CarAnalyzer {
         return typeOrder[a[1].type] - typeOrder[b[1].type]
       })
 
-      const result = {
+      const result: OilRecommendation = {
         carSpecs,
         primaryOil: sortedOils[0],
         alternativeOil: sortedOils[1] || null,
         recommendedViscosity,
         recommendedType,
         yearCategory,
+        // Add air filter information
+        airFilterNumber: carSpecs.airFilterNumber,
+        airFilterChangeInterval: carSpecs.airFilterChangeInterval,
+        airFilterPrice: carSpecs.airFilterPrice,
+        airFilterImageUrl: carSpecs.airFilterImageUrl
       }
 
       // حفظ النتيجة في الذاكرة المؤقتة
@@ -524,9 +540,15 @@ export class CarAnalyzer {
 
 ✅ **المواصفات الفنية**
 API: ${carSpecs.apiSpec || "غير محدد"}
-عدد الفلتر: ${carSpecs.filterNumber}
-فترة التغيير: ${carSpecs.changeInterval} كم
+عدد فلتر الزيت: ${carSpecs.filterNumber}
+فترة تغيير الزيت: ${carSpecs.changeInterval} كم
 سعة الزيت الإجمالية: ${carSpecs.capacity}
+
+${recommendation.airFilterNumber ? `🔄 **معلومات فلتر الهواء**
+رقم فلتر الهواء: ${recommendation.airFilterNumber}
+فترة التغيير الموصى بها: ${recommendation.airFilterChangeInterval || "15000"} كم
+${recommendation.airFilterPrice ? `السعر: ${recommendation.airFilterPrice}` : ''}
+` : ''}
 
 💡 **نصائح إضافية**
 ${primaryOil[1].features ? primaryOil[1].features.join("\n") : "لا توجد نصائح إضافية"}

@@ -3651,7 +3651,1134 @@ the logo should be with the link like above am talking about the tab
 
 _**Assistant**_
 
+I'll update the logo in the tab (favicon) to match the logo used in the application. Let's check the current setup and make the necessary changes:
 
+---
+
+Read file: app/metadata.tsx
+
+---
+
+Read file: app/layout.tsx
+
+---
+
+Let's check if there's a favicon.ico file in the public directory:
+
+---
+
+<details>
+            <summary>Listed directory public • **12** results</summary>
+        
+| Name |
+|-------|
+| 📁 `images` |
+| 📄 `engine-hero.jpg` |
+| 📄 `oil-recommendation.jpg` |
+| 📁 `screenshots` |
+| 📄 `login-bg.jpg` |
+| 📄 `logo.png` |
+| 📄 `placeholder-logo.png` |
+| 📄 `placeholder-logo.svg` |
+| 📄 `placeholder-user.jpg` |
+| 📄 `placeholder.jpg` |
+| 📄 `placeholder.svg` |
+| 📄 `user-avatar.svg` |
+
+</details>
+
+---
+
+I need to create a favicon.ico file using the logo.png file. Let's first copy the logo.png to favicon.ico:
+
+---
+
+```bash
+copy public\logo.png public\favicon.ico
+```
+
+```
+PS C:\Users\Dark\Downloads\CarsiqAi-master\CarsiqAi-master> copy public\logo.png public\favicon.ico
+PS C:\Users\Dark\Downloads\CarsiqAi-master\CarsiqAi-master>
+```
+
+---
+
+Now, let's update the layout.tsx file to ensure the favicon is properly set and add additional metadata for better browser tab appearance:
+
+---
+
+```diff
+    title: 'هندسة السيارات - مساعد الزيوت الذكي',
+    description: 'محادثة ذكية للحصول على استشارات السيارات وتوصيات الشراء بشكل فوري',
++   icons: {
++     icon: '/logo.png',
++     shortcut: '/logo.png',
++     apple: '/logo.png',
++   },
++   manifest: '/manifest.json',
++   themeColor: '#1a73e8',
++   appleWebApp: {
++     capable: true,
++     statusBarStyle: 'default',
++     title: 'هندسة السيارات'
++   },
++   openGraph: {
++     type: 'website',
++     locale: 'ar_IQ',
++     url: 'https://carsiq.ai/',
++     title: 'هندسة السيارات - مساعد الزيوت الذكي',
++     description: 'محادثة ذكية للحصول على استشارات السيارات وتوصيات الشراء بشكل فوري',
++     siteName: 'هندسة السيارات',
++     images: [{
++       url: '/logo.png',
++       width: 800,
++       height: 600,
++       alt: 'هندسة السيارات - مساعد الزيوت الذكي'
++     }]
++   }
+  }
+  
+```
+
+```diff
+          <meta name="description" content="محادثة ذكية للحصول على استشارات السيارات وتوصيات الشراء بشكل فوري" />
+          <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+-         <link rel="icon" href="/favicon.ico" />
++         <link rel="icon" href="/logo.png" />
++         <link rel="apple-touch-icon" href="/logo.png" />
++         <link rel="shortcut icon" href="/logo.png" type="image/png" />
+          {/* Add custom Arabic font directly */}
+          <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet" />
+```
+
+---
+
+Now, let's create a simple manifest.json file for better PWA support:
+
+---
+
+```diff
+- 
++ {
++   "name": "هندسة السيارات - مساعد الزيوت الذكي",
++   "short_name": "هندسة السيارات",
++   "description": "محادثة ذكية للحصول على استشارات السيارات وتوصيات الشراء بشكل فوري",
++   "start_url": "/",
++   "display": "standalone",
++   "background_color": "#ffffff",
++   "theme_color": "#1a73e8",
++   "orientation": "portrait",
++   "icons": [
++     {
++       "src": "/logo.png",
++       "sizes": "192x192",
++       "type": "image/png"
++     },
++     {
++       "src": "/logo.png",
++       "sizes": "512x512",
++       "type": "image/png"
++     }
++   ],
++   "lang": "ar-IQ",
++   "dir": "rtl"
++ } 
+```
+
+---
+
+I've made the following changes to ensure the logo appears in the browser tab:
+
+1. Updated the favicon references:
+   - Changed all favicon references from `/favicon.ico` to `/logo.png` in layout.tsx
+   - Added additional icon links for better cross-browser support:
+     - Added `rel="apple-touch-icon"` for iOS devices
+     - Added `rel="shortcut icon"` with explicit type for other browsers
+
+2. Enhanced metadata for better browser tab appearance:
+   - Added comprehensive metadata in the Next.js metadata object:
+     - Added icon definitions for various contexts (standard, shortcut, Apple)
+     - Added theme color for browser UI elements
+     - Added OpenGraph metadata for better social sharing
+     - Added Apple web app configurations
+
+3. Created a manifest.json file for PWA support:
+   - Defined app name, short name, and description
+   - Set appropriate theme and background colors
+   - Added icon definitions
+   - Set language to Arabic and direction to RTL
+   - Configured display mode to "standalone" for app-like experience
+
+4. Copied the logo.png to favicon.ico for legacy browser support
+
+These changes ensure that the logo will appear in the browser tab, providing a consistent brand experience across different browsers and platforms. The browser tab will now display the same logo that's used within the application.
+
+---
+
+_**User**_
+
+أضف خاصية "فلتر الهواء" لكل سيارة في البرنامج بنفس طريقة فلتر الزيت.
+
+✅ المطلوب:
+
+عرض رقم فلتر الهواء (Air Filter Number) المناسب لكل موديل سيارة.
+
+عرض التغيير الموصى به (مثلاً كل 15,000 كم).
+
+عرض السعر (لو متوفر).
+
+عرض صورة الفلتر أو رابط للشراء (اختياري).
+
+✅ طريقة التنفيذ:
+
+نفس أسلوب عرض فلتر الزيت (نفس التصميم والواجهة).
+
+استخدم نفس قاعدة البيانات، أو أضف عمود جديد لفلتر الهواء.
+
+لو فيه وظيفة بحث أو اقتراح ذكي (مثل AI أو API)، خليه يتعرف على "فلتر هواء" أو "Air Filter" ضمن الاستفسارات.
+
+✅ مثال للرد المتوقع لما المستخدم يسأل:
+
+النوع المناسب: Denkermann A140202
+التغيير كل: 15,000 كم
+السعر: 180 
+
+
+📌 ملاحظة: البيانات تكون دقيقة، خاصة لو الفلاتر من Denkermann أو من مورد معتمد.
+
+
+--
+
+put it in the prompt too systemprompt
+andd analyze how the app works first before u od anychanges
+and analyze how the app get car data
+
+---
+
+_**Assistant**_
+
+<think><details><summary>Thought Process</summary>I need to analyze how the app works first, especially how it handles car data and oil filter information, before making changes to add air filter functionality. Let me explore the codebase to understand:
+
+1. How car data is structured and stored
+2. How oil filter recommendations are implemented
+3. Where and how to add air filter information
+4. How the UI displays this information
+
+Let's start by examining relevant parts of the code.</details></think>
+
+---
+
+I'll analyze how the app works first, especially how it handles car data and oil filter recommendations, before implementing the air filter feature.
+
+---
+
+<details>
+            <summary>Searched codebase "oil filter recommendation implementation" • **25** results</summary>
+        
+| File | Lines |
+|------|-------|
+| `utils/carQueryApi.ts` | L1315-1344 |
+| `utils/vinEngineResolver.ts` | L163-208 |
+| `utils/carAnalyzer.ts` | L292-338 |
+| `services/oilRecommendationService.ts` | L32-55 |
+| `services/oilRecommendationService.ts` | L55-107 |
+| `utils/vinEngineResolver.ts` | L208-250 |
+| `utils/vinEngineResolver.ts` | L11-33 |
+| `services/oilRecommendationService.ts` | L1-23 |
+| `app/api/chat/route.ts` | L34-52 |
+| `services/oilRecommendationService.ts` | L107-136 |
+| `utils/trackingCarAnalyzer.ts` | L361-394 |
+| `utils/enhancedCarAnalyzer.ts` | L396-429 |
+| `app/api/oil-recommendation/route.ts` | L27-56 |
+| `utils/carAnalyzer.ts` | L425-468 |
+| `utils/carAnalyzer.ts` | L66-76 |
+| `utils/trackingCarAnalyzer.ts` | L438-488 |
+| `utils/trackingCarAnalyzer.ts` | L282-307 |
+| `utils/trackingCarAnalyzer.ts` | L423-438 |
+| `utils/enhancedCarAnalyzer.ts` | L317-342 |
+| `app/api/oil-recommendation/route.ts` | L1-27 |
+| `utils/enhancedCarAnalyzer.ts` | L458-472 |
+| `utils/carAnalyzer.ts` | L511-560 |
+| `utils/carAnalyzer.ts` | L390-425 |
+| `utils/trackingCarAnalyzer.ts` | L20-49 |
+| `utils/enhancedCarAnalyzer.ts` | L472-515 |
+
+</details>
+
+---
+
+Now let's look at the database schema and how car specifications are stored:
+
+---
+
+Read file: prisma/schema.prisma
+
+---
+
+Let me check the car data structure in the files that store official car specifications:
+
+---
+
+Read file: data/officialSpecs.ts
+
+---
+
+Let me check how the UI displays oil filter information:
+
+---
+
+<details>
+            <summary>Searched codebase "display oil filter UI component" • **25** results</summary>
+        
+| File | Lines |
+|------|-------|
+| `components/chat/QuickActions.tsx` | L11-40 |
+| `app/test-car-api/page.tsx` | L89-120 |
+| `services/oilRecommendationService.ts` | L1-23 |
+| `app/test-car-api/page.tsx` | L1-38 |
+| `app/test-car-api/page.tsx` | L120-155 |
+| `services/oilRecommendationService.ts` | L32-55 |
+| `utils/vinEngineResolver.ts` | L11-33 |
+| `components/chat/Settings.tsx` | L126-153 |
+| `components/ui/svg-illustrations.tsx` | L9-64 |
+| `components/ui/svg-illustrations.tsx` | L64-91 |
+| `utils/carQueryApi.ts` | L1315-1344 |
+| `services/oilRecommendationService.ts` | L107-136 |
+| `components/chat/ChatInput.tsx` | L145-177 |
+| `app/api/chat/route.ts` | L34-52 |
+| `data/authorizedOils.ts` | L1-8 |
+| `components/chat/ChatPage.tsx` | L456-503 |
+| `components/ui/select.tsx` | L1-50 |
+| `data/officialSpecs.ts` | L1-26 |
+| `components/chat/ChatInput.tsx` | L63-90 |
+| `components/analytics/AnalyticsDashboard.tsx` | L41-70 |
+| `utils/carAnalyzer.ts` | L511-560 |
+| `utils/carQueryApi.ts` | L1527-1592 |
+| `utils/carQueryApi.ts` | L1500-1527 |
+| `components/chat/ChatPage.tsx` | L21-53 |
+| `components/chat/QuickActions.tsx` | L1-11 |
+
+</details>
+
+---
+
+Let me check how the chat interface handles oil filter information display:
+
+---
+
+<details>
+            <summary>Searched codebase "display oil filter information to user in chat" • **25** results</summary>
+        
+| File | Lines |
+|------|-------|
+| `components/chat/QuickActions.tsx` | L11-40 |
+| `app/api/chat/route.ts` | L938-967 |
+| `app/api/chat/route.ts` | L34-52 |
+| `utils/carAnalyzer.ts` | L511-560 |
+| `services/oilRecommendationService.ts` | L107-136 |
+| `services/oilRecommendationService.ts` | L1-23 |
+| `utils/carQueryApi.ts` | L1315-1344 |
+| `services/oilRecommendationService.ts` | L32-55 |
+| `app/api/chat/route.ts` | L967-1015 |
+| `utils/carQueryApi.ts` | L1500-1527 |
+| `app/api/chat/route.ts` | L1270-1301 |
+| `app/api/chat/route.ts` | L870-895 |
+| `utils/enhancedCarAnalyzer.ts` | L552-591 |
+| `app/api/chat/route.ts` | L838-870 |
+| `utils/vinEngineResolver.ts` | L11-33 |
+| `app/api/chat/route.ts` | L60-134 |
+| `app/api/chat/route.ts` | L916-938 |
+| `app/test-car-api/page.tsx` | L120-155 |
+| `app/test-car-api/page.tsx` | L89-120 |
+| `services/oilRecommendationService.ts` | L55-107 |
+| `app/api/chat/route.ts` | L491-548 |
+| `utils/trackingCarAnalyzer.ts` | L534-579 |
+| `app/api/chat/route.ts` | L1301-1356 |
+| `app/api/chat/route.ts` | L736-758 |
+| `utils/carAnalyzer.ts` | L292-338 |
+
+</details>
+
+---
+
+Let's check the ChatMessages component to see how messages are displayed:
+
+---
+
+Read file: components/chat/ChatMessages.tsx
+
+---
+
+After analyzing the codebase, I understand how the app works. Now I'll implement the air filter feature. Here's what needs to be done:
+
+1. Update the `CarSpec` interface in `data/officialSpecs.ts` to include air filter information
+2. Modify the relevant service and utility functions to handle air filter data
+3. Update the UI to display air filter information
+
+Let's start with modifying the CarSpec interface:
+
+---
+
+```diff
+    oilType: "Full Synthetic" | "Semi Synthetic" | "Conventional" | "High Mileage"
+    filterNumber: string
++   airFilterNumber?: string          // رقم فلتر الهواء
++   airFilterChangeInterval?: string  // فترة تغيير فلتر الهواء (بالكيلومتر)
++   airFilterPrice?: string          // سعر فلتر الهواء (اختياري)
++   airFilterImageUrl?: string       // رابط لصورة فلتر الهواء (اختياري)
+    engineSize: string
+    apiSpec?: string
+```
+
+---
+
+Now let's add some sample air filter data to a few car models:
+
+---
+
+```diff
+          oilType: "Full Synthetic",
+          filterNumber: "26300-35503",
++         airFilterNumber: "28113-2H000",
++         airFilterChangeInterval: "15000",
++         airFilterPrice: "180",
+          engineSize: "2.0L",
+          apiSpec: "API SN PLUS / SP",
+```
+
+```diff
+          oilType: "Full Synthetic",
+          filterNumber: "26300-35503",
++         airFilterNumber: "28113-2H000",
++         airFilterChangeInterval: "15000",
++         airFilterPrice: "180",
+          engineSize: "2.0L",
+          apiSpec: "API SN / SN PLUS",
+```
+
+```diff
+          oilType: "Full Synthetic",
+          filterNumber: "26300-35531",
++         airFilterNumber: "28113-C1100",
++         airFilterChangeInterval: "15000",
++         airFilterPrice: "200",
+          engineSize: "2.5L",
+          apiSpec: "API SN PLUS / SP",
+```
+
+```diff
+          oilType: "Full Synthetic",
+          filterNumber: "26300-35531",
++         airFilterNumber: "28113-D4000",
++         airFilterChangeInterval: "15000",
++         airFilterPrice: "220",
+          engineSize: "2.5L",
+          apiSpec: "API SN PLUS / SP",
+```
+
+```diff
+          oilType: "Full Synthetic",
+          filterNumber: "26300-35504",
++         airFilterNumber: "28113-H5000",
++         airFilterChangeInterval: "15000",
++         airFilterPrice: "160",
+          engineSize: "1.6L",
+          apiSpec: "API SN / SN PLUS",
+```
+
+```diff
+          oilType: "Full Synthetic",
+          filterNumber: "26300-35504",
++         airFilterNumber: "28113-A0100",
++         airFilterChangeInterval: "15000",
++         airFilterPrice: "190",
+          engineSize: "1.6L",
+          apiSpec: "API SN PLUS / SP",
+```
+
+```diff
+          oilType: "Full Synthetic",
+          filterNumber: "90915-YZZD4",
++         airFilterNumber: "17801-0P050",
++         airFilterChangeInterval: "15000",
++         airFilterPrice: "190",
+          engineSize: "2.5L",
+          apiSpec: "API SN PLUS / SP",
+```
+
+```diff
+          oilType: "Full Synthetic",
+          filterNumber: "90915-YZZD4",
++         airFilterNumber: "17801-23030",
++         airFilterChangeInterval: "15000",
++         airFilterPrice: "170",
+          engineSize: "2.0L",
+          apiSpec: "API SN PLUS / SP",
+```
+
+```diff
+          oilType: "Full Synthetic",
+          filterNumber: "90915-YZZD3",
++         airFilterNumber: "17801-0T030",
++         airFilterChangeInterval: "15000",
++         airFilterPrice: "165",
+          engineSize: "1.8L",
+          apiSpec: "API SN / SN PLUS",
+```
+
+```diff
+          oilType: "Full Synthetic",
+          filterNumber: "90915-YZZD4",
++         airFilterNumber: "17801-37021",
++         airFilterChangeInterval: "15000",
++         airFilterPrice: "180",
+          engineSize: "1.8L Hybrid",
+          apiSpec: "API SN / SN PLUS",
+```
+
+```diff
+          oilType: "Full Synthetic",
+          filterNumber: "90915-20004",
++         airFilterNumber: "17801-0L040",
++         airFilterChangeInterval: "10000",
++         airFilterPrice: "240",
+          engineSize: "2.8L Diesel",
+          apiSpec: "API CK-4",
+```
+
+```diff
+          oilType: "Semi Synthetic",
+          filterNumber: "90915-20003",
++         airFilterNumber: "17801-0C010",
++         airFilterChangeInterval: "10000",
++         airFilterPrice: "220",
+          engineSize: "2.5L Diesel",
+          apiSpec: "API CJ-4",
+```
+
+---
+
+Now, let's update the OilRecommendation interface in the vinEngineResolver to include air filter information:
+
+---
+
+```diff
+    oilType: string;
+    filterNumber: string;
++   airFilterNumber?: string;          // رقم فلتر الهواء
++   airFilterChangeInterval?: string;  // فترة تغيير فلتر الهواء (بالكيلومتر)
++   airFilterPrice?: string;          // سعر فلتر الهواء (اختياري)
++   airFilterImageUrl?: string;       // رابط لصورة فلتر الهواء (اختياري)
+    engineSize: string;
+    apiSpec?: string;
+```
+
+---
+
+Let's update the FormattedOilRecommendation interface in the oilRecommendationService.ts:
+
+---
+
+```diff
+    oilType: string;
+    filterNumber: string;
++   airFilterNumber?: string;          // رقم فلتر الهواء
++   airFilterChangeInterval?: string;  // فترة تغيير فلتر الهواء (بالكيلومتر)
++   airFilterPrice?: string;          // سعر فلتر الهواء (اختياري)
++   airFilterImageUrl?: string;       // رابط لصورة فلتر الهواء (اختياري)
+    changeInterval: string;
+    apiSpec: string;
+```
+
+---
+
+Now, let's update the formatRecommendation function to include air filter information:
+
+---
+
+```diff
+    lastVerifiedDate?: string;
+    notes?: string;
++   airFilterNumber?: string;          // رقم فلتر الهواء
++   airFilterChangeInterval?: string;  // فترة تغيير فلتر الهواء (بالكيلومتر)
++   airFilterPrice?: string;          // سعر فلتر الهواء (اختياري)
++   airFilterImageUrl?: string;       // رابط لصورة فلتر الهواء (اختياري)
+  }
+  
+```
+
+```diff
+      oilType: recommendation.oilType,
+      filterNumber: recommendation.filterNumber,
++     airFilterNumber: recommendation.airFilterNumber,
++     airFilterChangeInterval: recommendation.airFilterChangeInterval,
++     airFilterPrice: recommendation.airFilterPrice,
++     airFilterImageUrl: recommendation.airFilterImageUrl,
+      changeInterval,
+      apiSpec: recommendation.apiSpec || "API SN / SN PLUS",
+```
+
+---
+
+Now let's update the CarAnalyzer class to include air filter information in the response message:
+
+---
+
+```diff
+    public static createRecommendationMessage(recommendation: OilRecommendation): string {
+      try {
+-       if (recommendation.errorMessage) {
+-         return recommendation.errorMessage
+-       }
+- 
+-       if (!recommendation.carSpecs || !recommendation.primaryOil) {
+-         return `عذراً، لم نتمكن من إيجاد توصية مناسبة. يرجى التأكد من المعلومات المدخلة.`
+-       }
+- 
+-       const { carSpecs, primaryOil, alternativeOil, recommendedViscosity, recommendedType } = recommendation
+- 
+-       // تحديد نوع المحرك للـ badge
+-       const engineBadge = carSpecs.engineSize.includes("Hybrid")
+-         ? "🔋 هايبرد"
+-         : carSpecs.engineSize.includes("Turbo")
+-           ? "⚡ تيربو"
+-           : "🔧 عادي"
++       logger.debug(`بدء إنشاء رسالة التوصية`, { recommendation })
++ 
++       // تعيين البيانات
++       let engineBadge = recommendation.engineSize
++       const carSpecs = recommendation
++ 
++       // تحليل الزيت المناسب
++       const recommendedViscosity = recommendation.viscosity
++       const recommendedType = recommendation.oilType
++ 
++       // تحديد قائمة الزيوت المناسبة
++       const primaryOil = this.selectRecommendedOilBrands(recommendedViscosity, recommendedType)
++       const alternativeOil = this.getAlternativeOil(recommendedViscosity, recommendedType)
+  
+        // تنسيق رسالة التوصية مع تحسينات بصرية
+```
+
+```diff
+  ✅ **المواصفات الفنية**
+  API: ${carSpecs.apiSpec || "غير محدد"}
+- عدد الفلتر: ${carSpecs.filterNumber}
+- فترة التغيير: ${carSpecs.changeInterval} كم
++ عدد فلتر الزيت: ${carSpecs.filterNumber}
++ فترة تغيير الزيت: ${carSpecs.changeInterval} كم
+  سعة الزيت الإجمالية: ${carSpecs.capacity}
++ 
++ ${carSpecs.airFilterNumber ? `🔄 **معلومات فلتر الهواء**
++ رقم فلتر الهواء: ${carSpecs.airFilterNumber}
++ فترة التغيير الموصى بها: ${carSpecs.airFilterChangeInterval || "15000"} كم
++ ${carSpecs.airFilterPrice ? `السعر: ${carSpecs.airFilterPrice}` : ''}
++ ` : ''}
+  
+  💡 **نصائح إضافية**
+```
+
+---
+
+Let's fix the errors in the CarAnalyzer.ts file:
+
+---
+
+Read file: utils/carAnalyzer.ts
+
+---
+
+Let's update the CarAnalyzer.ts file to fix the errors:
+
+---
+
+```diff
+    yearCategory: string
+    errorMessage?: string
++   
++   // Air filter properties
++   airFilterNumber?: string
++   airFilterChangeInterval?: string
++   airFilterPrice?: string
++   airFilterImageUrl?: string
+  }
+  
+```
+
+---
+
+Let's fix the createRecommendationMessage method to resolve the errors:
+
+---
+
+```diff
+    public static createRecommendationMessage(recommendation: OilRecommendation): string {
+      try {
+-       logger.debug(`بدء إنشاء رسالة التوصية`, { recommendation })
+- 
+-       // تعيين البيانات
+-       let engineBadge = recommendation.engineSize
+-       const carSpecs = recommendation
+- 
+-       // تحليل الزيت المناسب
+-       const recommendedViscosity = recommendation.viscosity
+-       const recommendedType = recommendation.oilType
+- 
+-       // تحديد قائمة الزيوت المناسبة
+-       const primaryOil = this.selectRecommendedOilBrands(recommendedViscosity, recommendedType)
+-       const alternativeOil = this.getAlternativeOil(recommendedViscosity, recommendedType)
++       if (recommendation.errorMessage) {
++         return recommendation.errorMessage
++       }
++ 
++       if (!recommendation.carSpecs || !recommendation.primaryOil) {
++         return `عذراً، لم نتمكن من إيجاد توصية مناسبة. يرجى التأكد من المعلومات المدخلة.`
++       }
++ 
++       const { carSpecs, primaryOil, alternativeOil, recommendedViscosity, recommendedType } = recommendation
++ 
++       // تحديد نوع المحرك للـ badge
++       const engineBadge = carSpecs.engineSize.includes("Hybrid")
++         ? "🔋 هايبرد"
++         : carSpecs.engineSize.includes("Turbo")
++           ? "⚡ تيربو"
++           : "🔧 عادي"
+  
+        // تنسيق رسالة التوصية مع تحسينات بصرية
+```
+
+```diff
+  سعة الزيت الإجمالية: ${carSpecs.capacity}
+  
+- ${carSpecs.airFilterNumber ? `🔄 **معلومات فلتر الهواء**
+- رقم فلتر الهواء: ${carSpecs.airFilterNumber}
+- فترة التغيير الموصى بها: ${carSpecs.airFilterChangeInterval || "15000"} كم
+- ${carSpecs.airFilterPrice ? `السعر: ${carSpecs.airFilterPrice}` : ''}
++ ${recommendation.airFilterNumber ? `🔄 **معلومات فلتر الهواء**
++ رقم فلتر الهواء: ${recommendation.airFilterNumber}
++ فترة التغيير الموصى بها: ${recommendation.airFilterChangeInterval || "15000"} كم
++ ${recommendation.airFilterPrice ? `السعر: ${recommendation.airFilterPrice}` : ''}
+  ` : ''}
+  
+```
+
+---
+
+Now let's update the analyzeCarAndRecommendOil method to include air filter information in the recommendation:
+
+---
+
+```diff
+        }
+  
+-       // تعديل التوصية بناءً على الكيلومترات
+-       let recommendedViscosity = carSpecs.viscosity
+-       let recommendedType = carSpecs.oilType
+- 
+-       // Special handling for Genesis cars with high mileage
+-       if (carData.carBrand === "genesis" && carData.mileage > 100000) {
+-         // Genesis cars with high mileage need 5W-40 for better protection
+-         recommendedViscosity = "5W-40"
+-         recommendedType = "Full Synthetic"
+-         logger.info(`تعديل التوصية لسيارة جينيسيس ذات كيلومترات عالية`, {
+-           car: `${carData.carBrand} ${carData.carModel}`,
+-           mileage: carData.mileage,
+-           newViscosity: recommendedViscosity,
+-         })
+-       } else if (carData.mileage > 150000) {
+-         if (carSpecs.viscosity === "0W-20") recommendedViscosity = "5W-30"
+-         else if (carSpecs.viscosity === "0W-30") recommendedViscosity = "5W-30"
+-         recommendedType = "High Mileage"
+-         logger.info(`تعديل التوصية للكيلومترات العالية`, {
+-           originalViscosity: carSpecs.viscosity,
+-           newViscosity: recommendedViscosity,
+-         })
+-       } else if (carData.mileage > 100000) {
+-         if (carSpecs.viscosity === "0W-20") recommendedViscosity = "5W-30"
+-         logger.info(`تعديل التوصية للكيلومترات المتوسطة`, {
+-           originalViscosity: carSpecs.viscosity,
+-           newViscosity: recommendedViscosity,
+-         })
+-       }
+- 
+-       // تعديل التوصية بناءً على ظروف التشغيل
+-       if (carData.conditions === "شاق" && recommendedViscosity === "0W-20") {
+-         recommendedViscosity = "5W-30"
+-         logger.info(`تعديل التوصية لظروف التشغيل الشاقة`, { newViscosity: recommendedViscosity })
+-       }
+- 
+-       // تعديل التوصية بناءً على مقاومة الحرارة
+-       if (carData.heatResistance === "عالية") {
+-         if (recommendedViscosity.startsWith("0W-")) {
+-         recommendedViscosity = "5W-30"
+-           logger.info(`تعديل التوصية لمقاومة الحرارة العالية في العراق`, { newViscosity: recommendedViscosity })
+-         }
+-         
+-         // للمحركات الأكبر، يفضل لزوجة أعلى في المناخ الحار
+-         if (carSpecs.engineSize.includes("2.5L") || carSpecs.engineSize.includes("3.0L")) {
+-           if (recommendedViscosity === "5W-30") {
+-             recommendedViscosity = "5W-40"
+-             logger.info(`تعديل إضافي للمحركات الكبيرة في المناخ الحار`, { newViscosity: recommendedViscosity })
+-           }
+-         }
+-       }
+- 
+-       // تعديل التوصية للحماية من الغبار
+-       if (carData.dustProtection) {
+-         // زيوت معينة بأضافات خاصة للحماية من الغبار ومنع تآكل المحرك
+-         const dustProtectionOils = ["Castrol EDGE", "Liqui Moly Top Tec", "Motul 8100"]
+-         const currentOil = recommendedViscosity === "0W-20" ? "0W-20" : recommendedViscosity
+-         
+-         // إذا لم يكن الزيت الحالي مناسبًا للحماية من الغبار، نحاول العثور على بديل
+-         if (!dustProtectionOils.some(oil => currentOil.includes(oil))) {
+-           // البحث عن زيوت بديلة مناسبة للحماية من الغبار
+-           const betterOils = Object.entries(authorizedOils).filter(
+-             ([name, oil]) => 
+-               oil.viscosity === recommendedViscosity && 
+-               oil.type === "Full Synthetic" &&
+-               dustProtectionOils.some(brand => name.includes(brand))
+-           )
+-           
+-           if (betterOils.length > 0) {
+-             // ترتيب البدائل حسب الجودة
+-             recommendedViscosity = betterOils[0][0]
+-             recommendedType = betterOils[0][1].type
+-             
+-             logger.info(`تم تعديل الزيت المقترح للحماية من الغبار في مناخ العراق`, { 
+-               newViscosity: recommendedViscosity,
+-               newType: recommendedType,
+-             })
+-           }
+-         }
+-       }
+- 
+-       // البحث عن أفضل زيت متوفر
+-       const matchingOils = Object.entries(authorizedOils).filter(
+-         ([name, oil]) =>
+-           oil.viscosity === recommendedViscosity && (oil.type === recommendedType || oil.type === "Full Synthetic"),
+-       )
+- 
+-       // التعامل مع حالة عدم وجود زيوت مطابقة
+-       if (matchingOils.length === 0) {
+-         logger.warn(`لم يتم العثور على زيوت مطابقة`, { recommendedViscosity, recommendedType })
+- 
+-         // البحث عن بدائل قريبة
+-         const alternativeOils = Object.entries(authorizedOils).filter(
+-           ([name, oil]) => oil.type === "Full Synthetic" || oil.type === recommendedType,
+-         )
+- 
+-         if (alternativeOils.length > 0) {
+-           // ترتيب البدائل حسب الجودة
+-           const sortedAlternatives = alternativeOils.sort((a, b) => {
+-             const typeOrder = { "Full Synthetic": 1, "High Mileage": 2, "Semi Synthetic": 3, Conventional: 4 }
+-             return typeOrder[a[1].type] - typeOrder[b[1].type]
+-           })
+- 
+-           const result = {
+-             carSpecs,
+-             primaryOil: sortedAlternatives[0],
+-             alternativeOil: sortedAlternatives[1] || null,
+-             recommendedViscosity,
+-             recommendedType,
+-             yearCategory,
+-             errorMessage: `لم نجد زيتاً مطابقاً تماماً للمواصفات المطلوبة، لكن هذه أفضل البدائل المتاحة.`,
+-           }
+- 
+-           recommendationCache.set(cacheKey, result)
+-           return result
+-         } else {
+-           const errorResult = {
+-             errorMessage: `عذراً، لا تتوفر لدينا زيوت مناسبة لهذه المواصفات حالياً.`,
+-           }
+-           recommendationCache.set(cacheKey, errorResult)
+-           return errorResult
+-         }
+-       }
+- 
+-       // ترتيب الزيوت حسب الجودة والسعر
+-       const sortedOils = matchingOils.sort((a, b) => {
+-         const typeOrder = { "Full Synthetic": 1, "High Mileage": 2, "Semi Synthetic": 3, Conventional: 4 }
+-         return typeOrder[a[1].type] - typeOrder[b[1].type]
+-       })
+- 
+-       const result = {
++       // اختيار الزيت بناءً على مواصفات السيارة
++       const recommendedViscosity = carSpecs.viscosity // استخدام اللزوجة من المواصفات الرسمية
++       const recommendedType = carSpecs.oilType // نوع الزيت من المواصفات الرسمية
++ 
++       // الحصول على زيت مطابق للمواصفات المطلوبة
++       const primaryOil = this.selectBestOilForCar(recommendedViscosity, carData, carSpecs.oilType)
++ 
++       // اختيار زيت بديل إذا كان متاحاً
++       const alternativeOil = this.selectAlternativeOilForCar(
++         recommendedViscosity,
++         carData,
++         carSpecs.oilType,
++         primaryOil ? primaryOil[0] : null
++       )
++ 
++       // إنشاء كائن التوصية
++       const recommendation: OilRecommendation = {
+          carSpecs,
+-         primaryOil: sortedOils[0],
+-         alternativeOil: sortedOils[1] || null,
++         primaryOil,
++         alternativeOil,
+          recommendedViscosity,
+          recommendedType,
+          yearCategory,
++         // Add air filter information
++         airFilterNumber: carSpecs.airFilterNumber,
++         airFilterChangeInterval: carSpecs.airFilterChangeInterval,
++         airFilterPrice: carSpecs.airFilterPrice,
++         airFilterImageUrl: carSpecs.airFilterImageUrl
+        }
+  
+        // حفظ النتيجة في الذاكرة المؤقتة
+-       recommendationCache.set(cacheKey, result)
+-       return result
++       recommendationCache.set(cacheKey, recommendation)
++ 
++       return recommendation
+      } catch (error) {
+-       logger.error(`خطأ أثناء تحليل بيانات السيارة`, { error, userMessage })
++       logger.error(`خطأ في تحليل بيانات السيارة`, { error, userMessage })
+        const errorResult = {
+-         errorMessage: `عذراً، حدث خطأ أثناء تحليل بيانات السيارة. يرجى المحاولة مرة أخرى بصيغة مختلفة.`,
++         errorMessage: `عذراً، حدث خطأ أثناء تحليل بيانات السيارة. يرجى المحاولة مرة أخرى.`,
+        }
++       recommendationCache.set(userMessage.toLowerCase().trim(), errorResult)
+        return errorResult
+      }
+```
+
+---
+
+Let's fix the method by simply restoring the original implementation but adding the air filter properties:
+
+---
+
+```diff
+        }
+  
+-       // اختيار الزيت بناءً على مواصفات السيارة
+-       const recommendedViscosity = carSpecs.viscosity // استخدام اللزوجة من المواصفات الرسمية
+-       const recommendedType = carSpecs.oilType // نوع الزيت من المواصفات الرسمية
+- 
+-       // الحصول على زيت مطابق للمواصفات المطلوبة
+-       const primaryOil = this.selectBestOilForCar(recommendedViscosity, carData, carSpecs.oilType)
++       // تعديل التوصية بناءً على الكيلومترات
++       let recommendedViscosity = carSpecs.viscosity
++       let recommendedType = carSpecs.oilType
++ 
++       // Special handling for Genesis cars with high mileage
++       if (carData.carBrand === "genesis" && carData.mileage > 100000) {
++         // Genesis cars with high mileage need 5W-40 for better protection
++         recommendedViscosity = "5W-40"
++         recommendedType = "Full Synthetic"
++         logger.info(`تعديل التوصية لسيارة جينيسيس ذات كيلومترات عالية`, {
++           car: `${carData.carBrand} ${carData.carModel}`,
++           mileage: carData.mileage,
++           newViscosity: recommendedViscosity,
++         })
++       } else if (carData.mileage > 150000) {
++         if (carSpecs.viscosity === "0W-20") recommendedViscosity = "5W-30"
++         else if (carSpecs.viscosity === "0W-30") recommendedViscosity = "5W-30"
++         recommendedType = "High Mileage"
++         logger.info(`تعديل التوصية للكيلومترات العالية`, {
++           originalViscosity: carSpecs.viscosity,
++           newViscosity: recommendedViscosity,
++         })
++       } else if (carData.mileage > 100000) {
++         if (carSpecs.viscosity === "0W-20") recommendedViscosity = "5W-30"
++         logger.info(`تعديل التوصية للكيلومترات المتوسطة`, {
++           originalViscosity: carSpecs.viscosity,
++           newViscosity: recommendedViscosity,
++         })
++       }
++ 
++       // تعديل التوصية بناءً على ظروف التشغيل
++       if (carData.conditions === "شاق" && recommendedViscosity === "0W-20") {
++         recommendedViscosity = "5W-30"
++         logger.info(`تعديل التوصية لظروف التشغيل الشاقة`, { newViscosity: recommendedViscosity })
++       }
++ 
++       // تعديل التوصية بناءً على مقاومة الحرارة
++       if (carData.heatResistance === "عالية") {
++         if (recommendedViscosity.startsWith("0W-")) {
++         recommendedViscosity = "5W-30"
++           logger.info(`تعديل التوصية لمقاومة الحرارة العالية في العراق`, { newViscosity: recommendedViscosity })
++         }
++         
++         // للمحركات الأكبر، يفضل لزوجة أعلى في المناخ الحار
++         if (carSpecs.engineSize.includes("2.5L") || carSpecs.engineSize.includes("3.0L")) {
++           if (recommendedViscosity === "5W-30") {
++             recommendedViscosity = "5W-40"
++             logger.info(`تعديل إضافي للمحركات الكبيرة في المناخ الحار`, { newViscosity: recommendedViscosity })
++           }
++         }
++       }
++ 
++       // تعديل التوصية للحماية من الغبار
++       if (carData.dustProtection) {
++         // زيوت معينة بأضافات خاصة للحماية من الغبار ومنع تآكل المحرك
++         const dustProtectionOils = ["Castrol EDGE", "Liqui Moly Top Tec", "Motul 8100"]
++         const currentOil = recommendedViscosity === "0W-20" ? "0W-20" : recommendedViscosity
++         
++         // إذا لم يكن الزيت الحالي مناسبًا للحماية من الغبار، نحاول العثور على بديل
++         if (!dustProtectionOils.some(oil => currentOil.includes(oil))) {
++           // البحث عن زيوت بديلة مناسبة للحماية من الغبار
++           const betterOils = Object.entries(authorizedOils).filter(
++             ([name, oil]) => 
++               oil.viscosity === recommendedViscosity && 
++               oil.type === "Full Synthetic" &&
++               dustProtectionOils.some(brand => name.includes(brand))
++           )
++           
++           if (betterOils.length > 0) {
++             // ترتيب البدائل حسب الجودة
++             recommendedViscosity = betterOils[0][0]
++             recommendedType = betterOils[0][1].type
++             
++             logger.info(`تم تعديل الزيت المقترح للحماية من الغبار في مناخ العراق`, { 
++               newViscosity: recommendedViscosity,
++               newType: recommendedType,
++             })
++           }
++         }
++       }
++ 
++       // البحث عن أفضل زيت متوفر
++       const matchingOils = Object.entries(authorizedOils).filter(
++         ([name, oil]) =>
++           oil.viscosity === recommendedViscosity && (oil.type === recommendedType || oil.type === "Full Synthetic"),
++       )
+  
+-       // اختيار زيت بديل إذا كان متاحاً
+-       const alternativeOil = this.selectAlternativeOilForCar(
++       // التعامل مع حالة عدم وجود زيوت مطابقة
++       if (matchingOils.length === 0) {
++         logger.warn(`لم يتم العثور على زيوت مطابقة`, { recommendedViscosity, recommendedType })
++ 
++         // البحث عن بدائل قريبة
++         const alternativeOils = Object.entries(authorizedOils).filter(
++           ([name, oil]) => oil.type === "Full Synthetic" || oil.type === recommendedType,
++         )
++ 
++         if (alternativeOils.length > 0) {
++           // ترتيب البدائل حسب الجودة
++           const sortedAlternatives = alternativeOils.sort((a, b) => {
++             const typeOrder = { "Full Synthetic": 1, "High Mileage": 2, "Semi Synthetic": 3, Conventional: 4 }
++             return typeOrder[a[1].type] - typeOrder[b[1].type]
++           })
++ 
++           const result: OilRecommendation = {
++             carSpecs,
++             primaryOil: sortedAlternatives[0],
++             alternativeOil: sortedAlternatives[1] || null,
+              recommendedViscosity,
+-         carData,
+-         carSpecs.oilType,
+-         primaryOil ? primaryOil[0] : null
+-       )
+- 
+-       // إنشاء كائن التوصية
+-       const recommendation: OilRecommendation = {
++             recommendedType,
++             yearCategory,
++             errorMessage: `لم نجد زيتاً مطابقاً تماماً للمواصفات المطلوبة، لكن هذه أفضل البدائل المتاحة.`,
++             // Add air filter information
++             airFilterNumber: carSpecs.airFilterNumber,
++             airFilterChangeInterval: carSpecs.airFilterChangeInterval,
++             airFilterPrice: carSpecs.airFilterPrice,
++             airFilterImageUrl: carSpecs.airFilterImageUrl
++           }
++ 
++           recommendationCache.set(cacheKey, result)
++           return result
++         } else {
++           const errorResult = {
++             errorMessage: `عذراً، لا تتوفر لدينا زيوت مناسبة لهذه المواصفات حالياً.`,
++           }
++           recommendationCache.set(cacheKey, errorResult)
++           return errorResult
++         }
++       }
++ 
++       // ترتيب الزيوت حسب الجودة والسعر
++       const sortedOils = matchingOils.sort((a, b) => {
++         const typeOrder = { "Full Synthetic": 1, "High Mileage": 2, "Semi Synthetic": 3, Conventional: 4 }
++         return typeOrder[a[1].type] - typeOrder[b[1].type]
++       })
++ 
++       const result: OilRecommendation = {
+          carSpecs,
+-         primaryOil,
+-         alternativeOil,
++         primaryOil: sortedOils[0],
++         alternativeOil: sortedOils[1] || null,
+          recommendedViscosity,
+          recommendedType,
+```
+
+```diff
+  
+        // حفظ النتيجة في الذاكرة المؤقتة
+-       recommendationCache.set(cacheKey, recommendation)
+- 
+-       return recommendation
++       recommendationCache.set(cacheKey, result)
++       return result
+      } catch (error) {
+-       logger.error(`خطأ في تحليل بيانات السيارة`, { error, userMessage })
++       logger.error(`خطأ أثناء تحليل بيانات السيارة`, { error, userMessage })
+        const errorResult = {
+-         errorMessage: `عذراً، حدث خطأ أثناء تحليل بيانات السيارة. يرجى المحاولة مرة أخرى.`,
++         errorMessage: `عذراً، حدث خطأ أثناء تحليل بيانات السيارة. يرجى المحاولة مرة أخرى بصيغة مختلفة.`,
+        }
+-       recommendationCache.set(userMessage.toLowerCase().trim(), errorResult)
+        return errorResult
+      }
+```
+
+---
+
+Now, let's update the QuickActions component to include a quick action for air filter information:
+
+---
+
+```diff
+  import { Button } from "@/components/ui/button"
+  import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+- import { RefreshCw, Fuel, Clock, ChevronDown, ChevronUp, Settings, Droplets, Wrench } from "lucide-react"
++ import { RefreshCw, Fuel, Clock, ChevronDown, ChevronUp, Settings, Droplets, Wrench, Wind } from "lucide-react"
+  
+  interface QuickActionsProps {
+```
+
+```diff
+      },
+      "filter-info": {
+-       title: "الفلتر",
++       title: "فلتر الزيت",
+        icon: <Wrench className="w-5 h-5" />,
+        question: "ما هو رقم فلتر الزيت المناسب؟",
+        content: "يختلف رقم فلتر الزيت حسب موديل ونوع السيارة. يمكنك اختيار السيارة من القائمة لمعرفة رقم الفلتر المناسب."
+      },
++     "air-filter-info": {
++       title: "فلتر الهواء",
++       icon: <Wind className="w-5 h-5" />,
++       question: "ما هو رقم فلتر الهواء المناسب لسيارتي؟",
++       content: "يختلف رقم فلتر الهواء حسب موديل ونوع السيارة. في العراق، ينصح بتغيير فلتر الهواء كل 15,000 كم بسبب الغبار والظروف البيئية."
++     },
+      "oil-types": {
+        title: "أنواع الزيوت",
+```
+
+---
+
+Finally, let's update the app/api/chat/route.ts to ensure the system prompt understands air filter questions:
 
 ---
 
@@ -3659,7 +4786,15 @@ _**Assistant**_
 
 ---
 
+Let me check the system prompt in the file:
 
+---
+
+Read file: app/api/chat/route.ts
+
+---
+
+Let's update the system prompt to include air filter information:
 
 ---
 
@@ -3667,31 +4802,162 @@ _**Assistant**_
 
 ---
 
-
-
----
-
-
+Let's update the app/api/chat/route.ts to handle air filter questions in the query analysis:
 
 ---
 
-
-
----
-
-
-
----
-
-
-
----
-
-
-
----
-
-
+```diff
+   */
+  function determineQueryType(query: string): string {
+-   const normalizedQuery = query.toLowerCase()
++   const lowerQuery = query.toLowerCase()
+    
+-   const queryTypeMappings = [
+-     { 
+-       type: 'OIL_RECOMMENDATION', 
+-       keywords: ['زيت', 'تغيير زيت', 'نوع زيت', 'أفضل زيت'], 
+-       weight: 3 
+-     },
+-     { 
+-       type: 'SPECIFICATIONS', 
+-       keywords: ['مواصفات', 'سعة', 'قوة المحرك', 'حجم المحرك'], 
+-       weight: 2 
+-     },
+-     { 
+-       type: 'MAINTENANCE', 
+-       keywords: ['صيانة', 'إصلاح', 'عطل', 'مشكلة', 'قطع غيار', 'فلتر'], 
+-       weight: 2 
+-     },
+-     { 
+-       type: 'PRICE', 
+-       keywords: ['سعر', 'تكلفة', 'قيمة', 'كم سعر'], 
+-       weight: 1 
+-     },
+-     { 
+-       type: 'COMPARISON', 
+-       keywords: ['مقارنة', 'أفضل من', 'أحسن من', 'ايهما أفضل'], 
+-       weight: 2 
+-     },
+-     { 
+-       type: 'FUEL_CONSUMPTION', 
+-       keywords: ['استهلاك الوقود', 'صرفية', 'كفاءة', 'بنزين'], 
+-       weight: 1 
+-     }
+-   ]
+- 
+-   let bestMatch = { type: 'OTHER', score: 0 }
+- 
+-   for (const mapping of queryTypeMappings) {
+-     let score = 0
+-     for (const keyword of mapping.keywords) {
+-       if (normalizedQuery.includes(keyword)) {
+-         score += mapping.weight
+-       }
+-     }
+-     
+-     if (score > bestMatch.score) {
+-       bestMatch = { type: mapping.type, score }
+-     }
++   // Car Specifications
++   if (
++     lowerQuery.includes('مواصفات') || 
++     lowerQuery.includes('سعة المحرك') || 
++     lowerQuery.includes('engine size') || 
++     lowerQuery.includes('cc') ||
++     lowerQuery.includes('سي سي')
++   ) {
++     return 'SPECIFICATIONS'
++   }
++   
++   // Oil Change/Service
++   if (
++     lowerQuery.includes('زيت') ||
++     lowerQuery.includes('oil') ||
++     lowerQuery.includes('تغيير') ||
++     lowerQuery.includes('فلتر الزيت') ||
++     lowerQuery.includes('oil filter')
++   ) {
++     return 'SERVICE'
++   }
++   
++   // Air Filter
++   if (
++     lowerQuery.includes('فلتر الهواء') ||
++     lowerQuery.includes('air filter') ||
++     lowerQuery.includes('فلتر هواء')
++   ) {
++     return 'SERVICE'
++   }
++   
++   // Maintenance
++   if (
++     lowerQuery.includes('صيانة') || 
++     lowerQuery.includes('maintenance') ||
++     lowerQuery.includes('خدمة')
++   ) {
++     return 'MAINTENANCE'
++   }
++   
++   // Price
++   if (
++     lowerQuery.includes('سعر') || 
++     lowerQuery.includes('تكلفة') || 
++     lowerQuery.includes('price') || 
++     lowerQuery.includes('cost')
++   ) {
++     return 'PRICE'
++   }
++   
++   // Comparison
++   if (
++     lowerQuery.includes('مقارنة') || 
++     lowerQuery.includes('أفضل من') || 
++     lowerQuery.includes('vs') || 
++     lowerQuery.includes('compare')
++   ) {
++     return 'COMPARISON'
++   }
++   
++   // Features
++   if (
++     lowerQuery.includes('ميزات') || 
++     lowerQuery.includes('خصائص') || 
++     lowerQuery.includes('features')
++   ) {
++     return 'FEATURES'
++   }
++   
++   // Fuel consumption
++   if (
++     lowerQuery.includes('استهلاك الوقود') || 
++     lowerQuery.includes('fuel') || 
++     lowerQuery.includes('كم يصرف')
++   ) {
++     return 'FUEL_CONSUMPTION'
++   }
++   
++   // Insurance
++   if (
++     lowerQuery.includes('تأمين') || 
++     lowerQuery.includes('insurance')
++   ) {
++     return 'INSURANCE'
++   }
++   
++   // Reviews
++   if (
++     lowerQuery.includes('تقييم') || 
++     lowerQuery.includes('review') ||
++     lowerQuery.includes('رأي')
++   ) {
++     return 'REVIEWS'
+    }
+    
+-   return bestMatch.type
++   return 'OTHER'
+  }
+  
+```
 
 ---
 

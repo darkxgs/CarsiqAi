@@ -38,22 +38,22 @@ const useScrollToBottom = (keyboardVisible: boolean) => {
 
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
       
-    if (forceScroll) {
-      if (isMobile) {
+      if (forceScroll) {
+        if (isMobile) {
         window.scrollTo({
           top: document.body.scrollHeight,
           behavior: 'auto'
         })
-      }
-      messagesEndRef.current.scrollIntoView({ 
-        block: 'end', 
+        }
+        messagesEndRef.current.scrollIntoView({ 
+          block: 'end', 
         inline: 'nearest',
         behavior: 'auto'
       })
-    } else {
-      messagesEndRef.current.scrollIntoView({ 
+      } else {
+        messagesEndRef.current.scrollIntoView({ 
         behavior: keyboardVisible ? 'auto' : 'smooth',
-        block: 'end'
+          block: 'end'
       })
     }
   }, [keyboardVisible])
@@ -151,8 +151,8 @@ const MessageContent = ({ content, role }: { content: string; role: string }) =>
       
       // Process paragraphs and then restore bold tags as React elements
       return markedContent.split('\n\n').map((paragraph, i) => {
-        const isNumberedEmoji = /^(\d️⃣|\d\uFE0F\u20E3)/.test(paragraph)
-        const isHeading = paragraph.trim().endsWith(':') && paragraph.length < MAX_HEADING_LENGTH
+      const isNumberedEmoji = /^(\d️⃣|\d\uFE0F\u20E3)/.test(paragraph)
+      const isHeading = paragraph.trim().endsWith(':') && paragraph.length < MAX_HEADING_LENGTH
         
         // Process the paragraph content to restore bold tags
         const processParagraphContent = (text: string) => {
@@ -194,31 +194,31 @@ const MessageContent = ({ content, role }: { content: string; role: string }) =>
           
           return result;
         };
-        
-        if (isNumberedEmoji) {
-          const emoji = paragraph.match(/^(\d️⃣|\d\uFE0F\u20E3)/)?.[0]
-          const text = paragraph.replace(/^(\d️⃣|\d\uFE0F\u20E3)/, '').trim()
-          return (
-            <div key={i} className="my-2 flex gap-2 items-start">
-              <div className="text-lg flex-shrink-0" aria-hidden="true">{emoji}</div>
+      
+      if (isNumberedEmoji) {
+        const emoji = paragraph.match(/^(\d️⃣|\d\uFE0F\u20E3)/)?.[0]
+        const text = paragraph.replace(/^(\d️⃣|\d\uFE0F\u20E3)/, '').trim()
+        return (
+          <div key={i} className="my-2 flex gap-2 items-start">
+            <div className="text-lg flex-shrink-0" aria-hidden="true">{emoji}</div>
               <div className="flex-1">{processParagraphContent(text)}</div>
-            </div>
-          )
-        } else if (isHeading) {
-          return (
-            <h3 key={i} className="font-bold text-md mt-3 mb-1" role="heading" aria-level={3}>
+          </div>
+        )
+      } else if (isHeading) {
+        return (
+          <h3 key={i} className="font-bold text-md mt-3 mb-1" role="heading" aria-level={3}>
               {processParagraphContent(paragraph)}
-            </h3>
-          )
-        } else {
-          const hasEmoji = /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/.test(paragraph)
-          return (
-            <p key={i} className={`my-1.5 text-sm ${hasEmoji ? 'emoji-content' : ''}`}>
+          </h3>
+        )
+      } else {
+        const hasEmoji = /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/.test(paragraph)
+        return (
+          <p key={i} className={`my-1.5 text-sm ${hasEmoji ? 'emoji-content' : ''}`}>
               {processParagraphContent(paragraph)}
-            </p>
-          )
-        }
-      })
+          </p>
+        )
+      }
+    })
     }
     
     return parseHtml(content);

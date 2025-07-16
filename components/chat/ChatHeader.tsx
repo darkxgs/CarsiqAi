@@ -46,23 +46,23 @@ export function ChatHeader({
                 <ClientOnly>
                   <div className="relative group">
                     <div className="absolute inset-0 bg-blue-100 dark:bg-blue-900/30 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    <Image
-                      src="/logo.png"
-                      alt="هندسة السيارات"
-                      width={96}
-                      height={72}
-                      priority
+                  <Image
+                    src="/logo.png"
+                    alt="هندسة السيارات"
+                    width={96}
+                    height={72}
+                    priority
                       className="object-contain max-h-full max-w-full relative z-10 transition-transform duration-300 group-hover:scale-105"
-                      style={{
-                        width: 'auto',
-                        height: 'auto'
-                      }}
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement
-                        target.onerror = null
-                        target.src = "/placeholder-logo.svg"
-                      }}
-                    />
+                    style={{
+                      width: 'auto',
+                      height: 'auto'
+                    }}
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement
+                      target.onerror = null
+                      target.src = "/placeholder-logo.svg"
+                    }}
+                  />
                   </div>
                 </ClientOnly>
               </div>

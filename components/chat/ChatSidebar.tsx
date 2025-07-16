@@ -161,7 +161,7 @@ export function ChatSidebar({
                   <MessageSquare className="h-8 w-8 text-blue-500 dark:text-blue-400" />
                 </div>
                 <p className="text-gray-500 dark:text-gray-400 text-sm">
-                  لا توجد محادثات سابقة
+                لا توجد محادثات سابقة
                 </p>
                 <p className="text-gray-400 dark:text-gray-500 text-xs mt-2">
                   ابدأ محادثة جديدة للحصول على توصيات زيوت السيارات

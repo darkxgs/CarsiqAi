@@ -233,7 +233,7 @@ export default function ChatPage() {
   useEffect(() => {
     if (textareaHeight > 0) {
       scrollToBottom();
-    }
+      }
   }, [textareaHeight]);
 
   // Load preferences and chat sessions

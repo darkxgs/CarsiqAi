@@ -11,6 +11,10 @@ export interface FormattedOilRecommendation {
   viscosity: string;
   oilType: string;
   filterNumber: string;
+  airFilterNumber?: string;          // رقم فلتر الهواء
+  airFilterChangeInterval?: string;  // فترة تغيير فلتر الهواء (بالكيلومتر)
+  airFilterPrice?: string;          // سعر فلتر الهواء (اختياري)
+  airFilterImageUrl?: string;       // رابط لصورة فلتر الهواء (اختياري)
   changeInterval: string;
   apiSpec: string;
   cylinders: number;
@@ -42,6 +46,10 @@ interface OilRecommendation {
   source?: string;
   lastVerifiedDate?: string;
   notes?: string;
+  airFilterNumber?: string;          // رقم فلتر الهواء
+  airFilterChangeInterval?: string;  // فترة تغيير فلتر الهواء (بالكيلومتر)
+  airFilterPrice?: string;          // سعر فلتر الهواء (اختياري)
+  airFilterImageUrl?: string;       // رابط لصورة فلتر الهواء (اختياري)
 }
 
 /**
@@ -104,7 +112,7 @@ function formatRecommendation(recommendation: OilRecommendation): FormattedOilRe
   const changeInterval = typeof recommendation.changeInterval === 'object' 
     ? `${recommendation.changeInterval.miles}` 
     : recommendation.changeInterval || "10000";
-  
+ 
   return {
     engineDescription: recommendation.engineSize,
     engineCode: recommendation.engineCode || 'unknown',
@@ -113,6 +121,10 @@ function formatRecommendation(recommendation: OilRecommendation): FormattedOilRe
     viscosity: recommendation.viscosity,
     oilType: recommendation.oilType,
     filterNumber: recommendation.filterNumber,
+    airFilterNumber: recommendation.airFilterNumber,
+    airFilterChangeInterval: recommendation.airFilterChangeInterval,
+    airFilterPrice: recommendation.airFilterPrice,
+    airFilterImageUrl: recommendation.airFilterImageUrl,
     changeInterval,
     apiSpec: recommendation.apiSpec || "API SN / SN PLUS",
     cylinders: recommendation.cylinders || 0,
