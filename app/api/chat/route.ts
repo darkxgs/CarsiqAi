@@ -107,7 +107,8 @@ mistralModel: "google/gemma-3-27b-it:free"
 Castrol, Mobil 1, Liqui Moly, Valvoline, Motul, Meguin, Hanata
 
 🔧 الفلاتر المسموح بها فقط:
-Denkermann, Mahle, Mann, Bosch, Fram
+Denkermann، Keep، FoldX
+❌ لا تُقدّم أي توصية لفلتر من علامة غير هذه
 
 📋 تنسيق الإجابة الإجباري (لكل محرك):
 

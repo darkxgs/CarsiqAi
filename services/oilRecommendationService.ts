@@ -112,7 +112,7 @@ function formatRecommendation(recommendation: OilRecommendation): FormattedOilRe
   const changeInterval = typeof recommendation.changeInterval === 'object' 
     ? `${recommendation.changeInterval.miles}` 
     : recommendation.changeInterval || "10000";
- 
+  
   return {
     engineDescription: recommendation.engineSize,
     engineCode: recommendation.engineCode || 'unknown',
