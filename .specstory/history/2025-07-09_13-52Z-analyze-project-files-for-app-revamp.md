@@ -5396,14 +5396,25 @@ This will help you monitor and improve your application's performance over time 
 
 _**User**_
 
-العلامات التتجاريب المسموحه للفلتر هوا دنكرمان و keep و foldx
-
-لكن ينطي الكود خطأ
-فا هنا كل معلومات المطلبوه شوف ال pdfs الموجوده هنا
+i want this commit back i want it the main : Commit fed308a
+, fed308ac36b4060e6bb8bf4945e2b08a57a87b3f
 
 ---
 
 _**Assistant**_
+
+```bash
+git checkout fed308ac36b4060e6bb8bf4945e2b08a57a87b3f .
+```
+
+```
+PS C:\Users\Dark\Downloads\CarsiqAi-master\CarsiqAi-master> git checkout fed308a
+PS C:\Users\Dark\Downloads\CarsiqAi-master\CarsiqAi-master> git checkout fed308a
+Updated 7 paths from 06c9861
+PS C:\Users\Dark\Downloads\CarsiqAi-master\CarsiqAi-master>
+```
+
+---
 
 
 
