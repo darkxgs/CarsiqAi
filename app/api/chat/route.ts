@@ -343,12 +343,10 @@ Hilux 2015~ 2.7L, 2.8L, 3.0L, 4.0L
 
 A146953
 LEXUS:
-
 NX250
 NX350
 
 TOYOTA:
-
 Avalon
 Camry
 Harrier
@@ -358,12 +356,10 @@ Yaris
 
 A140793
 LEXUS:
-
 ES300H
 UX200
 
 TOYOTA:
-
 86
 Avalon/Auris
 C-HR
@@ -375,12 +371,10 @@ Venza
 
 A140817
 LEXUS:
-
 GX470
 LX470
 
 TOYOTA:
-
 4 Runner
 FJ Cruiser
 Prado 120
@@ -390,12 +384,10 @@ Tundra
 
 A140818
 LEXUS:
-
 NX200
 RC350
 
 TOYOTA:
-
 Avensis
 Corolla
 Corolla Altis
@@ -405,24 +397,21 @@ Yaris
 Yaris (USA)
 
 A140828
+
 DAIHATSU:
-
 Altis
-
 LEXUS:
-
 ES240
 ES250
 
 TOYOTA:
-
 Camry
 Camry/Aurion
 Venza
 
 A146906
-LEXUS:
 
+LEXUS:
 LS600H
 ES200
 ES300H
@@ -430,18 +419,16 @@ HS250H
 LS460
 
 TOYOTA:
-
 Avalon
 Camry
 RAV 4
 
 A141781
-LEXUS:
 
+LEXUS:
 GX460 4.6L
 
 TOYOTA:
-
 4 Runner 4.0L
 FJ Cruiser 4.0L
 Prado 150 4.0L
