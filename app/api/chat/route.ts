@@ -196,6 +196,18 @@ function checkAndResetTokenLimitStatus(): void {
  */
 function enhancedExtractCarData(query: string): ExtractedCarData {
   console.log(`[DEBUG] Processing query: "${query}"`);
+  
+  // Validate input parameter
+  if (!query || typeof query !== 'string') {
+    console.warn('[DEBUG] Invalid query provided to enhancedExtractCarData', { query });
+    return {
+      carBrand: '',
+      carModel: '',
+      isValid: false,
+      confidence: 0
+    };
+  }
+  
   const normalizedQuery = query.toLowerCase().trim()
   console.log(`[DEBUG] Normalized query: "${normalizedQuery}"`);
 
@@ -464,7 +476,7 @@ async function saveQueryToAnalytics(
   carData?: ExtractedCarData,
   recommendation?: OilRecommendation
 ) {
-  if (!isSupabaseConfigured() || !query || query.trim() === '') {
+  if (!isSupabaseConfigured() || !query || typeof query !== 'string' || query.trim() === '') {
     console.log('Supabase not configured or empty query. Skipping analytics tracking.')
     return
   }
