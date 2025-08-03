@@ -391,7 +391,7 @@ export default function ChatPage() {
 
       // Handle the actual form submission using the new AI SDK API
       if (sendMessage) {
-        sendMessage({ content: currentInput, role: 'user' });
+        sendMessage(currentInput);
         // Clear the fallback input after sending
         setFallbackInput('');
       } else {
