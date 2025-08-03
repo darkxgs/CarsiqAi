@@ -4,11 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "seed": "tsx scripts/seed-database.ts",
-    "import-car-data": "tsx scripts/import-car-data.ts"
+    "import-car-data": "tsx scripts/import-car-data.ts",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@ai-sdk/openai": "latest",
