@@ -103,11 +103,46 @@ export default function ChatPage() {
     }
   };
 
+  // Fallback input state if AI SDK doesn't provide handleInputChange
+  const [fallbackInput, setFallbackInput] = useState('');
+  
+  // Fallback API call function
+  const sendMessageToAPI = async (message: string) => {
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: [
+            ...messages,
+            { role: 'user', content: message }
+          ]
+        })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        // Handle response - this is a simplified version
+        console.log('API Response:', data);
+      }
+    } catch (error) {
+      console.error('API Error:', error);
+    }
+  };
+  
   // Custom input handler to support both input and textarea elements
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     console.log("handleInputChange called with:", e.target.value);
     console.log("aiHandleInputChange exists:", !!aiHandleInputChange);
-    aiHandleInputChange?.(e as React.ChangeEvent<HTMLInputElement>);
+    
+    if (aiHandleInputChange) {
+      aiHandleInputChange(e as React.ChangeEvent<HTMLInputElement>);
+    } else {
+      // Fallback: manage input state manually
+      setFallbackInput(e.target.value);
+    }
 
     // Update textarea height for layout calculations
     if (e.target instanceof HTMLTextAreaElement) {
@@ -330,11 +365,12 @@ export default function ChatPage() {
 
   // Handle form submission with history saving
   const handleFormSubmitWithHistory = (e: React.FormEvent) => {
-    if ((input?.trim?.() || '')) {
-      console.log("Submitting form with input:", input)
+    const currentInput = input || fallbackInput;
+    if ((currentInput?.trim?.() || '')) {
+      console.log("Submitting form with input:", currentInput)
 
       // Save to quick search history
-      const trimmedInput = input?.trim?.() || '';
+      const trimmedInput = currentInput?.trim?.() || '';
       if (trimmedInput && !searchHistory.includes(trimmedInput)) {
         const newHistory = [trimmedInput, ...searchHistory.slice(0, 4)]
         setSearchHistory(newHistory)
@@ -352,13 +388,18 @@ export default function ChatPage() {
       // Save user message to local storage
       const userMessage: ChatMessage = {
         role: 'user',
-        content: input,
+        content: currentInput,
         timestamp: Date.now()
       }
       addMessageToActiveSession(userMessage);
 
       // Handle the actual form submission
-      handleSubmit?.(e)
+      if (handleSubmit) {
+        handleSubmit(e)
+      } else {
+        // Fallback: manually send message to API
+        sendMessageToAPI(currentInput);
+      }
 
       // Reset textarea height
       setTextareaHeight(0);
@@ -498,7 +539,7 @@ export default function ChatPage() {
           {/* Input Area */}
           <div className={`${keyboardVisible ? 'sticky bottom-0 z-40 bg-white dark:bg-gray-900' : ''} border-t border-gray-100 dark:border-gray-800`}>
             <ChatInput
-              input={input}
+              input={input || fallbackInput}
               handleInputChange={handleInputChange}
               handleSubmit={handleFormSubmitWithHistory}
               isLoading={isLoading}
