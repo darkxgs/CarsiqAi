@@ -99,7 +99,9 @@ export default function ChatPage() {
 
   // Custom input handler to support both input and textarea elements
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    aiHandleInputChange(e as React.ChangeEvent<HTMLInputElement>);
+    if (aiHandleInputChange && typeof aiHandleInputChange === 'function') {
+      aiHandleInputChange(e as React.ChangeEvent<HTMLInputElement>);
+    }
 
     // Update textarea height for layout calculations
     if (e.target instanceof HTMLTextAreaElement) {
@@ -317,7 +319,9 @@ export default function ChatPage() {
 
   // Handle quick action selection
   const handleQuickAction = (message: string) => {
-    handleInputChange({ target: { value: message } } as any)
+    if (handleInputChange && typeof handleInputChange === 'function') {
+      handleInputChange({ target: { value: message || '' } } as any)
+    }
   }
 
   // Handle form submission with history saving
@@ -327,10 +331,12 @@ export default function ChatPage() {
 
       // Save to quick search history
       const trimmedInput = input?.trim?.() || '';
-      if (!searchHistory.includes(trimmedInput)) {
+      if (trimmedInput && !searchHistory.includes(trimmedInput)) {
         const newHistory = [trimmedInput, ...searchHistory.slice(0, 4)]
         setSearchHistory(newHistory)
-        localStorage.setItem("searchHistory", JSON.stringify(newHistory))
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem("searchHistory", JSON.stringify(newHistory))
+        }
       }
 
       // Create or ensure there's an active session
@@ -348,7 +354,9 @@ export default function ChatPage() {
       addMessageToActiveSession(userMessage);
 
       // Handle the actual form submission
-      handleSubmit(e)
+      if (handleSubmit && typeof handleSubmit === 'function') {
+        handleSubmit(e)
+      }
 
       // Reset textarea height
       setTextareaHeight(0);

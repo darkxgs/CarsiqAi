@@ -19,11 +19,11 @@ interface ChatInputProps {
 }
 
 export function ChatInput({
-  input,
+  input = '',
   handleInputChange,
   handleSubmit,
-  isLoading,
-  iraqiCarSuggestions,
+  isLoading = false,
+  iraqiCarSuggestions = [],
   onStopGeneration,
   keyboardVisible = false
 }: ChatInputProps) {
@@ -36,19 +36,26 @@ export function ChatInput({
     setIsMounted(true);
   }, []);
 
-  const filteredSuggestions = (iraqiCarSuggestions || []).filter((suggestion) =>
-    suggestion?.toLowerCase()?.includes(input?.toLowerCase() || ''),
-  )
+  const filteredSuggestions = (iraqiCarSuggestions || []).filter((suggestion) => {
+    if (!suggestion || typeof suggestion !== 'string') return false;
+    const suggestionLower = suggestion.toLowerCase();
+    const inputLower = (input || '').toLowerCase();
+    return suggestionLower.includes(inputLower);
+  })
 
   const handleSuggestionClick = (suggestion: string) => {
-    handleInputChange({ target: { value: suggestion + " ماشية " } } as any)
+    if (handleInputChange && typeof handleInputChange === 'function') {
+      handleInputChange({ target: { value: (suggestion || '') + " ماشية " } } as any)
+    }
     setShowSuggestions(false)
   }
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     console.log("Submitting form with input:", input)
-    handleSubmit(e)
+    if (handleSubmit && typeof handleSubmit === 'function') {
+      handleSubmit(e)
+    }
     setShowSuggestions(false)
   }
   
@@ -75,13 +82,15 @@ export function ChatInput({
                 <TextareaAutosize
                   value={input}
                   onChange={(e) => {
-                    handleInputChange(e)
-                    setShowSuggestions(e.target.value.length > 0)
+                    if (handleInputChange && typeof handleInputChange === 'function') {
+                      handleInputChange(e)
+                    }
+                    setShowSuggestions((e?.target?.value?.length || 0) > 0)
                   }}
                   onKeyDown={handleKeyDown}
                   onFocus={() => {
                     setInputFocused(true)
-                    setShowSuggestions(input.length > 0)
+                    setShowSuggestions((input?.length || 0) > 0)
                   }}
                   onBlur={() => {
                     setInputFocused(false)
@@ -108,7 +117,11 @@ export function ChatInput({
                       <TooltipTrigger asChild>
                         <Button
                           type="button"
-                          onClick={onStopGeneration}
+                          onClick={() => {
+                            if (onStopGeneration && typeof onStopGeneration === 'function') {
+                              onStopGeneration()
+                            }
+                          }}
                           size="sm"
                           className="bg-red-500 hover:bg-red-600 p-0 rounded-xl transition-all duration-300 text-white shadow-md hover:shadow-lg transform hover:scale-105 h-8 w-8 sm:h-10 sm:w-10 flex items-center justify-center"
                         >
@@ -152,7 +165,7 @@ export function ChatInput({
                           key={index}
                           variant="ghost"
                             className="w-full justify-start text-right p-3 sm:p-3.5 text-sm sm:text-base hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg my-0.5"
-                          onClick={() => handleSuggestionClick(suggestion)}
+                          onClick={() => handleSuggestionClick(suggestion || '')}
                         >
                             <Car className="w-3 h-3 sm:w-4 sm:h-4 ml-2 sm:ml-3 text-blue-500 dark:text-blue-400" />
                           {suggestion}
