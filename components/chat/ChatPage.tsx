@@ -66,12 +66,14 @@ export default function ChatPage() {
       console.log("AI Message completed:", message)
 
       // Save assistant message to local storage
-      const assistantMessage: ChatMessage = {
-        role: 'assistant',
-        content: message.content,
-        timestamp: Date.now()
+      if (message.content && typeof message.content === 'string') {
+        const assistantMessage: ChatMessage = {
+          role: 'assistant',
+          content: message.content,
+          timestamp: Date.now()
+        }
+        addMessageToActiveSession(assistantMessage);
       }
-      addMessageToActiveSession(assistantMessage);
       loadChatSessions(); // Refresh sessions
 
       // Scroll to bottom after message is added
@@ -156,7 +158,14 @@ export default function ChatPage() {
     if (storage.activeSessionId) {
       const activeSession = storage.sessions.find(s => s.id === storage.activeSessionId);
       if (activeSession) {
-        const aiMessages = activeSession.messages.map(msg => ({
+        // Clean up any messages with undefined content
+        const validMessages = activeSession.messages.filter(msg => 
+          msg.content && 
+          typeof msg.content === 'string' && 
+          msg.content.trim().length > 0
+        );
+        
+        const aiMessages = validMessages.map(msg => ({
           id: msg.timestamp.toString(),
           role: msg.role as 'user' | 'assistant',
           content: msg.content
@@ -382,12 +391,14 @@ export default function ChatPage() {
       }
 
       // Save user message to local storage
-      const userMessage: ChatMessage = {
-        role: 'user',
-        content: currentInput,
-        timestamp: Date.now()
+      if (currentInput && currentInput.trim()) {
+        const userMessage: ChatMessage = {
+          role: 'user',
+          content: currentInput.trim(),
+          timestamp: Date.now()
+        }
+        addMessageToActiveSession(userMessage);
       }
-      addMessageToActiveSession(userMessage);
 
       // Handle the actual form submission using the new AI SDK API
       if (sendMessage) {
