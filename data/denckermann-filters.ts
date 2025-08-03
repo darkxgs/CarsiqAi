@@ -671,8 +671,8 @@ export const denckermannFilters: FilterDatabase = {
 
 // Helper function to search for filter by vehicle make and model
 export function findFilterByVehicle(make: string, model: string): string | null {
-  const normalizedMake = make.toLowerCase().trim();
-  const normalizedModel = model.toLowerCase().trim();
+  const normalizedMake = make?.toLowerCase?.()?.trim?.() || '';
+  const normalizedModel = model?.toLowerCase?.()?.trim?.() || '';
 
   // Create a mapping of common Arabic/English names
   const makeMapping: { [key: string]: string } = {

@@ -152,7 +152,7 @@ const MessageContent = ({ content, role }: { content: string; role: string }) =>
       // Process paragraphs and then restore bold tags as React elements
       return markedContent.split('\n\n').map((paragraph, i) => {
       const isNumberedEmoji = /^(\d️⃣|\d\uFE0F\u20E3)/.test(paragraph)
-      const isHeading = paragraph.trim().endsWith(':') && paragraph.length < MAX_HEADING_LENGTH
+      const isHeading = (paragraph?.trim?.() || '').endsWith(':') && paragraph.length < MAX_HEADING_LENGTH
         
         // Process the paragraph content to restore bold tags
         const processParagraphContent = (text: string) => {
@@ -197,7 +197,7 @@ const MessageContent = ({ content, role }: { content: string; role: string }) =>
       
       if (isNumberedEmoji) {
         const emoji = paragraph.match(/^(\d️⃣|\d\uFE0F\u20E3)/)?.[0]
-        const text = paragraph.replace(/^(\d️⃣|\d\uFE0F\u20E3)/, '').trim()
+        const text = (paragraph.replace(/^(\d️⃣|\d\uFE0F\u20E3)/, '')?.trim?.() || '')
         return (
           <div key={i} className="my-2 flex gap-2 items-start">
             <div className="text-lg flex-shrink-0" aria-hidden="true">{emoji}</div>

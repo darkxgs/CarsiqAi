@@ -196,7 +196,7 @@ function checkAndResetTokenLimitStatus(): void {
  */
 function enhancedExtractCarData(query: string): ExtractedCarData {
   console.log(`[DEBUG] Processing query: "${query}"`);
-  const normalizedQuery = query.toLowerCase().trim()
+  const normalizedQuery = query?.toLowerCase?.()?.trim?.() || ''
   console.log(`[DEBUG] Normalized query: "${normalizedQuery}"`);
 
   // Enhanced brand detection with common Arabic variations
@@ -464,14 +464,14 @@ async function saveQueryToAnalytics(
   carData?: ExtractedCarData,
   recommendation?: OilRecommendation
 ) {
-  if (!isSupabaseConfigured() || !query || query.trim() === '') {
+  if (!isSupabaseConfigured() || !query || (query?.trim?.() || '') === '') {
     console.log('Supabase not configured or empty query. Skipping analytics tracking.')
     return
   }
 
   try {
     const analyticsData = {
-      query: query.trim(),
+      query: query?.trim?.() || query || '',
       car_model: carData?.carModel,
       car_brand: carData?.carBrand,
       car_year: carData?.year,
@@ -728,7 +728,7 @@ function validateAndSanitizeRequest(body: any) {
     // Additional sanitization
     validatedBody.messages = validatedBody.messages.map(message => ({
       ...message,
-      content: message.content.trim().substring(0, 2000) // Limit message length
+      content: (message.content?.trim?.() || message.content || '').substring(0, 2000) // Limit message length
     }))
 
     return { success: true, data: validatedBody }

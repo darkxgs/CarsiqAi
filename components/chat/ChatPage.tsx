@@ -322,12 +322,13 @@ export default function ChatPage() {
 
   // Handle form submission with history saving
   const handleFormSubmitWithHistory = (e: React.FormEvent) => {
-    if (input.trim()) {
+    if ((input?.trim?.() || '')) {
       console.log("Submitting form with input:", input)
 
       // Save to quick search history
-      if (!searchHistory.includes(input.trim())) {
-        const newHistory = [input.trim(), ...searchHistory.slice(0, 4)]
+      const trimmedInput = input?.trim?.() || '';
+      if (!searchHistory.includes(trimmedInput)) {
+        const newHistory = [trimmedInput, ...searchHistory.slice(0, 4)]
         setSearchHistory(newHistory)
         localStorage.setItem("searchHistory", JSON.stringify(newHistory))
       }

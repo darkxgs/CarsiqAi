@@ -598,8 +598,8 @@ export const denckermannAirFilters: AirFilterDatabase = {
 
 // Helper function to search for air filter by vehicle make and model
 export function findAirFilterByVehicle(make: string, model: string): string | null {
-  const normalizedMake = make.toLowerCase().trim();
-  const normalizedModel = model.toLowerCase().trim();
+  const normalizedMake = make?.toLowerCase?.()?.trim?.() || '';
+  const normalizedModel = model?.toLowerCase?.()?.trim?.() || '';
   
   // Create a mapping of common Arabic/English names
   const makeMapping: { [key: string]: string } = {

@@ -82,8 +82,8 @@ export function ChatSidebar({
 
   // Confirm rename
   const confirmRename = () => {
-    if (sessionToRename && newTitle.trim()) {
-      renameChatSession(sessionToRename.id, newTitle.trim())
+    if (sessionToRename && (newTitle?.trim?.() || '')) {
+      renameChatSession(sessionToRename.id, newTitle?.trim?.() || newTitle || '')
       setDialogOpen(false)
       setSessionToRename(null)
     }

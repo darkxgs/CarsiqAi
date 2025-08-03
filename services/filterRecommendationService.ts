@@ -210,7 +210,7 @@ export function searchFiltersWithArabicSupport(query: string): Array<{
     'شيفروليه ماليبو': 'chevrolet malibu'
   };
 
-  const normalizedQuery = query.toLowerCase().trim();
+  const normalizedQuery = query?.toLowerCase?.()?.trim?.() || '';
   
   // Check if query matches Arabic mapping
   const englishQuery = arabicMapping[normalizedQuery] || normalizedQuery;

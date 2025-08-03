@@ -56,7 +56,7 @@ export function ChatInput({
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
-      if (input.trim() && !isLoading) {
+      if ((input?.trim?.() || '') && !isLoading) {
         handleFormSubmit(e)
       }
     }
@@ -124,10 +124,10 @@ export function ChatInput({
                     <TooltipTrigger asChild>
                       <Button
                         type="submit"
-                        disabled={isLoading || !input.trim()}
+                        disabled={isLoading || !(input?.trim?.() || '')}
                         size="sm"
                         className={`p-0 rounded-xl transition-all duration-300 text-white shadow-md hover:shadow-lg transform hover:scale-105 h-8 w-8 sm:h-10 sm:w-10 flex items-center justify-center ${
-                          input.trim() 
+                          (input?.trim?.() || '') 
                             ? "bg-blue-600 hover:bg-blue-700" 
                             : "bg-gray-300 dark:bg-gray-700 cursor-not-allowed"
                         }`}

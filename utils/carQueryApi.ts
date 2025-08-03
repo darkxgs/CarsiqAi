@@ -592,13 +592,13 @@ export async function normalizeArabicCarInput(
   input: string
 ): Promise<{ make: string; model: string; year: string | null; confidence: number }> {
   // Validate input
-  if (!input || input.trim().length < 2) {
+  if (!input || (input?.trim?.() || '').length < 2) {
     logger.warn("Input too short for normalization", { input });
     return { make: "", model: "", year: null, confidence: 0 };
   }
   
   // Create cache key
-  const cacheKey = `normalize:${input.toLowerCase().trim()}`;
+  const cacheKey = `normalize:${(input?.toLowerCase?.()?.trim?.()) || ''}`;
   
   // Use trackApiPerformance to monitor this operation
   return trackApiPerformance(
@@ -704,9 +704,9 @@ Return JSON only: {"make": "string", "model": "string", "year": "string|null", "
               }
               
               const normalizedData = {
-                make: parsedData.make?.toLowerCase().trim() || "",
-                model: parsedData.model?.toLowerCase().trim() || "",
-                year: parsedData.year ? parsedData.year.trim() : null,
+                make: parsedData.make?.toLowerCase?.()?.trim?.() || "",
+                model: parsedData.model?.toLowerCase?.()?.trim?.() || "",
+                year: parsedData.year ? (parsedData.year?.trim?.() || parsedData.year) : null,
                 confidence: parsedData.confidence || 80
               };
               
@@ -928,7 +928,7 @@ function sanitizeInput(input: string): string {
   return input
     .replace(/[<>]/g, '') // Remove potential HTML
     .replace(/[^\u0600-\u06FF\u0750-\u077F\w\s\-\.]/g, '') // Allow Arabic, English, numbers, spaces, hyphens, dots
-    .trim()
+    ?.trim?.() || ''
     .substring(0, 200); // Limit length
 }
 
@@ -947,7 +947,7 @@ function normalizeArabicText(text: string): string {
     .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, '')
     // Normalize whitespace
     .replace(/\s+/g, ' ')
-    .trim();
+    ?.trim?.() || '';
 }
 
 /**
@@ -1507,7 +1507,7 @@ export function suggestOil(specs: ReturnType<typeof extractOilRecommendationData
   return {
     viscosity: recommendedViscosity,
     quality: oilQuality,
-    reason: reason.trim(),
+    reason: reason?.trim?.() || reason || '',
     capacity: `${capacity} لتر`
   };
 }
