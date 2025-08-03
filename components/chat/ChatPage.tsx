@@ -83,18 +83,19 @@ export default function ChatPage() {
 
   // Debug and destructure the chat hook result
   console.log("useChat hook result:", Object.keys(chatHookResult));
-  console.log("handleInputChange in result:", !!chatHookResult.handleInputChange);
+  console.log("sendMessage available:", !!chatHookResult.sendMessage);
   
   const {
     messages,
-    input,
-    handleInputChange: aiHandleInputChange,
-    handleSubmit,
-    isLoading,
+    sendMessage,
     error,
     setMessages,
-    stop: stopGenerating
+    stop: stopGenerating,
+    status
   } = chatHookResult;
+  
+  // Check if we're loading based on status
+  const isLoading = status === 'in_progress';
 
   // Scroll to bottom of messages
   const scrollToBottom = () => {
@@ -135,14 +136,9 @@ export default function ChatPage() {
   // Custom input handler to support both input and textarea elements
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     console.log("handleInputChange called with:", e.target.value);
-    console.log("aiHandleInputChange exists:", !!aiHandleInputChange);
     
-    if (aiHandleInputChange) {
-      aiHandleInputChange(e as React.ChangeEvent<HTMLInputElement>);
-    } else {
-      // Fallback: manage input state manually
-      setFallbackInput(e.target.value);
-    }
+    // Always use our fallback input since AI SDK doesn't provide input state
+    setFallbackInput(e.target.value);
 
     // Update textarea height for layout calculations
     if (e.target instanceof HTMLTextAreaElement) {
@@ -360,12 +356,12 @@ export default function ChatPage() {
 
   // Handle quick action selection
   const handleQuickAction = (message: string) => {
-    handleInputChange?.({ target: { value: message || '' } } as any)
+    setFallbackInput(message || '');
   }
 
   // Handle form submission with history saving
   const handleFormSubmitWithHistory = (e: React.FormEvent) => {
-    const currentInput = input || fallbackInput;
+    const currentInput = fallbackInput;
     if ((currentInput?.trim?.() || '')) {
       console.log("Submitting form with input:", currentInput)
 
@@ -393,9 +389,11 @@ export default function ChatPage() {
       }
       addMessageToActiveSession(userMessage);
 
-      // Handle the actual form submission
-      if (handleSubmit) {
-        handleSubmit(e)
+      // Handle the actual form submission using the new AI SDK API
+      if (sendMessage) {
+        sendMessage({ content: currentInput, role: 'user' });
+        // Clear the fallback input after sending
+        setFallbackInput('');
       } else {
         // Fallback: manually send message to API
         sendMessageToAPI(currentInput);
@@ -539,7 +537,7 @@ export default function ChatPage() {
           {/* Input Area */}
           <div className={`${keyboardVisible ? 'sticky bottom-0 z-40 bg-white dark:bg-gray-900' : ''} border-t border-gray-100 dark:border-gray-800`}>
             <ChatInput
-              input={input || fallbackInput}
+              input={fallbackInput}
               handleInputChange={handleInputChange}
               handleSubmit={handleFormSubmitWithHistory}
               isLoading={isLoading}
