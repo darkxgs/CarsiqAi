@@ -44,18 +44,14 @@ export function ChatInput({
   })
 
   const handleSuggestionClick = (suggestion: string) => {
-    if (handleInputChange && typeof handleInputChange === 'function') {
-      handleInputChange({ target: { value: (suggestion || '') + " ماشية " } } as any)
-    }
+    handleInputChange?.({ target: { value: (suggestion || '') + " ماشية " } } as any)
     setShowSuggestions(false)
   }
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     console.log("Submitting form with input:", input)
-    if (handleSubmit && typeof handleSubmit === 'function') {
-      handleSubmit(e)
-    }
+    handleSubmit?.(e)
     setShowSuggestions(false)
   }
   
@@ -82,9 +78,7 @@ export function ChatInput({
                 <TextareaAutosize
                   value={input}
                   onChange={(e) => {
-                    if (handleInputChange && typeof handleInputChange === 'function') {
-                      handleInputChange(e)
-                    }
+                    handleInputChange?.(e)
                     setShowSuggestions((e?.target?.value?.length || 0) > 0)
                   }}
                   onKeyDown={handleKeyDown}
@@ -117,11 +111,7 @@ export function ChatInput({
                       <TooltipTrigger asChild>
                         <Button
                           type="button"
-                          onClick={() => {
-                            if (onStopGeneration && typeof onStopGeneration === 'function') {
-                              onStopGeneration()
-                            }
-                          }}
+                          onClick={() => onStopGeneration?.()}
                           size="sm"
                           className="bg-red-500 hover:bg-red-600 p-0 rounded-xl transition-all duration-300 text-white shadow-md hover:shadow-lg transform hover:scale-105 h-8 w-8 sm:h-10 sm:w-10 flex items-center justify-center"
                         >

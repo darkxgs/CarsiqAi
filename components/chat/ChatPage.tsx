@@ -99,9 +99,9 @@ export default function ChatPage() {
 
   // Custom input handler to support both input and textarea elements
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    if (aiHandleInputChange && typeof aiHandleInputChange === 'function') {
-      aiHandleInputChange(e as React.ChangeEvent<HTMLInputElement>);
-    }
+    console.log("handleInputChange called with:", e.target.value);
+    console.log("aiHandleInputChange exists:", !!aiHandleInputChange);
+    aiHandleInputChange?.(e as React.ChangeEvent<HTMLInputElement>);
 
     // Update textarea height for layout calculations
     if (e.target instanceof HTMLTextAreaElement) {
@@ -319,9 +319,7 @@ export default function ChatPage() {
 
   // Handle quick action selection
   const handleQuickAction = (message: string) => {
-    if (handleInputChange && typeof handleInputChange === 'function') {
-      handleInputChange({ target: { value: message || '' } } as any)
-    }
+    handleInputChange?.({ target: { value: message || '' } } as any)
   }
 
   // Handle form submission with history saving
@@ -354,9 +352,7 @@ export default function ChatPage() {
       addMessageToActiveSession(userMessage);
 
       // Handle the actual form submission
-      if (handleSubmit && typeof handleSubmit === 'function') {
-        handleSubmit(e)
-      }
+      handleSubmit?.(e)
 
       // Reset textarea height
       setTextareaHeight(0);
