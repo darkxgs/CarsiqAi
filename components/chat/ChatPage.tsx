@@ -53,16 +53,7 @@ export default function ChatPage() {
   ]
 
   // AI Chat setup
-  const {
-    messages,
-    input,
-    handleInputChange: aiHandleInputChange,
-    handleSubmit,
-    isLoading,
-    error,
-    setMessages,
-    stop: stopGenerating
-  } = useChat({
+  const chatHookResult = useChat({
     api: "/api/chat",
     initialMessages: [],
     onResponse: (response) => {
@@ -89,6 +80,21 @@ export default function ChatPage() {
       }, 100);
     }
   })
+
+  // Debug and destructure the chat hook result
+  console.log("useChat hook result:", Object.keys(chatHookResult));
+  console.log("handleInputChange in result:", !!chatHookResult.handleInputChange);
+  
+  const {
+    messages,
+    input,
+    handleInputChange: aiHandleInputChange,
+    handleSubmit,
+    isLoading,
+    error,
+    setMessages,
+    stop: stopGenerating
+  } = chatHookResult;
 
   // Scroll to bottom of messages
   const scrollToBottom = () => {
