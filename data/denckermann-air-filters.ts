@@ -707,11 +707,11 @@ export function getAirFilterDetails(filterNumber: string): DenckermannAirFilter 
 // Helper function to search air filters by partial vehicle name
 export function searchAirFiltersByVehicleName(searchTerm: string): Array<{filterNumber: string, vehicle: string, brands: string[]}> {
   const results: Array<{filterNumber: string, vehicle: string, brands: string[]}> = [];
-  const normalizedSearch = searchTerm.toLowerCase().trim();
+  const normalizedSearch = searchTerm?.toLowerCase()?.trim() || '';
 
   for (const [filterNumber, filterData] of Object.entries(denckermannAirFilters)) {
-    const matchingVehicles = filterData.compatibleVehicles.filter(vehicle => 
-      vehicle.toLowerCase().includes(normalizedSearch)
+    const matchingVehicles = (filterData?.compatibleVehicles || []).filter(vehicle => 
+      vehicle?.toLowerCase()?.includes(normalizedSearch)
     );
     
     matchingVehicles.forEach(vehicle => {

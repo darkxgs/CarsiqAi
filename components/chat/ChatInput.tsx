@@ -36,8 +36,8 @@ export function ChatInput({
     setIsMounted(true);
   }, []);
 
-  const filteredSuggestions = iraqiCarSuggestions.filter((suggestion) =>
-    suggestion.toLowerCase().includes(input.toLowerCase()),
+  const filteredSuggestions = (iraqiCarSuggestions || []).filter((suggestion) =>
+    suggestion?.toLowerCase()?.includes(input?.toLowerCase() || ''),
   )
 
   const handleSuggestionClick = (suggestion: string) => {
@@ -143,7 +143,7 @@ export function ChatInput({
                 </div>
 
                 {/* Auto-suggestions */}
-                {showSuggestions && filteredSuggestions.length > 0 && (
+                {showSuggestions && filteredSuggestions && filteredSuggestions.length > 0 && (
                   <Card className="absolute top-full left-0 right-0 mt-2 z-10 border border-blue-100 dark:border-blue-800/50 rounded-xl shadow-xl overflow-hidden">
                     <CardContent className="p-1">
                       <div className="max-h-60 overflow-y-auto">

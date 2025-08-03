@@ -59,8 +59,8 @@ export function AnalyticsDashboard() {
   });
 
   // Filter query log based on search input
-  const filteredQueryLog = queryLog.filter(
-    (item) => item.query.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredQueryLog = (queryLog || []).filter(
+    (item) => item?.query?.toLowerCase()?.includes(searchQuery?.toLowerCase() || '')
   );
 
   // Function to handle brand selection

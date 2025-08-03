@@ -63,8 +63,8 @@ export function getVerifiedOilFilter(make: string, model: string, year?: number)
 
     // If no exact match found, try partial search
     const searchResults = searchFiltersByVehicleName(model);
-    const relevantResults = searchResults.filter(result => 
-      result.brand.toLowerCase() === make.toLowerCase() || result.brand.toLowerCase() === 'universal'
+    const relevantResults = (searchResults || []).filter(result => 
+      result?.brand?.toLowerCase() === make?.toLowerCase() || result?.brand?.toLowerCase() === 'universal'
     );
 
     if (relevantResults.length > 0) {
@@ -131,8 +131,8 @@ export function getVerifiedAirFilter(make: string, model: string, year?: number)
 
     // If no exact match found, try partial search
     const searchResults = searchAirFiltersByVehicleName(model);
-    const relevantResults = searchResults.filter(result => 
-      result.brands.some(brand => brand.toLowerCase() === make.toLowerCase())
+    const relevantResults = (searchResults || []).filter(result => 
+      result?.brands?.some(brand => brand?.toLowerCase() === make?.toLowerCase())
     );
 
     if (relevantResults.length > 0) {

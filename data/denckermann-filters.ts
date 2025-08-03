@@ -1458,11 +1458,11 @@ export function getFilterDetails(filterNumber: string): DenckermannFilter | null
 // Helper function to search filters by partial vehicle name
 export function searchFiltersByVehicleName(searchTerm: string): Array<{ filterNumber: string, vehicle: string, brand: string }> {
   const results: Array<{ filterNumber: string, vehicle: string, brand: string }> = [];
-  const normalizedSearch = searchTerm.toLowerCase().trim();
+  const normalizedSearch = searchTerm?.toLowerCase()?.trim() || '';
 
   for (const [filterNumber, filterData] of Object.entries(denckermannFilters)) {
-    const matchingVehicles = filterData.compatibleVehicles.filter(vehicle =>
-      vehicle.toLowerCase().includes(normalizedSearch)
+    const matchingVehicles = (filterData?.compatibleVehicles || []).filter(vehicle =>
+      vehicle?.toLowerCase()?.includes(normalizedSearch)
     );
 
     matchingVehicles.forEach(vehicle => {
