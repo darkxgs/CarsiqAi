@@ -1566,7 +1566,18 @@ ${carTrimData.model_drive ? `- نظام الدفع: ${carTrimData.model_drive}` 
     } catch (streamError) {
       console.log('AI SDK streaming failed, using direct API call fallback');
       
-      // Fallback to direct API call
+      // Fallback to direct API call - INCLUDE the enhanced system prompt
+      const fallbackMessages = [
+        {
+          role: "system",
+          content: enhancedSystemPrompt
+        },
+        ...messages.map(msg => ({
+          role: msg.role,
+          content: msg.content
+        }))
+      ];
+
       const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -1577,10 +1588,7 @@ ${carTrimData.model_drive ? `- نظام الدفع: ${carTrimData.model_drive}` 
         },
         body: JSON.stringify({
           model: modelToUse,
-          messages: messages.map(msg => ({
-            role: msg.role,
-            content: msg.content
-          })),
+          messages: fallbackMessages,
           max_tokens: 900,
           temperature: 0.3
         })
