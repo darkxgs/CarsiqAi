@@ -480,7 +480,7 @@ export default function ChatPage() {
         try {
           console.log('Using AI SDK sendMessage with input:', currentInput);
           console.log('Current messages before sending:', messages);
-          sendMessage(currentInput);
+          sendMessage({ text: currentInput });
           // Clear the fallback input after sending
           setFallbackInput('');
         } catch (error) {
