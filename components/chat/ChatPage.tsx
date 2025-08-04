@@ -101,11 +101,11 @@ export default function ChatPage() {
   
   // Track if we should bypass AI SDK due to persistent errors
   const [bypassAISDK, setBypassAISDK] = useState(() => {
-    // Initialize from localStorage to persist across renders
+    // Disable bypass since we fixed the AI SDK compatibility issues
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('bypassAISDK') === 'true';
+      localStorage.removeItem('bypassAISDK'); // Clear any existing bypass
     }
-    return false;
+    return false; // Always use AI SDK now
   });
   
   // Clear messages if we detect undefined content error
@@ -473,22 +473,30 @@ export default function ChatPage() {
       console.log('Form submission - bypassAISDK:', bypassAISDK, 'sendMessage exists:', !!sendMessage);
       console.log('localStorage bypassAISDK:', typeof window !== 'undefined' ? localStorage.getItem('bypassAISDK') : 'N/A');
       
-      if (bypassAISDK || !sendMessage) {
-        console.log('Using fallback API due to AI SDK issues');
-        // Use fallback API directly
-        sendMessageToAPI(currentInput);
-        setFallbackInput('');
-      } else {
+      // Force clear any bypass flags
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('bypassAISDK');
+      }
+      
+      // Always try to use AI SDK first since we fixed the compatibility issues
+      if (sendMessage) {
         try {
+          console.log('Using AI SDK sendMessage');
           sendMessage({ text: currentInput });
           // Clear the fallback input after sending
           setFallbackInput('');
         } catch (error) {
           console.error('SendMessage error:', error);
           // Fallback to manual API call if sendMessage fails
+          console.log('Falling back to direct API call');
           sendMessageToAPI(currentInput);
           setFallbackInput('');
         }
+      } else {
+        console.log('sendMessage not available, using fallback API');
+        // Use fallback API directly
+        sendMessageToAPI(currentInput);
+        setFallbackInput('');
       }
 
       // Reset textarea height
