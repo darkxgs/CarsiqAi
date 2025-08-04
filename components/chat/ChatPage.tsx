@@ -475,27 +475,10 @@ export default function ChatPage() {
         localStorage.removeItem('bypassAISDK');
       }
       
-      // Always try to use AI SDK first since we fixed the compatibility issues
-      if (sendMessage) {
-        try {
-          console.log('Using AI SDK sendMessage with input:', currentInput);
-          console.log('Current messages before sending:', messages);
-          sendMessage({ text: currentInput });
-          // Clear the fallback input after sending
-          setFallbackInput('');
-        } catch (error) {
-          console.error('SendMessage error:', error);
-          // Fallback to manual API call if sendMessage fails
-          console.log('Falling back to direct API call');
-          sendMessageToAPI(currentInput);
-          setFallbackInput('');
-        }
-      } else {
-        console.log('sendMessage not available, using fallback API');
-        // Use fallback API directly
-        sendMessageToAPI(currentInput);
-        setFallbackInput('');
-      }
+      // Use direct API call as primary method since AI SDK has compatibility issues
+      console.log('Using direct API call (more reliable than AI SDK)');
+      sendMessageToAPI(currentInput);
+      setFallbackInput('');
 
       // Reset textarea height
       setTextareaHeight(0);
