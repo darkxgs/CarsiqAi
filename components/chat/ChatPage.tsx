@@ -100,7 +100,13 @@ export default function ChatPage() {
   const isLoading = status === 'in_progress';
   
   // Track if we should bypass AI SDK due to persistent errors
-  const [bypassAISDK, setBypassAISDK] = useState(false);
+  const [bypassAISDK, setBypassAISDK] = useState(() => {
+    // Initialize from localStorage to persist across renders
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('bypassAISDK') === 'true';
+    }
+    return false;
+  });
   
   // Clear messages if we detect undefined content error
   useEffect(() => {
@@ -109,6 +115,10 @@ export default function ChatPage() {
       console.log('Bypassing AI SDK for future requests');
       setMessages([]);
       setBypassAISDK(true); // Bypass AI SDK for future requests
+      // Persist the bypass state in localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('bypassAISDK', 'true');
+      }
     }
   }, [error, setMessages]);
 
@@ -459,6 +469,8 @@ export default function ChatPage() {
 
       // Handle the actual form submission
       console.log('Form submission - bypassAISDK:', bypassAISDK, 'sendMessage exists:', !!sendMessage);
+      console.log('localStorage bypassAISDK:', typeof window !== 'undefined' ? localStorage.getItem('bypassAISDK') : 'N/A');
+      
       if (bypassAISDK || !sendMessage) {
         console.log('Using fallback API due to AI SDK issues');
         // Use fallback API directly
