@@ -458,6 +458,7 @@ export default function ChatPage() {
       }
 
       // Handle the actual form submission
+      console.log('Form submission - bypassAISDK:', bypassAISDK, 'sendMessage exists:', !!sendMessage);
       if (bypassAISDK || !sendMessage) {
         console.log('Using fallback API due to AI SDK issues');
         // Use fallback API directly
