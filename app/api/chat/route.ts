@@ -750,6 +750,8 @@ export async function POST(req: Request) {
 
   try {
     console.log(`[${requestId}] Processing new request`)
+    console.log(`[${requestId}] Request URL:`, req.url)
+    console.log(`[${requestId}] Request method:`, req.method)
 
     // Enhanced request parsing with timeout
     let body: any
@@ -801,8 +803,11 @@ export async function POST(req: Request) {
     const userQuery = userMessages[userMessages.length - 1]?.content || '';
 
     console.log(`[${requestId}] Processing user query: "${userQuery}"`);
+    console.log(`[${requestId}] Total messages:`, messages.length);
+    console.log(`[${requestId}] User messages:`, userMessages.length);
 
     // Check if this is a filter-specific query first
+    console.log(`[${requestId}] Checking if filter query...`);
     if (isFilterQuery(userQuery)) {
       console.log(`[${requestId}] Detected filter query, processing with Denckermann database`);
 
@@ -1549,6 +1554,9 @@ ${carTrimData.model_drive ? `- نظام الدفع: ${carTrimData.model_drive}` 
     }
 
     // Create stream response using streamText
+    console.log(`[${requestId}] Creating streamText with model: ${modelToUse}`);
+    console.log(`[${requestId}] Enhanced system prompt length:`, enhancedSystemPrompt.length);
+    
     const result = streamText({
       model: openrouter(modelToUse),
       system: enhancedSystemPrompt,
@@ -1560,11 +1568,15 @@ ${carTrimData.model_drive ? `- نظام الدفع: ${carTrimData.model_drive}` 
       presencePenalty: 0.1
     });
 
+    console.log(`[${requestId}] StreamText created, attempting to return response...`);
+
     // Return the data stream response directly - fix AI SDK compatibility
     try {
+      console.log(`[${requestId}] Trying toDataStreamResponse...`);
       return result.toDataStreamResponse();
     } catch (streamError) {
-      console.log('AI SDK streaming failed, using direct API call fallback');
+      console.log(`[${requestId}] AI SDK streaming failed, using direct API call fallback`);
+      console.error(`[${requestId}] Stream error:`, streamError);
       
       // Fallback to direct API call - INCLUDE the enhanced system prompt
       const fallbackMessages = [
@@ -1578,6 +1590,9 @@ ${carTrimData.model_drive ? `- نظام الدفع: ${carTrimData.model_drive}` 
         }))
       ];
 
+      console.log(`[${requestId}] Making direct OpenRouter API call...`);
+      console.log(`[${requestId}] Fallback messages count:`, fallbackMessages.length);
+      
       const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -1594,12 +1609,20 @@ ${carTrimData.model_drive ? `- نظام الدفع: ${carTrimData.model_drive}` 
         })
       });
 
+      console.log(`[${requestId}] OpenRouter response status:`, response.status);
+
       if (!response.ok) {
-        throw new Error(`OpenRouter API error: ${response.status}`);
+        const errorText = await response.text();
+        console.error(`[${requestId}] OpenRouter API error:`, response.status, errorText);
+        throw new Error(`OpenRouter API error: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
+      console.log(`[${requestId}] OpenRouter response received:`, data.choices?.[0]?.message?.content?.substring(0, 100));
+      
       const assistantMessage = data.choices?.[0]?.message?.content || "عذراً، لم أتمكن من الحصول على رد.";
+      
+      console.log(`[${requestId}] Returning response with length:`, assistantMessage.length);
       
       return new Response(assistantMessage, {
         headers: {
