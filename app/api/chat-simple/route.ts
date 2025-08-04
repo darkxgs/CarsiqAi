@@ -1,6 +1,3 @@
-import { streamText } from "ai"
-import { createOpenAI } from "@ai-sdk/openai"
-
 export async function POST(req: Request) {
   try {
     console.log("Simple chat API called")
@@ -29,33 +26,50 @@ export async function POST(req: Request) {
       })
     }
 
-    console.log("Creating OpenRouter client...")
-    const client = createOpenAI({
-      apiKey: process.env.OPENROUTER_API_KEY,
-      baseURL: "https://openrouter.ai/api/v1",
+    console.log("Making direct API call to OpenRouter...")
+    
+    // Prepare messages for OpenRouter API
+    const apiMessages = [
+      {
+        role: "system",
+        content: "أنت مساعد تقني متخصص في زيوت محركات السيارات. أجب بإيجاز ووضوح."
+      },
+      ...body.messages.map((msg: any) => ({
+        role: msg.role,
+        content: msg.content
+      }))
+    ]
+
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
       headers: {
+        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        "Content-Type": "application/json",
         "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
-        "X-Title": "Car Service Chat - Simple Test"
-      }
+        "X-Title": "Car Service Chat - Simple API"
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.0-flash-001",
+        messages: apiMessages,
+        max_tokens: 500,
+        temperature: 0.3
+      })
     })
 
-    console.log("Calling streamText...")
-    const result = await streamText({
-      model: client("google/gemini-2.0-flash-001"),
-      system: "أنت مساعد تقني متخصص في زيوت محركات السيارات. أجب بإيجاز ووضوح.",
-      messages: body.messages,
-      maxTokens: 500,
-      temperature: 0.3
-    })
+    if (!response.ok) {
+      const errorData = await response.text()
+      console.error("OpenRouter API error:", response.status, errorData)
+      throw new Error(`OpenRouter API error: ${response.status}`)
+    }
 
-    console.log("StreamText result received, getting full text...")
+    const data = await response.json()
+    console.log("OpenRouter response received:", data)
     
-    // Get the complete text response instead of streaming
-    const fullText = await result.text
-    console.log("Full text response:", fullText)
+    const assistantMessage = data.choices?.[0]?.message?.content || "عذراً، لم أتمكن من الحصول على رد."
+    console.log("Assistant message:", assistantMessage)
     
-    // Return the complete text response
-    return new Response(fullText, {
+    // Return the assistant's response as plain text
+    return new Response(assistantMessage, {
       headers: {
         'Content-Type': 'text/plain; charset=utf-8',
       },
