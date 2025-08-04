@@ -168,8 +168,20 @@ export default function ChatPage() {
       });
       
       if (response.ok) {
-        // Handle JSON response (not streaming for now)
-        const data = await response.text();
+        // Check content type to handle different response formats
+        const contentType = response.headers.get('content-type');
+        console.log('Response content type:', contentType);
+        
+        let data: string;
+        if (contentType?.includes('application/json')) {
+          // Handle JSON error responses
+          const jsonData = await response.json();
+          data = jsonData.error || JSON.stringify(jsonData);
+        } else {
+          // Handle text/plain responses
+          data = await response.text();
+        }
+        
         console.log('Fallback API response:', data);
         
         if (data.trim()) {
