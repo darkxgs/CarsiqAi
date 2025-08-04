@@ -50,7 +50,6 @@ export function ChatInput({
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("Submitting form with input:", input)
     handleSubmit?.(e)
     setShowSuggestions(false)
   }

@@ -325,8 +325,11 @@ const LoadingIndicator = () => (
           <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: "0.1s" }} aria-hidden="true"></div>
           <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }} aria-hidden="true"></div>
           <span className="text-sm text-gray-600 dark:text-gray-400 mr-3">
-            جاري تحليل سيارتك...
+            🔍 جاري البحث في قاعدة البيانات...
           </span>
+        </div>
+        <div className="mt-2 text-xs text-gray-500 dark:text-gray-500">
+          يرجى الانتظار، سأجد لك أفضل زيت وفلتر لسيارتك
         </div>
       </CardContent>
     </Card>

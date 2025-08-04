@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef, useCallback } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useChat } from "@ai-sdk/react"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { ChatHeader } from "@/components/chat/ChatHeader"
@@ -14,11 +14,8 @@ import {
   getChatStorage,
   setActiveSession,
   createAndSetActiveSession,
-  addMessageToActiveSession,
-  getActiveSession
+  addMessageToActiveSession
 } from "@/utils/chatStorage"
-import { Button } from "@/components/ui/button"
-import { PlusCircle, MessageSquare } from "lucide-react"
 
 export default function ChatPage() {
   // State
@@ -56,15 +53,10 @@ export default function ChatPage() {
   const chatHookResult = useChat({
     api: "/api/chat",
     initialMessages: [],
-    onResponse: (response) => {
-      console.log("AI Response received:", response.status)
-    },
     onError: (error) => {
       console.error("Chat error:", error)
     },
     onFinish: (message) => {
-      console.log("AI Message completed:", message)
-
       // Save assistant message to local storage
       if (message.content && typeof message.content === 'string') {
         const assistantMessage: ChatMessage = {
@@ -82,14 +74,9 @@ export default function ChatPage() {
       }, 100);
     }
   })
-
-  // Debug and destructure the chat hook result
-  console.log("useChat hook result:", Object.keys(chatHookResult));
-  console.log("sendMessage available:", !!chatHookResult.sendMessage);
   
   const {
     messages,
-    sendMessage,
     error,
     setMessages,
     stop: stopGenerating,
@@ -97,27 +84,10 @@ export default function ChatPage() {
   } = chatHookResult;
   
   // Check if we're loading based on status
-  const isLoading = status === 'in_progress';
+  const isLoading = status === 'streaming';
   
-  // Track if we should bypass AI SDK due to persistent errors
-  const [bypassAISDK, setBypassAISDK] = useState(() => {
-    // Disable bypass since we fixed the AI SDK compatibility issues
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('bypassAISDK'); // Clear any existing bypass
-    }
-    return false; // Always use AI SDK now
-  });
-  
-  // Clear messages if we detect undefined content error - DISABLED to prevent bypass
-  useEffect(() => {
-    if (error && error.message && error.message.includes('undefined')) {
-      console.log('Clearing messages due to undefined content error');
-      console.log('NOT bypassing AI SDK - keeping it enabled to debug the issue');
-      setMessages([]);
-      // Don't set bypass - we want to fix the root cause
-      // setBypassAISDK(true); 
-    }
-  }, [error, setMessages]);
+  // Loading state for API calls
+  const [isApiLoading, setIsApiLoading] = useState(false);
 
   // Scroll to bottom of messages
   const scrollToBottom = () => {
@@ -131,20 +101,13 @@ export default function ChatPage() {
   
   // Fallback API call function
   const sendMessageToAPI = async (message: string) => {
+    setIsApiLoading(true);
+    
     try {
-      console.log('Sending message via fallback API:', message);
-      
       // Get only valid messages for the API call
       const validMessages = messages.filter(msg => 
         msg.content && typeof msg.content === 'string'
       );
-      
-      // Add user message to UI immediately
-      const userMsg: ChatMessage = {
-        role: 'user',
-        content: message,
-        timestamp: Date.now()
-      };
       
       // Update the AI SDK messages to show user message
       const newMessages = [...validMessages, { 
@@ -170,7 +133,6 @@ export default function ChatPage() {
       if (response.ok) {
         // Check content type to handle different response formats
         const contentType = response.headers.get('content-type');
-        console.log('Response content type:', contentType);
         
         let data: string = '';
         
@@ -180,7 +142,6 @@ export default function ChatPage() {
           const decoder = new TextDecoder();
           
           if (reader) {
-            console.log('Reading streaming response...');
             let fullResponse = '';
             
             try {
@@ -189,7 +150,6 @@ export default function ChatPage() {
                 if (done) break;
                 
                 const chunk = decoder.decode(value, { stream: true });
-                console.log('Received chunk:', chunk.substring(0, 100));
                 
                 // Parse AI SDK streaming format
                 const lines = chunk.split('\n');
@@ -224,8 +184,6 @@ export default function ChatPage() {
           data = await response.text();
         }
         
-        console.log('Fallback API response:', data);
-        
         if (data.trim()) {
           // Add assistant message to UI
           const assistantMsg = { 
@@ -252,13 +210,13 @@ export default function ChatPage() {
       }
     } catch (error) {
       console.error('API Error:', error);
+    } finally {
+      setIsApiLoading(false);
     }
   };
   
   // Custom input handler to support both input and textarea elements
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    console.log("handleInputChange called with:", e.target.value);
-    
     // Always use our fallback input since AI SDK doesn't provide input state
     setFallbackInput(e.target.value);
 
@@ -442,10 +400,8 @@ export default function ChatPage() {
     }
   }, [darkMode])
 
-  // Debugging
+  // Handle messages and errors
   useEffect(() => {
-    // Remove excessive logging that causes performance issues
-    // if (messages.length > 0) console.log("Messages updated:", messages)
     if (error) console.error("Chat error detected:", error)
 
     // Re-adjust scale when messages change
@@ -489,11 +445,9 @@ export default function ChatPage() {
   }
 
   // Handle form submission with history saving
-  const handleFormSubmitWithHistory = (e: React.FormEvent) => {
+  const handleFormSubmitWithHistory = () => {
     const currentInput = fallbackInput;
     if ((currentInput?.trim?.() || '')) {
-      console.log("Submitting form with input:", currentInput)
-
       // Save to quick search history
       const trimmedInput = currentInput?.trim?.() || '';
       if (trimmedInput && !searchHistory.includes(trimmedInput)) {
@@ -520,17 +474,7 @@ export default function ChatPage() {
         addMessageToActiveSession(userMessage);
       }
 
-      // Handle the actual form submission
-      console.log('Form submission - bypassAISDK:', bypassAISDK, 'sendMessage exists:', !!sendMessage);
-      console.log('localStorage bypassAISDK:', typeof window !== 'undefined' ? localStorage.getItem('bypassAISDK') : 'N/A');
-      
-      // Force clear any bypass flags
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('bypassAISDK');
-      }
-      
-      // Use direct API call as primary method since AI SDK has compatibility issues
-      console.log('Using direct API call (more reliable than AI SDK)');
+      // Use direct API call as primary method
       sendMessageToAPI(currentInput);
       setFallbackInput('');
 
@@ -590,12 +534,7 @@ export default function ChatPage() {
     };
   }, []);
 
-  // Update messages state with new message (reduces console spam)
-  const updateMessages = useCallback((newMessages: typeof messages) => {
-    setMessages(newMessages);
-    // Disable excessive logging
-    // console.log("Messages updated:", newMessages);
-  }, []);
+
 
   // Handle FAQ expansion state change
   const handleFaqExpandChange = (isExpanded: boolean) => {
@@ -648,7 +587,7 @@ export default function ChatPage() {
           >
             <ChatMessages
               messages={messages}
-              isLoading={isLoading}
+              isLoading={isLoading || isApiLoading}
               keyboardVisible={keyboardVisible}
               isFaqExpanded={isFaqExpanded}
             />
@@ -675,7 +614,7 @@ export default function ChatPage() {
               input={fallbackInput}
               handleInputChange={handleInputChange}
               handleSubmit={handleFormSubmitWithHistory}
-              isLoading={isLoading}
+              isLoading={isLoading || isApiLoading}
               iraqiCarSuggestions={iraqiCarSuggestions}
               onStopGeneration={stopGenerating}
               keyboardVisible={keyboardVisible}
