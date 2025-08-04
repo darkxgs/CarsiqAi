@@ -808,7 +808,8 @@ export async function POST(req: Request) {
 
     // Check if this is a filter-specific query first
     console.log(`[${requestId}] Checking if filter query...`);
-    if (isFilterQuery(userQuery)) {
+    // Temporarily disable filter query detection to debug the issue
+    if (false && isFilterQuery(userQuery)) {
       console.log(`[${requestId}] Detected filter query, processing with Denckermann database`);
 
       // Extract car make and model for filter lookup
