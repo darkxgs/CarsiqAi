@@ -99,11 +99,16 @@ export default function ChatPage() {
   // Check if we're loading based on status
   const isLoading = status === 'in_progress';
   
+  // Track if we should bypass AI SDK due to persistent errors
+  const [bypassAISDK, setBypassAISDK] = useState(false);
+  
   // Clear messages if we detect undefined content error
   useEffect(() => {
     if (error && error.message && error.message.includes('undefined')) {
       console.log('Clearing messages due to undefined content error');
+      console.log('Bypassing AI SDK for future requests');
       setMessages([]);
+      setBypassAISDK(true); // Bypass AI SDK for future requests
     }
   }, [error, setMessages]);
 
@@ -120,10 +125,27 @@ export default function ChatPage() {
   // Fallback API call function
   const sendMessageToAPI = async (message: string) => {
     try {
+      console.log('Sending message via fallback API:', message);
+      
       // Get only valid messages for the API call
       const validMessages = messages.filter(msg => 
         msg.content && typeof msg.content === 'string'
       );
+      
+      // Add user message to UI immediately
+      const userMsg: ChatMessage = {
+        role: 'user',
+        content: message,
+        timestamp: Date.now()
+      };
+      
+      // Update the AI SDK messages to show user message
+      const newMessages = [...validMessages, { 
+        id: Date.now().toString(), 
+        role: 'user' as const, 
+        content: message 
+      }];
+      setMessages(newMessages);
       
       const response = await fetch('/api/chat', {
         method: 'POST',
@@ -139,29 +161,31 @@ export default function ChatPage() {
       });
       
       if (response.ok) {
-        const reader = response.body?.getReader();
-        if (reader) {
-          // Handle streaming response
-          let assistantMessage = '';
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            
-            const chunk = new TextDecoder().decode(value);
-            assistantMessage += chunk;
-          }
+        // Handle JSON response (not streaming for now)
+        const data = await response.text();
+        console.log('Fallback API response:', data);
+        
+        if (data.trim()) {
+          // Add assistant message to UI
+          const assistantMsg = { 
+            id: (Date.now() + 1).toString(), 
+            role: 'assistant' as const, 
+            content: data.trim() 
+          };
           
-          // Add the assistant message to local storage
-          if (assistantMessage.trim()) {
-            const assistantMsg: ChatMessage = {
-              role: 'assistant',
-              content: assistantMessage.trim(),
-              timestamp: Date.now()
-            };
-            addMessageToActiveSession(assistantMsg);
-            loadChatSessions();
-          }
+          setMessages([...newMessages, assistantMsg]);
+          
+          // Also save to local storage
+          const assistantStorageMsg: ChatMessage = {
+            role: 'assistant',
+            content: data.trim(),
+            timestamp: Date.now()
+          };
+          addMessageToActiveSession(assistantStorageMsg);
+          loadChatSessions();
         }
+      } else {
+        console.error('API response not ok:', response.status, response.statusText);
       }
     } catch (error) {
       console.error('API Error:', error);
@@ -433,8 +457,13 @@ export default function ChatPage() {
         addMessageToActiveSession(userMessage);
       }
 
-      // Handle the actual form submission using the new AI SDK API
-      if (sendMessage) {
+      // Handle the actual form submission
+      if (bypassAISDK || !sendMessage) {
+        console.log('Using fallback API due to AI SDK issues');
+        // Use fallback API directly
+        sendMessageToAPI(currentInput);
+        setFallbackInput('');
+      } else {
         try {
           sendMessage({ text: currentInput });
           // Clear the fallback input after sending
@@ -445,10 +474,6 @@ export default function ChatPage() {
           sendMessageToAPI(currentInput);
           setFallbackInput('');
         }
-      } else {
-        // Fallback: manually send message to API
-        sendMessageToAPI(currentInput);
-        setFallbackInput('');
       }
 
       // Reset textarea height
