@@ -157,7 +157,7 @@ export default function ChatPage() {
       }];
       setMessages(newMessages);
       
-      const response = await fetch('/api/chat-simple', {
+      const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -196,7 +196,7 @@ function checkAndResetTokenLimitStatus(): void {
  */
 function enhancedExtractCarData(query: string): ExtractedCarData {
   console.log(`[DEBUG] Processing query: "${query}"`);
-  const normalizedQuery = query?.toLowerCase?.()?.trim?.() || ''
+  const normalizedQuery = query.toLowerCase().trim()
   console.log(`[DEBUG] Normalized query: "${normalizedQuery}"`);
 
   // Enhanced brand detection with common Arabic variations
@@ -464,14 +464,14 @@ async function saveQueryToAnalytics(
   carData?: ExtractedCarData,
   recommendation?: OilRecommendation
 ) {
-  if (!isSupabaseConfigured() || !query || (query?.trim?.() || '') === '') {
+  if (!isSupabaseConfigured() || !query || query.trim() === '') {
     console.log('Supabase not configured or empty query. Skipping analytics tracking.')
     return
   }
 
   try {
     const analyticsData = {
-      query: query?.trim?.() || query || '',
+      query: query.trim(),
       car_model: carData?.carModel,
       car_brand: carData?.carBrand,
       car_year: carData?.year,
@@ -728,7 +728,7 @@ function validateAndSanitizeRequest(body: any) {
     // Additional sanitization
     validatedBody.messages = validatedBody.messages.map(message => ({
       ...message,
-      content: (message.content?.trim?.() || message.content || '').substring(0, 2000) // Limit message length
+      content: message.content.trim().substring(0, 2000) // Limit message length
     }))
 
     return { success: true, data: validatedBody }
@@ -868,7 +868,17 @@ ${filterMessage}`,
           console.error("Failed to trigger filter analytics:", analyticsError);
         }
 
-        return filterResult.toDataStreamResponse();
+        try {
+          return filterResult.toDataStreamResponse();
+        } catch (filterStreamError) {
+          console.log('Filter streaming failed, using direct response');
+          const filterText = await filterResult.text;
+          return new Response(filterText, {
+            headers: {
+              'Content-Type': 'text/plain; charset=utf-8',
+            },
+          });
+        }
       } else {
         // If we can't extract car data, try searching with Arabic support
         const searchResults = searchFiltersWithArabicSupport(userQuery);
@@ -896,7 +906,17 @@ ${filterMessage}`,
             temperature: 0.1
           });
 
-          return searchResult.toDataStreamResponse();
+          try {
+            return searchResult.toDataStreamResponse();
+          } catch (searchStreamError) {
+            console.log('Search streaming failed, using direct response');
+            const searchText = await searchResult.text;
+            return new Response(searchText, {
+              headers: {
+                'Content-Type': 'text/plain; charset=utf-8',
+              },
+            });
+          }
         }
       }
     }
@@ -1540,8 +1560,45 @@ ${carTrimData.model_drive ? `- نظام الدفع: ${carTrimData.model_drive}` 
       presencePenalty: 0.1
     });
 
-    // Return the data stream response directly
-    return result.toDataStreamResponse();
+    // Return the data stream response directly - fix AI SDK compatibility
+    try {
+      return result.toDataStreamResponse();
+    } catch (streamError) {
+      console.log('AI SDK streaming failed, using direct API call fallback');
+      
+      // Fallback to direct API call
+      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+          "X-Title": "Car Service Chat - CarsiqAi"
+        },
+        body: JSON.stringify({
+          model: modelToUse,
+          messages: messages.map(msg => ({
+            role: msg.role,
+            content: msg.content
+          })),
+          max_tokens: 900,
+          temperature: 0.3
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`OpenRouter API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const assistantMessage = data.choices?.[0]?.message?.content || "عذراً، لم أتمكن من الحصول على رد.";
+      
+      return new Response(assistantMessage, {
+        headers: {
+          'Content-Type': 'text/plain; charset=utf-8',
+        },
+      });
+    }
 
   } catch (error: any) {
     console.error(`[${requestId}] Error processing request:`, error);
