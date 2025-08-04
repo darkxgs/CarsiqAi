@@ -1977,8 +1977,47 @@ export function findFilterByVehicle(make: string, model: string): string | null 
     '5.7l': '5.7l',
     'v6': 'v6',
     'v8': 'v8'
-    // Toyota Models
-    'كامري': 'camry',
+  };
+
+  // Map the make and model using the mappings
+  const mappedMake = makeMapping[normalizedMake] || normalizedMake;
+  const mappedModel = modelMapping[normalizedModel] || normalizedModel;
+
+  // Search through all filters
+  for (const [filterNumber, filterData] of Object.entries(denckermannFilters)) {
+    // Check if the brand matches
+    const filterBrand = filterData.brand.toLowerCase();
+    if (filterBrand === mappedMake || filterBrand === 'universal') {
+      // Special handling for "All [Brand] models" entries
+      const hasAllModelsEntry = filterData.compatibleVehicles.some(vehicle => {
+        const vehicleName = vehicle.toLowerCase();
+        return vehicleName.includes(`all ${mappedMake} models`) ||
+          vehicleName.includes(`all ${normalizedMake} models`);
+      });
+
+      if (hasAllModelsEntry) {
+        return filterNumber;
+      }
+
+      // Check if any compatible vehicle matches the model
+      const matchingVehicle = filterData.compatibleVehicles.find(vehicle => {
+        const vehicleName = vehicle.toLowerCase();
+        return vehicleName.includes(mappedModel) || mappedModel.includes(vehicleName);
+      });
+
+      if (matchingVehicle) {
+        return filterNumber;
+      }
+    }
+  }
+
+  return null;
+}
+
+// Model name mappings (Arabic to English) - Complete coverage of all oil filter models
+export const modelMappings: { [key: string]: string } = {
+  // Toyota models (33 models)
+  'كامري': 'camry',
     'camry': 'camry',
     'كورولا': 'corolla',
     'corolla': 'corolla',
@@ -2682,39 +2721,120 @@ export function findFilterByVehicle(make: string, model: string): string | null 
     '750 i': '750i'
   };
 
-  const mappedMake = makeMapping[normalizedMake] || normalizedMake;
-  const mappedModel = modelMapping[normalizedModel] || normalizedModel;
-
-  // Search through all filters
-  for (const [filterNumber, filterData] of Object.entries(denckermannFilters)) {
-    // Check if the brand matches
-    const filterBrand = filterData.brand.toLowerCase();
-    if (filterBrand === mappedMake || filterBrand === 'universal') {
-      // Special handling for "All [Brand] models" entries
-      const hasAllModelsEntry = filterData.compatibleVehicles.some(vehicle => {
-        const vehicleName = vehicle.toLowerCase();
-        return vehicleName.includes(`all ${mappedMake} models`) ||
-          vehicleName.includes(`all ${normalizedMake} models`);
-      });
-
-      if (hasAllModelsEntry) {
-        return filterNumber;
-      }
-
-      // Check if any compatible vehicle matches the model
-      const matchingVehicle = filterData.compatibleVehicles.find(vehicle => {
-        const vehicleName = vehicle.toLowerCase();
-        return vehicleName.includes(mappedModel) || mappedModel.includes(vehicleName);
-      });
-
-      if (matchingVehicle) {
-        return filterNumber;
-      }
-    }
-  }
-
-  return null;
-}
+  // Create a comprehensive mapping of Arabic/English model names
+  const modelMapping: { [key: string]: string } = {
+    // Toyota models
+    'كامري': 'camry',
+    'camry': 'camry',
+    'كورولا': 'corolla',
+    'corolla': 'corolla',
+    'بريوس': 'prius',
+    'prius': 'prius',
+    'راف فور': 'rav 4',
+    'rav4': 'rav 4',
+    'rav 4': 'rav 4',
+    'يارس': 'yaris',
+    'yaris': 'yaris',
+    'هايلكس': 'hilux',
+    'hilux': 'hilux',
+    'لاند كروزر': 'land cruiser',
+    'landcruiser': 'land cruiser',
+    'land cruiser': 'land cruiser',
+    'برادو': 'prado',
+    'prado': 'prado',
+    'فورتشنر': 'fortuner',
+    'fortuner': 'fortuner',
+    'كوستر': 'coaster',
+    'coaster': 'coaster',
+    'دينا': 'dyna',
+    'dyna': 'dyna',
+    'افالون': 'avalon',
+    'avalon': 'avalon',
+    'اوريس': 'auris',
+    'auris': 'auris',
+    'جرانفيا': 'granvia',
+    'granvia': 'granvia',
+    'كريستا': 'cresta',
+    'cresta': 'cresta',
+    'دلتا': 'delta',
+    'delta': 'delta',
+    'تندرا': 'tundra',
+    'tundra': 'tundra',
+    'سيكويا': 'sequoia',
+    'sequoia': 'sequoia',
+    
+    // Common model variations
+    'النترا': 'elantra',
+    'elantra': 'elantra',
+    'سوناتا': 'sonata',
+    'sonata': 'sonata',
+    'توكسون': 'tucson',
+    'tucson': 'tucson',
+    'سانتا في': 'santa fe',
+    'santa fe': 'santa fe',
+    'اوبتيما': 'optima',
+    'optima': 'optima',
+    'سورينتو': 'sorento',
+    'sorento': 'sorento',
+    'سبورتاج': 'sportage',
+    'sportage': 'sportage',
+    'التيما': 'altima',
+    'altima': 'altima',
+    'ماكسيما': 'maxima',
+    'maxima': 'maxima',
+    'صني': 'sunny',
+    'sunny': 'sunny',
+    'باترول': 'patrol',
+    'patrol': 'patrol',
+    'كامارو': 'camaro',
+    'camaro': 'camaro',
+    'كروز': 'cruze',
+    'cruze': 'cruze',
+    'ماليبو': 'malibu',
+    'malibu': 'malibu',
+    'موستانج': 'mustang',
+    'mustang': 'mustang',
+    'فوكس': 'focus',
+    'focus': 'focus',
+    'فييستا': 'fiesta',
+    'fiesta': 'fiesta',
+    'اسكيب': 'escape',
+    'escape': 'escape',
+    'اكسبلورر': 'explorer',
+    'explorer': 'explorer',
+    'جولف': 'golf',
+    'golf': 'golf',
+    'باسات': 'passat',
+    'passat': 'passat',
+    'جيتا': 'jetta',
+    'jetta': 'jetta',
+    'تيجوان': 'tiguan',
+    'tiguan': 'tiguan',
+    'اي 3': 'a3',
+    'a3': 'a3',
+    'a 3': 'a3',
+    'a-3': 'a3',
+    'اي 4': 'a4',
+    'a4': 'a4',
+    'a 4': 'a4',
+    'a-4': 'a4',
+    '320i': '320i',
+    '320 i': '320i',
+    '328i': '328i',
+    '328 i': '328i',
+    '335i': '335i',
+    '335 i': '335i',
+    '520i': '520i',
+    '520 i': '520i',
+    '528i': '528i',
+    '528 i': '528i',
+    '535i': '535i',
+    '535 i': '535i',
+    '740i': '740i',
+    '740 i': '740i',
+    '750i': '750i',
+    '750 i': '750i'
+  };
 
 // Helper function to get all compatible vehicles for a filter
 export function getCompatibleVehicles(filterNumber: string): string[] {
@@ -2748,5 +2868,64 @@ export function searchFiltersByVehicleName(searchTerm: string): Array<{ filterNu
 
   return results;
 }
+
+
+
+// Brand name mappings (Arabic to English)
+export const brandMappings: { [key: string]: string } = {
+  'تويوتا': 'toyota',
+  'لكزس': 'lexus',
+  'فورد': 'ford',
+  'بي ام دبليو': 'bmw',
+  'مرسيدس': 'mercedes-benz',
+  'مرسيدس بنز': 'mercedes-benz',
+  'اودي': 'audi',
+  'فولكس واجن': 'volkswagen',
+  'هيونداي': 'hyundai',
+  'كيا': 'kia',
+  'جينيسيس': 'genesis',
+  'نيسان': 'nissan',
+  'انفينيتي': 'infiniti',
+  'شيفروليه': 'chevrolet',
+  'جيب': 'jeep',
+  'لاند روفر': 'land rover',
+  'جاكوار': 'jaguar',
+  'بورش': 'porsche',
+  'فولفو': 'volvo',
+  'سوزوكي': 'suzuki',
+  'ميتسوبيشي': 'mitsubishi',
+  'رينو': 'renault',
+  'سكودا': 'skoda',
+  'سيات': 'seat',
+  'اوبل': 'opel',
+  'ميني': 'mini',
+  'كاديلاك': 'cadillac',
+  'بيويك': 'buick',
+  'جي ام سي': 'gmc',
+  'كرايسلر': 'chrysler',
+  'دودج': 'dodge',
+  'لينكولن': 'lincoln',
+  'هامر': 'hummer',
+  'بنتلي': 'bentley',
+  'رولز رويس': 'rolls-royce',
+  'استون مارتن': 'aston martin',
+  'مازيراتي': 'maserati',
+  'لامبورجيني': 'lamborghini',
+  'فيراري': 'ferrari',
+  'مكلارين': 'mclaren',
+  'تيسلا': 'tesla',
+  'الفا روميو': 'alfa romeo',
+  'فيات': 'fiat',
+  'لانسيا': 'lancia',
+  'سيتروين': 'citroen',
+  'بيجو': 'peugeot',
+  'داسيا': 'dacia',
+  'سانج يونج': 'ssangyong',
+  'ايسوزو': 'isuzu',
+  'سوبارو': 'subaru',
+  'مازدا': 'mazda',
+  'هوندا': 'honda',
+  'اكورا': 'acura'
+};
 
 export default denckermannFilters;
