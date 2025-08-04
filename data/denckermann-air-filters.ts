@@ -1622,6 +1622,7 @@ export function findAirFilterByVehicle(make: string, model: string): string | nu
     '5.7l': '5.7l',
     'v6': 'v6',
     'v8': 'v8'
+  };
 
   const mappedMake = makeMapping[normalizedMake] || normalizedMake;
   const mappedModel = modelMapping[normalizedModel] || normalizedModel;
