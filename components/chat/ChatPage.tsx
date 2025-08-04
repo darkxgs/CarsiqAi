@@ -98,6 +98,14 @@ export default function ChatPage() {
   
   // Check if we're loading based on status
   const isLoading = status === 'in_progress';
+  
+  // Clear messages if we detect undefined content error
+  useEffect(() => {
+    if (error && error.message && error.message.includes('undefined')) {
+      console.log('Clearing messages due to undefined content error');
+      setMessages([]);
+    }
+  }, [error, setMessages]);
 
   // Scroll to bottom of messages
   const scrollToBottom = () => {
@@ -112,6 +120,11 @@ export default function ChatPage() {
   // Fallback API call function
   const sendMessageToAPI = async (message: string) => {
     try {
+      // Get only valid messages for the API call
+      const validMessages = messages.filter(msg => 
+        msg.content && typeof msg.content === 'string'
+      );
+      
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
@@ -119,16 +132,36 @@ export default function ChatPage() {
         },
         body: JSON.stringify({
           messages: [
-            ...messages,
+            ...validMessages,
             { role: 'user', content: message }
           ]
         })
       });
       
       if (response.ok) {
-        const data = await response.json();
-        // Handle response - this is a simplified version
-        console.log('API Response:', data);
+        const reader = response.body?.getReader();
+        if (reader) {
+          // Handle streaming response
+          let assistantMessage = '';
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            
+            const chunk = new TextDecoder().decode(value);
+            assistantMessage += chunk;
+          }
+          
+          // Add the assistant message to local storage
+          if (assistantMessage.trim()) {
+            const assistantMsg: ChatMessage = {
+              role: 'assistant',
+              content: assistantMessage.trim(),
+              timestamp: Date.now()
+            };
+            addMessageToActiveSession(assistantMsg);
+            loadChatSessions();
+          }
+        }
       }
     } catch (error) {
       console.error('API Error:', error);
@@ -402,12 +435,20 @@ export default function ChatPage() {
 
       // Handle the actual form submission using the new AI SDK API
       if (sendMessage) {
-        sendMessage({ text: currentInput });
-        // Clear the fallback input after sending
-        setFallbackInput('');
+        try {
+          sendMessage({ text: currentInput });
+          // Clear the fallback input after sending
+          setFallbackInput('');
+        } catch (error) {
+          console.error('SendMessage error:', error);
+          // Fallback to manual API call if sendMessage fails
+          sendMessageToAPI(currentInput);
+          setFallbackInput('');
+        }
       } else {
         // Fallback: manually send message to API
         sendMessageToAPI(currentInput);
+        setFallbackInput('');
       }
 
       // Reset textarea height
