@@ -157,7 +157,7 @@ export default function ChatPage() {
       }];
       setMessages(newMessages);
       
-      const response = await fetch('/api/chat', {
+      const response = await fetch('/api/chat-simple', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -196,6 +196,8 @@ export default function ChatPage() {
         }
       } else {
         console.error('API response not ok:', response.status, response.statusText);
+        const errorText = await response.text();
+        console.error('Error response body:', errorText);
       }
     } catch (error) {
       console.error('API Error:', error);
