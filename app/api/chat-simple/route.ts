@@ -48,14 +48,16 @@ export async function POST(req: Request) {
       temperature: 0.3
     })
 
-    console.log("Returning stream response...")
+    console.log("StreamText result received, getting full text...")
     
-    // Create a streaming response using the text stream
-    return new Response(result.textStream, {
+    // Get the complete text response instead of streaming
+    const fullText = await result.text
+    console.log("Full text response:", fullText)
+    
+    // Return the complete text response
+    return new Response(fullText, {
       headers: {
         'Content-Type': 'text/plain; charset=utf-8',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
       },
     })
 
