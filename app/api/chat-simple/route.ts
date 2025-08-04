@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     })
 
     console.log("Calling streamText...")
-    const result = streamText({
+    const result = await streamText({
       model: client("google/gemini-2.0-flash-001"),
       system: "أنت مساعد تقني متخصص في زيوت محركات السيارات. أجب بإيجاز ووضوح.",
       messages: body.messages,
@@ -49,7 +49,15 @@ export async function POST(req: Request) {
     })
 
     console.log("Returning stream response...")
-    return result.toDataStreamResponse()
+    
+    // Create a streaming response using the text stream
+    return new Response(result.textStream, {
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      },
+    })
 
   } catch (error: any) {
     console.error("Simple chat API error:", error)
