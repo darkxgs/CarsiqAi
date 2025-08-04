@@ -108,17 +108,14 @@ export default function ChatPage() {
     return false; // Always use AI SDK now
   });
   
-  // Clear messages if we detect undefined content error
+  // Clear messages if we detect undefined content error - DISABLED to prevent bypass
   useEffect(() => {
     if (error && error.message && error.message.includes('undefined')) {
       console.log('Clearing messages due to undefined content error');
-      console.log('Bypassing AI SDK for future requests');
+      console.log('NOT bypassing AI SDK - keeping it enabled to debug the issue');
       setMessages([]);
-      setBypassAISDK(true); // Bypass AI SDK for future requests
-      // Persist the bypass state in localStorage
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('bypassAISDK', 'true');
-      }
+      // Don't set bypass - we want to fix the root cause
+      // setBypassAISDK(true); 
     }
   }, [error, setMessages]);
 
@@ -481,8 +478,9 @@ export default function ChatPage() {
       // Always try to use AI SDK first since we fixed the compatibility issues
       if (sendMessage) {
         try {
-          console.log('Using AI SDK sendMessage');
-          sendMessage({ text: currentInput });
+          console.log('Using AI SDK sendMessage with input:', currentInput);
+          console.log('Current messages before sending:', messages);
+          sendMessage(currentInput);
           // Clear the fallback input after sending
           setFallbackInput('');
         } catch (error) {
