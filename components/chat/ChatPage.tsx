@@ -104,10 +104,14 @@ export default function ChatPage() {
     setIsApiLoading(true);
     
     try {
+      console.log('Sending message to API:', message);
+      
       // Get only valid messages for the API call
       const validMessages = messages.filter(msg => 
         msg.content && typeof msg.content === 'string'
       );
+      
+      console.log('Valid messages for API:', validMessages);
       
       // Update the AI SDK messages to show user message
       const newMessages = [...validMessages, { 
@@ -117,6 +121,7 @@ export default function ChatPage() {
       }];
       setMessages(newMessages);
       
+      console.log('Making fetch request to /api/chat');
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
@@ -130,6 +135,13 @@ export default function ChatPage() {
         })
       });
       
+      console.log('Response received:', {
+        ok: response.ok,
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries())
+      });
+      
       if (response.ok) {
         // Handle AI SDK streaming response
         const reader = response.body?.getReader();
@@ -139,11 +151,19 @@ export default function ChatPage() {
         
         if (reader) {
           try {
+            console.log('Processing streaming response');
+            let chunkCount = 0;
+            
             while (true) {
               const { done, value } = await reader.read();
-              if (done) break;
+              if (done) {
+                console.log('Stream finished, total chunks:', chunkCount);
+                break;
+              }
               
+              chunkCount++;
               const chunk = decoder.decode(value, { stream: true });
+              console.log(`Chunk ${chunkCount}:`, chunk);
               
               // Parse AI SDK streaming format
               const lines = chunk.split('\n');
@@ -152,13 +172,16 @@ export default function ChatPage() {
                   // Extract content from AI SDK format: 0:"content"
                   try {
                     const content = JSON.parse(line.substring(2));
+                    console.log('Extracted AI SDK content:', content);
                     fullContent += content;
                   } catch (e) {
                     // If parsing fails, treat as plain text
+                    console.log('Failed to parse AI SDK line, using as plain text:', line);
                     fullContent += line.substring(2);
                   }
                 } else if (line.trim() && !line.startsWith('d:')) {
                   // Handle other content that's not metadata
+                  console.log('Adding plain text line:', line);
                   fullContent += line;
                 }
               }
@@ -167,11 +190,16 @@ export default function ChatPage() {
             console.error('Error reading stream:', streamError);
             // Fallback to regular text reading
             fullContent = await response.text();
+            console.log('Fallback text content:', fullContent);
           }
         } else {
           // Fallback to regular text reading
+          console.log('No response body, using text fallback');
           fullContent = await response.text();
+          console.log('Fallback text content:', fullContent);
         }
+        
+        console.log('Final assistant content:', fullContent);
         
         if (fullContent.trim()) {
           // Add assistant message to UI

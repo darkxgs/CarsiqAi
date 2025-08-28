@@ -665,19 +665,35 @@ export async function POST(request: Request) {
 
     // Create stream response
     console.log(`[${requestId}] Creating streamText response`)
-    const result = streamText({
-      model: openrouter(modelToUse),
-      system: finalSystemPrompt,
-      messages,
-      maxTokens: 900,
-      temperature: 0.3,
-      topP: 0.9,
-      frequencyPenalty: 0.1,
-      presencePenalty: 0.1
-    })
+    console.log(`[${requestId}] Model: ${modelToUse}`)
+    console.log(`[${requestId}] System prompt length: ${finalSystemPrompt.length}`)
+    console.log(`[${requestId}] Messages count: ${messages.length}`)
+    
+    try {
+      const result = streamText({
+        model: openrouter(modelToUse),
+        system: finalSystemPrompt,
+        messages,
+        maxTokens: 900,
+        temperature: 0.3,
+        topP: 0.9,
+        frequencyPenalty: 0.1,
+        presencePenalty: 0.1
+      })
 
-    console.log(`[${requestId}] StreamText created, returning response`)
-    return result.toTextStreamResponse()
+      console.log(`[${requestId}] StreamText created successfully`)
+      
+      const response = result.toTextStreamResponse()
+      console.log(`[${requestId}] Response created with type: ${response.constructor.name}`)
+      console.log(`[${requestId}] Response headers:`, Object.fromEntries(response.headers.entries()))
+      console.log(`[${requestId}] Response status: ${response.status}`)
+      console.log(`[${requestId}] Response ok: ${response.ok}`)
+      
+      return response
+    } catch (error) {
+      console.error(`[${requestId}] Error creating streamText:`, error)
+      throw error
+    }
 
   } catch (error: any) {
     console.error(`[${requestId}] Error processing request:`, error)
