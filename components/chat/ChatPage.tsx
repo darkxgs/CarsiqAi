@@ -131,11 +131,11 @@ export default function ChatPage() {
       });
       
       if (response.ok) {
-        // Handle streaming text response from AI SDK
+        // Handle AI SDK streaming response
         const reader = response.body?.getReader();
         const decoder = new TextDecoder();
         
-        let data: string = '';
+        let fullContent = '';
         
         if (reader) {
           try {
@@ -144,24 +144,41 @@ export default function ChatPage() {
               if (done) break;
               
               const chunk = decoder.decode(value, { stream: true });
-              data += chunk;
+              
+              // Parse AI SDK streaming format
+              const lines = chunk.split('\n');
+              for (const line of lines) {
+                if (line.startsWith('0:')) {
+                  // Extract content from AI SDK format: 0:"content"
+                  try {
+                    const content = JSON.parse(line.substring(2));
+                    fullContent += content;
+                  } catch (e) {
+                    // If parsing fails, treat as plain text
+                    fullContent += line.substring(2);
+                  }
+                } else if (line.trim() && !line.startsWith('d:')) {
+                  // Handle other content that's not metadata
+                  fullContent += line;
+                }
+              }
             }
           } catch (streamError) {
             console.error('Error reading stream:', streamError);
             // Fallback to regular text reading
-            data = await response.text();
+            fullContent = await response.text();
           }
         } else {
           // Fallback to regular text reading
-          data = await response.text();
+          fullContent = await response.text();
         }
         
-        if (data.trim()) {
+        if (fullContent.trim()) {
           // Add assistant message to UI
           const assistantMsg = { 
             id: (Date.now() + 1).toString(), 
             role: 'assistant' as const, 
-            content: data.trim() 
+            content: fullContent.trim() 
           };
           
           setMessages([...newMessages, assistantMsg]);
@@ -169,7 +186,7 @@ export default function ChatPage() {
           // Also save to local storage
           const assistantStorageMsg: ChatMessage = {
             role: 'assistant',
-            content: data.trim(),
+            content: fullContent.trim(),
             timestamp: Date.now()
           };
           addMessageToActiveSession(assistantStorageMsg);
