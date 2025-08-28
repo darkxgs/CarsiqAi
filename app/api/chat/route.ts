@@ -677,7 +677,7 @@ export async function POST(request: Request) {
     })
 
     console.log(`[${requestId}] StreamText created, returning response`)
-    return result.toDataStreamResponse()
+    return result.toTextStreamResponse()
 
   } catch (error: any) {
     console.error(`[${requestId}] Error processing request:`, error)
