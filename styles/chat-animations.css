@@ -1,0 +1,430 @@
+/* Chat-specific animations and styles */
+
+/* Slow spin animation for sun icon */
+.animate-spin-slow {
+  animation: spin 3s linear infinite;
+}
+
+/* Shimmer effect for badges and buttons */
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Chat message entrance animation */
+.chat-message-enter {
+  animation: slideInUp 0.3s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Enhanced fade-in animation */
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Pulse ring animation for buttons */
+.animate-pulse-ring {
+  position: relative;
+}
+
+.animate-pulse-ring::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  background: linear-gradient(45deg, #ef4444, #f97316, #ef4444);
+  opacity: 0.7;
+  animation: pulseRing 2s infinite;
+  z-index: -1;
+}
+
+@keyframes pulseRing {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.7;
+  }
+}
+
+/* Gradient text animation */
+.animate-gradient-text {
+  background: linear-gradient(45deg, #ef4444, #f97316, #eab308, #ef4444);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientText 3s ease infinite;
+}
+
+@keyframes gradientText {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Floating animation for icons */
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Bounce animation for emojis */
+.animate-bounce-slow {
+  animation: bounceGentle 2s infinite;
+}
+
+@keyframes bounceGentle {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+/* Glow effect for active elements */
+.animate-glow {
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.5), 0 0 20px rgba(239, 68, 68, 0.3), 0 0 30px rgba(239, 68, 68, 0.1);
+  }
+  to {
+    box-shadow: 0 0 20px rgba(249, 115, 22, 0.6), 0 0 30px rgba(249, 115, 22, 0.4), 0 0 40px rgba(249, 115, 22, 0.2);
+  }
+}
+
+/* Mobile optimizations - Keep essential loading animations but remove heavy ones */
+@media (max-width: 768px) {
+  /* Disable heavy animations on mobile devices but keep loading animations */
+  .animate-pulse-ring,
+  .animate-pulse-ring::before,
+  .animate-glow,
+  .animate-spin-slow,
+  .animate-float,
+  .animate-gradient-text,
+  .animate-bounce-slow,
+  .chat-message-enter {
+    animation: none !important;
+  }
+  
+  /* Keep essential loading animations but make them lighter */
+  .loading-search-icon {
+    animation: searchPulseMobile 2s ease-in-out infinite;
+  }
+  
+  .loading-progress-bar {
+    animation: progressFlowMobile 3s ease-in-out infinite;
+  }
+  
+  .loading-connection-indicator {
+    animation: connectionPulseMobile 3s ease-in-out infinite;
+  }
+  
+  /* Simplified mobile animations */
+  @keyframes searchPulseMobile {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+    }
+  }
+  
+  @keyframes progressFlowMobile {
+    0% {
+      background-position: -100% 0;
+    }
+    100% {
+      background-position: 100% 0;
+    }
+  }
+  
+  @keyframes connectionPulseMobile {
+    0%, 100% {
+      opacity: 0.8;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+  
+  /* Remove transform animations on mobile */
+  .hover\:scale-110:hover,
+  .hover\:scale-105:hover,
+  .hover\:-translate-y-1:hover,
+  .hover\:-translate-y-2:hover,
+  .hover\:translate-y-\[-4px\]:hover,
+  .transform:hover {
+    transform: none !important;
+  }
+  
+  /* Reduce transition effects on mobile for better performance */
+  .transition-all {
+    transition: opacity 0.2s ease !important;
+  }
+  
+  .transition-transform,
+  .transition-colors {
+    transition: none !important;
+  }
+  
+  /* Keep colors and gradients but remove animations */
+  .animate-gradient-text {
+    background: linear-gradient(45deg, #ef4444, #f97316, #eab308, #ef4444);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: none !important;
+  }
+  
+  /* Optimize loading card for mobile */
+  .loading-card-entrance {
+    animation: cardSlideInMobile 0.3s ease-out;
+  }
+  
+  @keyframes cardSlideInMobile {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Ensure loading text is readable on mobile */
+  .arabic-loading-text {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .animate-shimmer {
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  }
+  
+  .animate-glow {
+    filter: brightness(0.8);
+  }
+}
+
+/* Enhanced loading animations for search process */
+.loading-search-icon {
+  animation: searchPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes searchPulse {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  25% {
+    transform: scale(1.1) rotate(5deg);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.2) rotate(0deg);
+    opacity: 0.9;
+  }
+  75% {
+    transform: scale(1.1) rotate(-5deg);
+    opacity: 0.8;
+  }
+}
+
+.loading-progress-bar {
+  background: linear-gradient(90deg, #3b82f6, #10b981, #3b82f6);
+  background-size: 200% 100%;
+  animation: progressFlow 2s ease-in-out infinite;
+}
+
+@keyframes progressFlow {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.loading-dots {
+  animation: loadingDots 1.5s ease-in-out infinite;
+}
+
+@keyframes loadingDots {
+  0%, 20% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.loading-card-entrance {
+  animation: cardSlideIn 0.5s ease-out;
+}
+
+@keyframes cardSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+.loading-step-transition {
+  animation: stepFade 0.3s ease-in-out;
+}
+
+@keyframes stepFade {
+  0% {
+    opacity: 0.7;
+    transform: translateY(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.loading-connection-indicator {
+  animation: connectionPulse 2s ease-in-out infinite;
+}
+
+@keyframes connectionPulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+.loading-shimmer-text {
+  background: linear-gradient(90deg, 
+    rgba(59, 130, 246, 0.8) 0%, 
+    rgba(16, 185, 129, 0.9) 25%, 
+    rgba(59, 130, 246, 0.8) 50%, 
+    rgba(16, 185, 129, 0.9) 75%, 
+    rgba(59, 130, 246, 0.8) 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: textShimmer 2s ease-in-out infinite;
+}
+
+@keyframes textShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Arabic-specific loading enhancements */
+.arabic-loading-container {
+  direction: rtl;
+  text-align: right;
+}
+
+.arabic-loading-text {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .animate-shimmer,
+  .animate-pulse-ring,
+  .animate-float,
+  .animate-bounce-slow,
+  .animate-glow,
+  .animate-gradient-text,
+  .loading-search-icon,
+  .loading-progress-bar,
+  .loading-dots,
+  .loading-card-entrance,
+  .loading-step-transition,
+  .loading-connection-indicator,
+  .loading-shimmer-text {
+    animation: none !important;
+  }
+  
+  .animate-fade-in {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

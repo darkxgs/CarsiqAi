@@ -1,0 +1,90 @@
+warning: in the working copy of '.vscode/coding-times.db', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'components/chat/ChatInput.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'components/chat/ChatMessages.tsx', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/.vscode/coding-times.db b/.vscode/coding-times.db[m
+[1mindex 1566bc0..075c262 100644[m
+[1m--- a/.vscode/coding-times.db[m
+[1m+++ b/.vscode/coding-times.db[m
+[36m@@ -90,3 +90,29 @@[m
+ {"file_path":"c:\\Users\\Dark\\Downloads\\car-service-chat\\components\\chat\\ChatPage.tsx","last_edit":1749259528554,"total_time":1470645,"is_writing":0,"_id":"PiWsGdNhukV0uMqC"}[m
+ {"file_path":"c:\\Users\\Dark\\Downloads\\car-service-chat\\app\\globals.css","last_edit":1749259539481,"total_time":450642,"is_writing":0,"_id":"h2eAbIDW53KFjk0U"}[m
+ {"file_path":"c:\\Users\\Dark\\Downloads\\car-service-chat\\app\\layout.tsx","last_edit":1749259553051,"total_time":1553038,"is_writing":0,"_id":"ixVPY4nBqvVgcq0y"}[m
+[32m+[m[32m{"file_path":"c:\\Users\\Dark\\Downloads\\car-service-chat\\components\\chat\\ChatPage.tsx.git","last_edit":1749259576061,"total_time":11,"is_writing":0,"_id":"DWfOLl81O7DREl83"}[m
+[32m+[m[32m{"file_path":"c:\\Users\\Dark\\Downloads\\car-service-chat\\app\\globals.css","last_edit":1749259924200,"total_time":451724,"is_writing":0,"_id":"h2eAbIDW53KFjk0U"}[m
+[32m+[m[32m{"file_path":"c:\\Users\\Dark\\Downloads\\car-service-chat\\components\\chat\\ChatPage.tsx","last_edit":1749259972664,"total_time":1472413,"is_writing":0,"_id":"PiWsGdNhukV0uMqC"}[m
+[32m+[m[32m{"file_path":"c:\\Users\\Dark\\Downloads\\car-service-chat\\components\\chat\\ChatMessages.tsx","last_edit":1749259995542,"total_time":43841,"is_writing":0,"_id":"wICmnhMzOQkw8riG"}[m
+[32m+[m[32m{"file_path":"c:\\Users\\Dark\\Downloads\\car-service-chat\\components\\chat\\ChatPage.tsx","last_edit":1749260012441,"total_time":1474375,"is_writing":0,"_id":"PiWsGdNhukV0uMqC"}[m
+[32m+[m[32m{"file_path":"c:\\Users\\Dark\\Downloads\\car-service-chat\\components\\chat\\ChatPage.tsx","last_edit":1749260036169,"total_time":1479604,"is_writing":0,"_id":"PiWsGdNhukV0uMqC"}[m
+[32m+[m[32m{"file_path":"c:\\Users\\Dark\\Downloads\\car-service-chat\\components\\chat\\ChatMessages.tsx","last_edit":1749260068605,"total_time":43849,"is_writing":0,"_id":"wICmnhMzOQkw8riG"}[m
+[32m+[m[32m{"file_path":"c:\\Users\\Dark\\Downloads\\car-service-chat\\app\\layout.tsx","last_edit":1749260114591,"total_time":1553094,"is_writing":0,"_id":"ixVPY4nBqvVgcq0y"}[m
+[32m+[m[32m{"file_path":"c:\\Users\\Dark\\Downloads\\car-service-chat\\app\\globals.css","last_edit":1749260183558,"total_time":566680,"is_writing":0,"_id":"h2eAbIDW53KFjk0U"}[m
+[32m+[m[32m{"file_path":"c:\\Users\\Dark\\Downloads\\car-service-chat\\app\\globals.css","last_edit":1749260193758,"total_time":568699,"is_writing":0,"_id":"h2eAbIDW53KFjk0U"}[m
+[32m+[m[32m{"file_path":"c:\\Users\\Dark\\Downloads\\car-service-chat\\app\\layout.tsx","last_edit":1749260202569,"total_time":1553717,"is_writing":0,"_id":"ixVPY4nBqvVgcq0y"}[m
+[32m+[m[32m{"file_path":"c:\\Users\\Dark\\Downloads\\car-service-chat\\app\\layout.tsx","last_edit":1749260212984,"total_time":1555305,"is_writing":0,"_id":"ixVPY4nBqvVgcq0y"}[m
+[32m+[m[32m{"file_path":"c:\\Users\\Dark\\Downloads\\car-service-chat\\app\\layout.tsx","last_edit":1749260225317,"total_time":1556816,"is_writing":0,"_id":"ixVPY4nBqvVgcq0y"}[m
+[32m+[m[32m{"file_path":"c:\\Users\\Dark\\Downloads\\car-service-chat\\app\\layout.tsx","last_edit":1749260234565,"total_time":1558996,"is_writing":0,"_id":"ixVPY4nBqvVgcq0y"}[m
+[32m+[m[32m{"file_path":"c:\\Users\\Dark\\Downloads\\car-service-chat\\app\\globals.css","last_edit":1749260246136,"total_time":570645,"is_writing":0,"_id":"h2eAbIDW53KFjk0U"}[m
+[32m+[m[32m{"file_path":"c:\\Users\\Dark\\Downloads\\car-service-chat\\app\\globals.css","last_edit":1749260470135,"total_time":570648,"is_writing":0,"_id":"h2eAbIDW53KFjk0U"}[m
+[32m+[m[32m{"file_path":"c:\\Users\\Dark\\Downloads\\car-service-chat\\components\\chat\\ChatPage.tsx","last_edit":1749260493064,"total_time":1904070,"is_writing":0,"_id":"PiWsGdNhukV0uMqC"}[m
+[32m+[m[32m{"file_path":"c:\\Users\\Dark\\Downloads\\car-service-chat\\components\\chat\\ChatPage.tsx","last_edit":1749260503684,"total_time":1905621,"is_writing":0,"_id":"PiWsGdNhukV0uMqC"}[m
+[32m+[m[32m{"file_path":"c:\\Users\\Dark\\Downloads\\car-service-chat\\app\\globals.css","last_edit":1749260510961,"total_time":571139,"is_writing":0,"_id":"h2eAbIDW53KFjk0U"}[m
+[32m+[m[32m{"file_path":"c:\\Users\\Dark\\Downloads\\car-service-chat\\components\\chat\\ChatPage.tsx","last_edit":1749260519526,"total_time":1907984,"is_writing":0,"_id":"PiWsGdNhukV0uMqC"}[m
+[32m+[m[32m{"file_path":"c:\\Users\\Dark\\Downloads\\car-service-chat\\app\\globals.css","last_edit":1749260527189,"total_time":572909,"is_writing":0,"_id":"h2eAbIDW53KFjk0U"}[m
+[32m+[m[32m{"file_path":"c:\\Users\\Dark\\Downloads\\car-service-chat\\app\\globals.css","last_edit":1749260534668,"total_time":574983,"is_writing":0,"_id":"h2eAbIDW53KFjk0U"}[m
+[32m+[m[32m{"file_path":"c:\\Users\\Dark\\Downloads\\car-service-chat\\app\\layout.tsx","last_edit":1749260545259,"total_time":1634154,"is_writing":0,"_id":"ixVPY4nBqvVgcq0y"}[m
+[32m+[m[32m{"file_path":"c:\\Users\\Dark\\Downloads\\car-service-chat\\app\\layout.tsx","last_edit":1749260559084,"total_time":1635788,"is_writing":0,"_id":"ixVPY4nBqvVgcq0y"}[m
+[32m+[m[32m{"file_path":"c:\\Users\\Dark\\Downloads\\car-service-chat\\components\\chat\\ChatPage.tsx","last_edit":1749260573959,"total_time":1908003,"is_writing":0,"_id":"PiWsGdNhukV0uMqC"}[m
+[32m+[m[32m{"file_path":"c:\\Users\\Dark\\Downloads\\car-service-chat\\app\\layout.tsx.git","last_edit":1749260643232,"total_time":4527,"is_writing":0,"_id":"LIaJRC2T2W4SHyaX"}[m
+[1mdiff --git a/components/chat/ChatInput.tsx b/components/chat/ChatInput.tsx[m
+[1mindex b8b0b8f..6bc550b 100644[m
+[1m--- a/components/chat/ChatInput.tsx[m
+[1m+++ b/components/chat/ChatInput.tsx[m
+[36m@@ -140,8 +140,8 @@[m [mexport function ChatInput({[m
+             </div>[m
+             {!keyboardVisible && ([m
+               <p className="text-[11px] sm:text-sm text-gray-800 dark:text-gray-200 mt-1 sm:mt-3 text-center font-medium bg-gray-50 dark:bg-gray-800/50 py-1 sm:py-1.5 px-4 rounded-full mx-auto inline-block">[m
+[31m-                اكتب استفسارك عن زيت السيارة أو اختر من الأسئلة الشائعة أعلاه[m
+[31m-              </p>[m
+[32m+[m[32m              اكتب استفسارك عن زيت السيارة أو اختر من الأسئلة الشائعة أعلاه[m
+[32m+[m[32m            </p>[m
+             )}[m
+           </div>[m
+         </form>[m
+[1mdiff --git a/components/chat/ChatMessages.tsx b/components/chat/ChatMessages.tsx[m
+[1mindex 5300d4d..d4ceef6 100644[m
+[1m--- a/components/chat/ChatMessages.tsx[m
+[1m+++ b/components/chat/ChatMessages.tsx[m
+[36m@@ -24,13 +24,21 @@[m [mexport function ChatMessages({ messages, isLoading, keyboardVisible = false }: C[m
+   // Auto-scroll function[m
+   const scrollToBottom = (forceScroll = false) => {[m
+     if (messagesEndRef.current) {[m
+[32m+[m[32m      // Handle desktop differently than mobile[m
+[32m+[m[32m      const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;[m
+[32m+[m[41m      [m
+       if (forceScroll) {[m
+         // Force immediate scroll without animation for reliability[m
+[31m-        window.scrollTo(0, document.body.scrollHeight);[m
+[31m-        messagesEndRef.current.scrollIntoView({ block: 'end', inline: 'nearest' });[m
+[32m+[m[32m        if (isMobile) {[m
+[32m+[m[32m          window.scrollTo(0, document.body.scrollHeight);[m
+[32m+[m[32m        }[m
+[32m+[m[32m        messagesEndRef.current.scrollIntoView({[m[41m [m
+[32m+[m[32m          block: 'end',[m[41m [m
+[32m+[m[32m          inline: 'nearest'[m[41m [m
+[32m+[m[32m        });[m
+       } else {[m
+         messagesEndRef.current.scrollIntoView({ [m
+[31m-          behavior: keyboardVisible ? 'auto' : 'smooth',[m
+[32m+[m[32m          behavior: keyboardVisible || !isMobile ? 'auto' : 'smooth',[m
+           block: 'end'[m
+         });[m
+       }[m
+[36m@@ -108,7 +116,7 @@[m [mexport function ChatMessages({ messages, isLoading, keyboardVisible = false }: C[m
+   }[m
+ [m
+   return ([m
+[31m-    <div className={`flex-1 overflow-y-auto p-4 w-full ${keyboardVisible ? 'pb-16' : ''}`}>[m
+[32m+[m[32m    <div className={`flex-1 overflow-y-auto p-4 w-full ${keyboardVisible ? 'pb-16' : ''} h-full`}>[m
+       {messages.length === 0 && ([m
+         <div className="text-center h-full flex flex-col justify-center items-center">[m
+           <div className="w-40 h-40 sm:w-56 sm:h-56 relative mb-8 logo-pulse">[m
