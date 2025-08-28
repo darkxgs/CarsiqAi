@@ -131,56 +131,28 @@ export default function ChatPage() {
       });
       
       if (response.ok) {
-        // Check content type to handle different response formats
-        const contentType = response.headers.get('content-type');
+        // Handle streaming text response from AI SDK
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
         
         let data: string = '';
         
-        if (contentType?.includes('text/plain')) {
-          // Handle streaming or plain text responses
-          const reader = response.body?.getReader();
-          const decoder = new TextDecoder();
-          
-          if (reader) {
-            let fullResponse = '';
-            
-            try {
-              while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-                
-                const chunk = decoder.decode(value, { stream: true });
-                
-                // Parse AI SDK streaming format
-                const lines = chunk.split('\n');
-                for (const line of lines) {
-                  if (line.startsWith('0:"')) {
-                    // Extract content from AI SDK streaming format: 0:"content"
-                    const match = line.match(/0:"(.+?)"/);
-                    if (match) {
-                      fullResponse += match[1];
-                    }
-                  } else if (line.trim() && !line.startsWith('f:') && !line.startsWith('e:') && !line.startsWith('d:')) {
-                    // Handle plain text content
-                    fullResponse += line;
-                  }
-                }
-              }
-            } catch (streamError) {
-              console.error('Error reading stream:', streamError);
+        if (reader) {
+          try {
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              
+              const chunk = decoder.decode(value, { stream: true });
+              data += chunk;
             }
-            
-            data = fullResponse;
-          } else {
+          } catch (streamError) {
+            console.error('Error reading stream:', streamError);
             // Fallback to regular text reading
             data = await response.text();
           }
-        } else if (contentType?.includes('application/json')) {
-          // Handle JSON error responses
-          const jsonData = await response.json();
-          data = jsonData.error || JSON.stringify(jsonData);
         } else {
-          // Handle other response types
+          // Fallback to regular text reading
           data = await response.text();
         }
         
@@ -641,4 +613,4 @@ export default function ChatPage() {
       </div>
     </TooltipProvider>
   )
-} 
+}
