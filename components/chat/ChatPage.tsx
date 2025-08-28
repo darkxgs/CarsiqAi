@@ -151,7 +151,7 @@ export default function ChatPage() {
         
         if (reader) {
           try {
-            console.log('Processing streaming response');
+            console.log('Processing text streaming response');
             let chunkCount = 0;
             
             while (true) {
@@ -165,26 +165,8 @@ export default function ChatPage() {
               const chunk = decoder.decode(value, { stream: true });
               console.log(`Chunk ${chunkCount}:`, chunk);
               
-              // Parse AI SDK streaming format
-              const lines = chunk.split('\n');
-              for (const line of lines) {
-                if (line.startsWith('0:')) {
-                  // Extract content from AI SDK format: 0:"content"
-                  try {
-                    const content = JSON.parse(line.substring(2));
-                    console.log('Extracted AI SDK content:', content);
-                    fullContent += content;
-                  } catch (e) {
-                    // If parsing fails, treat as plain text
-                    console.log('Failed to parse AI SDK line, using as plain text:', line);
-                    fullContent += line.substring(2);
-                  }
-                } else if (line.trim() && !line.startsWith('d:')) {
-                  // Handle other content that's not metadata
-                  console.log('Adding plain text line:', line);
-                  fullContent += line;
-                }
-              }
+              // For text streams, directly append the chunk content
+              fullContent += chunk;
             }
           } catch (streamError) {
             console.error('Error reading stream:', streamError);
