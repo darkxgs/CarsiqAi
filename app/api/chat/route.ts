@@ -683,7 +683,7 @@ export async function POST(request: Request) {
 
       console.log(`[${requestId}] StreamText created successfully`)
       
-      const response = result.toTextStreamResponse()
+      const response = result.toDataStreamResponse()
       console.log(`[${requestId}] Response created with type: ${response.constructor.name}`)
       console.log(`[${requestId}] Response headers:`, Object.fromEntries(response.headers.entries()))
       console.log(`[${requestId}] Response status: ${response.status}`)
