@@ -1,0 +1,124 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Real user interactions and queries
+model UserQuery {
+  id        String   @id @default(cuid())
+  query     String
+  timestamp DateTime @default(now())
+  userId    String?  // Optional for anonymous queries
+  carModel  String?  // Referenced car model if any
+  carBrand  String?  // Referenced brand if any
+  queryType QueryType
+  source    String   // Where the query came from (web, app, etc.)
+  location  String?  // User's location (city/country)
+  confidenceScore Float?
+  oilCapacity      String?
+  recommendedOil   String?
+  oilViscosity     String?
+  sessionId        String?
+  carYear          Int?
+  mileage          Int?
+}
+
+// Car models with real market data
+model CarModel {
+  id          String   @id @default(cuid())
+  name        String
+  brand       String
+  year        Int
+  queries     Int      @default(0) // Number of queries about this model
+  lastUpdated DateTime @updatedAt
+  trends      String[] // Current trends related to this model
+  features    Json     // Detailed features and specifications
+}
+
+// Car brands with analytics
+model CarBrand {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  queries     Int      @default(0) // Total queries about this brand
+  marketShare Float    // Current market share percentage
+  trends      String[] // Current trends related to this brand
+  lastUpdated DateTime @updatedAt
+}
+
+// Market insights from real data
+model MarketInsight {
+  id         String   @id @default(cuid())
+  type       InsightType
+  value      String
+  timestamp  DateTime @default(now())
+  importance Int      // Priority/importance level
+  source     String   // Source of this insight
+}
+
+// User sessions for tracking real behavior
+model UserSession {
+  id           String   @id @default(cuid())
+  sessionStart DateTime @default(now())
+  sessionEnd   DateTime?
+  userId       String?
+  queries      Int      @default(0)
+  interactions Json     // Detailed interaction data
+}
+
+enum QueryType {
+  SPECIFICATIONS
+  PRICE
+  MAINTENANCE
+  COMPARISON
+  FEATURES
+  REVIEWS
+  FUEL_CONSUMPTION
+  INSURANCE
+  SERVICE
+  OTHER
+}
+
+enum InsightType {
+  TREND
+  SEGMENT
+  PREFERENCE
+  MARKET_SHIFT
+  TECHNOLOGY
+  CONSUMER_BEHAVIOR
+}
+
+// User corrections and feedback
+model Correction {
+  id                    String   @id @default(cuid())
+  carMake              String
+  carModel             String
+  carYear              String?
+  currentRecommendation String
+  userCorrection       String
+  userEmail            String?
+  status               CorrectionStatus @default(PENDING)
+  adminNotes           String?
+  reviewedBy           String?
+  reviewedAt           DateTime?
+  ipAddress            String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+enum CorrectionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  IMPLEMENTED
+}
