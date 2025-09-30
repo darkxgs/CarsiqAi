@@ -1,6 +1,6 @@
 /**
  * Denckermann Air Filters Database
- * Complete catalog extracted from "زيت 2024.pdf" 
+ * Complete catalog extracted from updated data source
  * This data is 100% verified and should be used for accurate air filter recommendations
  */
 
@@ -8,6 +8,7 @@ export interface DenckermannAirFilter {
   filterNumber: string;
   compatibleVehicles: string[];
   brands: string[];
+  note?: string;
 }
 
 export interface AirFilterDatabase {
@@ -16,1706 +17,1591 @@ export interface AirFilterDatabase {
 
 // Complete Denckermann air filter database organized by filter number
 export const denckermannAirFilters: AirFilterDatabase = {
-  // Toyota & Lexus Air Filters
   "A140819": {
     filterNumber: "A140819",
-    brands: ["Toyota", "Lexus"],
+    brands: ["LEXUS", "TOYOTA"],
     compatibleVehicles: [
-      "Lexus ES350 2007~2012",
-      "Toyota Alphard",
-      "Toyota Avalon 2007~2012", 
-      "Toyota Camry 3.5L 06~13",
-      "Toyota Camry/Aurion",
-      "Toyota RAV 4 2006~2012"
-    ]
-  },
-  "A141632": {
-    filterNumber: "A141632",
-    brands: ["Toyota", "Lexus"],
-    compatibleVehicles: [
-      "Lexus ES350 2012~2018 3.5L",
-      "Lexus NX200T",
-      "Lexus RX200T",
-      "Lexus RX270",
-      "Lexus RX350",
-      "Lexus RX450H",
-      "Toyota Avalon 2012~ 3.5L",
-      "Toyota Camry 2011~2018 3.5L",
-      "Toyota Harrier 2017~"
-    ]
-  },
-  "A140316": {
-    filterNumber: "A140316",
-    brands: ["Toyota"],
-    compatibleVehicles: [
-      "Toyota Fortuner 2.7L 3.0L 4.0L",
-      "Toyota Hilux 2.7L 3.0L"
-    ]
-  },
-  "A140796": {
-    filterNumber: "A140796",
-    brands: ["Toyota"],
-    compatibleVehicles: [
-      "Toyota 4 Runner V6",
-      "Toyota FJ Cruiser V6",
-      "Toyota Fortuner V6",
-      "Toyota Hilux V6",
-      "Toyota Land Cruiser 4.0L V6",
-      "Toyota Prado 120 V6",
-      "Toyota Tacoma (USA) V6",
-      "Toyota Tundra V6"
-    ]
-  },
-  "A140826": {
-    filterNumber: "A140826",
-    brands: ["Toyota", "Lexus"],
-    compatibleVehicles: [
-      "Lexus LX460 4.6L",
-      "Lexus LX570 5.7L",
-      "Toyota Land Cruiser 200 4.6L 4.7L 5.7L",
-      "Toyota Sequoia (USA)",
-      "Toyota Tundra 4.0L"
-    ]
-  },
-  "A146922": {
-    filterNumber: "A146922",
-    brands: ["Toyota"],
-    compatibleVehicles: [
-      "Toyota Fortuner 2015~ 2.7L, 2.8L, 3.0L, 4.0L",
-      "Toyota Hilux 2015~ 2.7L, 2.8L, 3.0L, 4.0L"
-    ]
-  },
-  "A146953": {
-    filterNumber: "A146953",
-    brands: ["Toyota", "Lexus"],
-    compatibleVehicles: [
-      "Lexus NX250",
-      "Lexus NX350",
-      "Toyota Avalon",
-      "Toyota Camry",
-      "Toyota Harrier",
-      "Toyota Highlander",
-      "Toyota RAV 4",
-      "Toyota Yaris"
+      "LEXUS Es350 2007~2012",
+      "TOYOTA Alphard",
+      "TOYOTA Avalon 2007~2012",
+      "TOYOTA Camry 3.5L 06~13",
+      "TOYOTA Camry/Aurion",
+      "TOYOTA RAV 4 2006~2012",
     ]
   },
   "A140793": {
     filterNumber: "A140793",
-    brands: ["Toyota", "Lexus"],
+    brands: ["LEXUS", "TOYOTA"],
     compatibleVehicles: [
-      "Lexus ES300H",
-      "Lexus UX200",
-      "Toyota 86",
-      "Toyota Avalon/Auris",
-      "Toyota C-HR",
-      "Toyota Camry",
-      "Toyota Corolla",
-      "Toyota Highlander",
-      "Toyota RAV 4",
-      "Toyota Venza"
+      "LEXUS Gx470",
+      "LEXUS Lx470",
+      "TOYOTA 4 Runner",
+      "TOYOTA FJ Cruiser",
+      "TOYOTA Prado 120",
+      "TOYOTA Prado 150",
+      "TOYOTA Sequoia (USA)",
+      "TOYOTA Tundra",
+    ]
+  },
+  "A146953": {
+    filterNumber: "A146953",
+    brands: ["LEXUS", "TOYOTA"],
+    compatibleVehicles: [
+      "LEXUS Nx250",
+      "LEXUS Nx350",
+      "TOYOTA Avalon",
+      "TOYOTA Camry",
+      "TOYOTA Harrier",
+      "TOYOTA Highlander",
+      "TOYOTA RAV 4",
+      "TOYOTA Yaris",
+    ],
+    note: "2018~"
+  },
+  "A141632": {
+    filterNumber: "A141632",
+    brands: ["LEXUS", "TOYOTA"],
+    compatibleVehicles: [
+      "LEXUS ES350 2012~2018 3.5L",
+      "LEXUS Nx200t",
+      "LEXUS RX200T",
+      "LEXUS Rx270",
+      "LEXUS Rx350",
+      "LEXUS RX450H",
+      "TOYOTA Avalon 2012~ 3.5L",
+      "TOYOTA Camry 2011~2018 3.5L",
+      "TOYOTA Harrier 2017~",
     ]
   },
   "A140817": {
     filterNumber: "A140817",
-    brands: ["Toyota", "Lexus"],
+    brands: ["LEXUS", "TOYOTA"],
     compatibleVehicles: [
-      "Lexus GX470",
-      "Lexus LX470",
-      "Toyota 4 Runner",
-      "Toyota FJ Cruiser",
-      "Toyota Prado 120",
-      "Toyota Prado 150",
-      "Toyota Sequoia (USA)",
-      "Toyota Tundra"
+      "LEXUS Nx200",
+      "LEXUS Rc350",
+      "TOYOTA Avensis",
+      "TOYOTA Corolla",
+      "TOYOTA Corolla Altis",
+      "TOYOTA Corolla Axio/Fielder",
+      "TOYOTA Corolla Rumion",
+      "TOYOTA Yaris",
+      "TOYOTA Yaris (USA)",
+    ]
+  },
+  "A146952": {
+    filterNumber: "A146952",
+    brands: ["LEXUS", "TOYOTA"],
+    compatibleVehicles: [
+      "LEXUS ES300H",
+      "LEXUS Ux200",
+      "TOYOTA 86",
+      "TOYOTA Avalon / Auris",
+      "TOYOTA C-HR",
+      "TOYOTA Camry",
+      "TOYOTA Corolla",
+      "TOYOTA Highlander",
+      "TOYOTA RAV 4",
+      "TOYOTA Venza",
+    ]
+  },
+  "A140316": {
+    filterNumber: "A140316",
+    brands: ["TOYOTA"],
+    compatibleVehicles: [
+      "TOYOTA Fortuner 2.7L 3.0L 4.0L",
+      "TOYOTA Hilux 2.7L 3.0L",
     ]
   },
   "A140818": {
     filterNumber: "A140818",
-    brands: ["Toyota", "Lexus"],
+    brands: ["DAIHATSU", "LEXUS", "TOYOTA"],
     compatibleVehicles: [
-      "Lexus NX200",
-      "Lexus RC350",
-      "Toyota Avensis",
-      "Toyota Corolla",
-      "Toyota Corolla Altis",
-      "Toyota Corolla Axio/Fielder",
-      "Toyota Corolla Rumion",
-      "Toyota Yaris",
-      "Toyota Yaris (USA)"
+      "DAIHATSU Altis",
+      "LEXUS Es240",
+      "LEXUS Es250",
+      "TOYOTA Camry",
+      "TOYOTA Camry/Aurion",
+      "TOYOTA Venza",
+    ]
+  },
+  "A140380": {
+    filterNumber: "A140380",
+    brands: ["LEXUS", "TOYOTA"],
+    compatibleVehicles: [
+      "LEXUS Gs300",
+      "TOYOTA Crown",
+      "TOYOTA Crown Comfort",
+      "TOYOTA Crown Majesta",
+      "TOYOTA Lexus GS (Aristo)",
+      "TOYOTA Mark II",
+    ]
+  },
+  "A140796": {
+    filterNumber: "A140796",
+    brands: ["TOYOTA"],
+    compatibleVehicles: [
+      "TOYOTA 4 Runner V6",
+      "TOYOTA FJ Cruiser V6",
+      "TOYOTA Fortuner V6",
+      "TOYOTA Hilux V6",
+      "TOYOTA Land Cruiser 4.0L V6",
+      "TOYOTA Prado 120 V6",
+      "TOYOTA Tacoma (USA) V6",
+      "TOYOTA Tundra V6",
     ]
   },
   "A140828": {
     filterNumber: "A140828",
-    brands: ["Toyota", "Lexus", "Daihatsu"],
+    brands: ["LEXUS", "TOYOTA"],
     compatibleVehicles: [
-      "Daihatsu Altis",
-      "Lexus ES240",
-      "Lexus ES250",
-      "Toyota Camry",
-      "Toyota Camry/Aurion",
-      "Toyota Venza"
+      "LEXUS LS600H",
+      "TOYOTA Avalon",
+      "TOYOTA Camry",
+      "TOYOTA RAV 4",
+      "LEXUS Es200",
+      "LEXUS ES300H Hs250h",
+      "LEXUS Ls460",
     ]
   },
-
-  // Nissan & Infiniti Air Filters
+  "A146934": {
+    filterNumber: "A146934",
+    brands: ["LEXUS", "TOYOTA"],
+    compatibleVehicles: [
+      "LEXUS GS200T Gs250",
+      "LEXUS Gs350 GS450H",
+      "LEXUS Is200t Is250",
+      "LEXUS IS300H",
+      "LEXUS Is350 Rc350",
+      "TOYOTA Crown",
+      "TOYOTA Crown Athlete",
+      "TOYOTA Crown Majesta",
+      "TOYOTA Crown Royal Saloon",
+      "TOYOTA RAV 4 2.2L",
+    ]
+  },
+  "A140826": {
+    filterNumber: "A140826",
+    brands: ["LEXUS", "TOYOTA"],
+    compatibleVehicles: [
+      "LEXUS LX460 4.6L",
+      "LEXUS LX570 5.7L",
+      "TOYOTA Land Cruiser 200 4.6L 4.7L 5.7L",
+      "TOYOTA Sequoia (USA)",
+      "TOYOTA Tundra 4.0L",
+    ]
+  },
+  "A146906": {
+    filterNumber: "A146906",
+    brands: ["LEXUS", "TOYOTA"],
+    compatibleVehicles: [
+      "LEXUS Gx460 4.6L",
+      "TOYOTA 4 Runner 4.0L",
+      "TOYOTA FJ Cruiser 4.0L",
+      "TOYOTA Prado 150 4.0",
+    ]
+  },
+  "A140273": {
+    filterNumber: "A140273",
+    brands: ["TOYOTA"],
+    compatibleVehicles: [
+      "TOYOTA Hiace",
+      "TOYOTA Hiace Commuter",
+      "TOYOTA Hiace Regius",
+      "TOYOTA Hiace Van",
+    ]
+  },
+  "A146922": {
+    filterNumber: "A146922",
+    brands: ["TOYOTA"],
+    compatibleVehicles: [
+      "TOYOTA Fortuner 2015~ 2.7L, 2.8L, 3.0L, 4.0L",
+      "TOYOTA Hilux 2.15~ 2.7L, 2.8L, 3.0L, 4.0L",
+    ]
+  },
+  "A141781": {
+    filterNumber: "A141781",
+    brands: ["TOYOTA", "DAIHATSU", "MITSUBISHI"],
+    compatibleVehicles: [
+      "TOYOTA Avanza",
+      "TOYOTA Rush",
+      "TOYOTA Vios",
+      "TOYOTA Yaris",
+      "DAIHATSU Terios",
+      "MITSUBISHI Attrage",
+      "MITSUBISHI Mirage",
+    ]
+  },
+  "A142188": {
+    filterNumber: "A142188",
+    brands: ["TOYOTA"],
+    compatibleVehicles: [
+      "TOYOTA GranAce",
+      "TOYOTA Hiace 2019~",
+    ]
+  },
+  "A140087": {
+    filterNumber: "A140087",
+    brands: ["TOYOTA", "BYD", "GEELY", "LEXUS"],
+    compatibleVehicles: [
+      "TOYOTA Corolla 2000~2007",
+      "TOYOTA Avensis",
+      "TOYOTA Wish",
+      "BYD F3",
+      "GEELY Emgrand",
+      "LEXUS Rx300",
+    ]
+  },
+  "A146957": {
+    filterNumber: "A146957",
+    brands: ["LEXUS", "TOYOTA"],
+    compatibleVehicles: [
+      "LEXUS RX450H",
+      "TOYOTA Land Cruiser 300 3.5L",
+    ]
+  },
+  "A142224": {
+    filterNumber: "A142224",
+    brands: ["TOYOTA"],
+    compatibleVehicles: [
+      "TOYOTA Land Cruiser 300 3.L",
+    ]
+  },
+  "A140907": {
+    filterNumber: "A140907",
+    brands: ["TOYOTA"],
+    compatibleVehicles: [
+      "TOYOTA C-HR",
+      "TOYOTA Corolla",
+      "TOYOTA Corolla Axio",
+      "TOYOTA Corolla Cross",
+      "TOYOTA Corolla Fielder",
+      "TOYOTA Corolla Spacio",
+      "TOYOTA Prius",
+      "TOYOTA Yaris",
+      "TOYOTA Yaris/Hybrid",
+    ]
+  },
+  "A140815": {
+    filterNumber: "A140815",
+    brands: ["LEXUS", "TOYOTA"],
+    compatibleVehicles: [
+      "LEXUS Gs350",
+      "LEXUS Gs430",
+      "LEXUS Is250",
+      "LEXUS IS250/300",
+      "LEXUS IS250C",
+      "LEXUS IS300C",
+      "LEXUS Is350",
+      "TOYOTA Crown Athlete",
+      "TOYOTA Lexus GS (Aristo)",
+      "TOYOTA Lexus IS (Altezza)",
+    ]
+  },
   "A141171": {
     filterNumber: "A141171",
-    brands: ["Nissan", "Infiniti"],
+    brands: ["INFINITI", "NISSAN"],
     compatibleVehicles: [
-      "Infiniti Q50",
-      "Nissan Micra",
-      "Nissan Note",
-      "Nissan NV200 Van",
-      "Nissan Qashqai",
-      "Nissan Sunny",
-      "Nissan Tiida",
-      "Nissan Tiida Latio",
-      "Nissan Tiida Sedan",
-      "Nissan Versa"
+      "INFINITI Q50",
+      "NISSAN Micra",
+      "NISSAN Note",
+      "NISSAN NV200 Van",
+      "NISSAN Qashqai",
+      "NISSAN Sunny",
+      "NISSAN Tiida",
+      "NISSAN Tiida Latio",
+      "NISSAN Tiida Sedan",
+      "NISSAN Versa",
     ]
   },
-  "A141174": {
-    filterNumber: "A141174",
-    brands: ["Nissan"],
+  "A141787": {
+    filterNumber: "A141787",
+    brands: ["RENAULT"],
     compatibleVehicles: [
-      "Nissan Altima 2006~2013",
-      "Nissan Altima Coupe",
-      "Nissan Altima Hybrid",
-      "Nissan Murano"
+      "RENAULT Koleos",
+      "RENAULT Kadjar",
+    ]
+  },
+  "A147012": {
+    filterNumber: "A147012",
+    brands: ["NISSAN", "MITSUBISHI"],
+    compatibleVehicles: [
+      "NISSAN Altima 2.5L 2019~",
+      "MITSUBISHI Outlander 2.5L 2021~",
+    ]
+  },
+  "A141035": {
+    filterNumber: "A141035",
+    brands: ["NISSAN"],
+    compatibleVehicles: [
+      "NISSAN Navara",
+    ]
+  },
+  "A146925": {
+    filterNumber: "A146925",
+    brands: ["NISSAN"],
+    compatibleVehicles: [
+      "NISSAN Versa Note 2014~2019",
+      "NISSAN MICRA 1.2L~1.6L. (2015~2019)",
+      "NISSAN TIDDA 1.6L 2016~2018",
+    ]
+  },
+  "A141825": {
+    filterNumber: "A141825",
+    brands: ["NISSAN"],
+    compatibleVehicles: [
+      "NISSAN Altima 2.5L",
+      "NISSAN Maxima 2.5L",
+      "NISSAN Teana 2.5L",
+    ],
+    note: "2013~2019"
+  },
+  "A142222": {
+    filterNumber: "A142222",
+    brands: ["NISSAN", "RENAULT"],
+    compatibleVehicles: [
+      "NISSAN Qashqai 2021~ 1.3L",
+      "NISSAN Rogue (USA) 2021~ 1.5L 2020~ 2.5L",
+      "RENAULT Austral 2022~ 1.3L 2022~ 1.3L",
+    ]
+  },
+  "A141806": {
+    filterNumber: "A141806",
+    brands: ["INFINITI", "NISSAN"],
+    compatibleVehicles: [
+      "INFINITI Qx56",
+      "INFINITI Qx80",
+      "NISSAN Patrol",
     ]
   },
   "A141039": {
     filterNumber: "A141039",
-    brands: ["Nissan", "Mitsubishi", "Renault"],
+    brands: ["NISSAN"],
     compatibleVehicles: [
-      "Mitsubishi Outlander 2.5L 2021~",
-      "Nissan Altima 2.5L 2019~",
-      "Nissan Qashqai",
-      "Nissan Rogue (USA)",
-      "Nissan Rogue Sport",
-      "Nissan X-Trail",
-      "Renault Kadjar",
-      "Renault Koleos"
+      "NISSAN Altima 2006~2013",
+      "NISSAN Altima Coupe",
+      "NISSAN Altima Hybrid",
+      "NISSAN Murano",
+    ]
+  },
+  "A140251": {
+    filterNumber: "A140251",
+    brands: ["NISSAN"],
+    compatibleVehicles: [
+      "NISSAN Nv350 02012~",
+      "NISSAN NV350 Caravan",
+      "NISSAN NV350 Urvan",
+      "NISSAN Urvan 2012~!",
+      "NISSAN Caravan",
     ]
   },
   "A140056": {
     filterNumber: "A140056",
-    brands: ["Nissan", "Infiniti"],
+    brands: ["INFINITI", "NISSAN", "SUZUKI"],
     compatibleVehicles: [
-      "Infiniti QX56",
-      "Infiniti QX80",
-      "Nissan Patrol"
+      "INFINITI Fx35",
+      "NISSAN 350Z",
+      "NISSAN Maxima 1994~2021",
+      "NISSAN Murano",
+      "NISSAN Sentra",
+      "NISSAN Sunny",
+      "NISSAN X-Trail 2000~2007",
+      "SUZUKI Swift",
+      "SUZUKI Vitara",
     ]
+  },
+  "A147017": {
+    filterNumber: "A147017",
+    brands: ["NISSAN"],
+    compatibleVehicles: [
+      "NISSAN Kicks 2016~",
+      "NISSAN Versa Sedan 2019~",
+    ]
+  },
+  "A142194": {
+    filterNumber: "A142194",
+    brands: ["NISSAN"],
+    compatibleVehicles: [
+      "NISSAN Sentra",
+      "NISSAN Sylphy",
+    ],
+    note: "2019"
   },
   "A140035": {
     filterNumber: "A140035",
-    brands: ["Nissan", "Infiniti", "Suzuki"],
+    brands: ["INFINITI", "NISSAN"],
     compatibleVehicles: [
-      "Infiniti FX35",
-      "Nissan 350Z",
-      "Nissan Maxima 1994~2021",
-      "Nissan Murano",
-      "Nissan Sentra",
-      "Nissan Sunny",
-      "Nissan X-Trail 2000~2007",
-      "Suzuki Swift",
-      "Suzuki Vitara"
+      "INFINITI FX35 Fx37",
+      "INFINITI FX50 M37",
+      "INFINITI Q50 Q60",
+      "INFINITI Q70 Qx70",
+      "NISSAN Juke",
+      "NISSAN Rogue (USA)",
+      "NISSAN Sentra",
+      "NISSAN Sunny",
+      "NISSAN Tiida",
+      "NISSAN X-Trail",
     ]
   },
-
-  // Hyundai, Kia & Genesis Air Filters
+  "A142139": {
+    filterNumber: "A142139",
+    brands: ["NISSAN"],
+    compatibleVehicles: [
+      "NISSAN Kicks 2016~",
+      "NISSAN Versa Sedan 2019~",
+    ]
+  },
+  "A140950": {
+    filterNumber: "A140950",
+    brands: ["INFINITI", "NISSAN"],
+    compatibleVehicles: [
+      "INFINITI Qx56",
+      "NISSAN Armada (USA)",
+      "NISSAN Frontier",
+      "NISSAN NV",
+      "NISSAN Nv3500",
+      "NISSAN Pathfinder",
+      "NISSAN Titan (USA)",
+      "NISSAN Xterra",
+    ]
+  },
+  "A141174": {
+    filterNumber: "A141174",
+    brands: ["INFINITI", "NISSAN"],
+    compatibleVehicles: [
+      "INFINITI Q50",
+      "NISSAN Micra",
+      "NISSAN Note",
+      "NISSAN NV200 Van",
+      "NISSAN Qashqai",
+      "NISSAN Sunny",
+      "NISSAN Tiida",
+      "NISSAN Tiida Latio",
+      "NISSAN Tiida Sedan",
+      "NISSAN Versa",
+    ]
+  },
+  "A141797": {
+    filterNumber: "A141797",
+    brands: ["NISSAN"],
+    compatibleVehicles: [
+      "NISSAN Navara",
+      "NISSAN Navara Np300",
+      "NISSAN Np300 2014~",
+      "NISSAN NP300 Frontier",
+      "NISSAN Terra",
+    ]
+  },
+  "A146909": {
+    filterNumber: "A146909",
+    brands: ["NISSAN", "INFINITI"],
+    compatibleVehicles: [
+      "NISSAN 350Z",
+      "NISSAN Fairlady Z",
+      "NISSAN Skyline",
+      "INFINITI Ex35",
+      "INFINITI Ex37",
+      "INFINITI G25",
+      "INFINITI G35",
+      "INFINITI G37",
+      "INFINITI M37",
+      "INFINITI Qx50 I",
+    ]
+  },
+  "A141803": {
+    filterNumber: "A141803",
+    brands: ["HYUNDAI", "KIA"],
+    compatibleVehicles: [
+      "HYUNDAI Grandeur IG",
+      "HYUNDAI Sonata 2014~",
+      "KIA K5",
+      "KIA Optima",
+      "KIA Optima (USA)",
+    ]
+  },
+  "A141709": {
+    filterNumber: "A141709",
+    brands: ["HYUNDAI", "KIA"],
+    compatibleVehicles: [
+      "HYUNDAI Accent 2011~",
+      "HYUNDAI Solaris 2011~",
+      "HYUNDAI Veloster 2012~",
+      "KIA Rio 2012~",
+      "KIA Soul",
+    ]
+  },
+  "A147005": {
+    filterNumber: "A147005",
+    brands: ["GENESIS", "KIA"],
+    compatibleVehicles: [
+      "GENESIS G70 3.3L 2017~",
+      "KIA Stinger 3.3L 2017~",
+    ],
+    note: "Right"
+  },
+  "A146903": {
+    filterNumber: "A146903",
+    brands: ["HYUNDAI", "KIA"],
+    compatibleVehicles: [
+      "HYUNDAI Tucson 2015~",
+      "KIA Sportage 2015~",
+    ]
+  },
   "A141685": {
     filterNumber: "A141685",
-    brands: ["Hyundai", "Kia"],
+    brands: ["HYUNDAI", "KIA"],
     compatibleVehicles: [
-      "Hyundai Grandeur IG",
-      "Hyundai Sonata 2014~",
-      "Kia K5",
-      "Kia Optima",
-      "Kia Optima (USA)"
+      "HYUNDAI Azera",
+      "HYUNDAI i45",
+      "HYUNDAI Santa FE 10",
+      "HYUNDAI Sonata 10",
+      "KIA Cadenza",
+      "KIA K5",
+      "KIA K7",
+      "KIA Optima + optima USA",
+      "KIA Sorento (USA)",
+      "KIA Sorento 2009",
     ]
   },
-  "A141066": {
-    filterNumber: "A141066",
-    brands: ["Genesis"],
+  "A142232": {
+    filterNumber: "A142232",
+    brands: ["GENESIS", "KIA"],
     compatibleVehicles: [
-      "Genesis G70",
-      "Genesis G80",
-      "Genesis G90",
-      "Genesis Stinger"
+      "GENESIS G70 3.3L 2017~",
+      "KIA Stinger 3.3L 2017~",
+    ],
+    note: "Left"
+  },
+  "A142093": {
+    filterNumber: "A142093",
+    brands: ["HYUNDAI", "KIA"],
+    compatibleVehicles: [
+      "HYUNDAI Palisade 2018~",
+      "HYUNDAI Santa FE 2018~",
+      "KIA Carnival / Sedona 2014~",
+      "KIA Carnival / Sedona 2018~",
+      "KIA Sorento (USA) 2014~",
+      "KIA Sorento 2014~",
     ]
   },
-  "A140616": {
-    filterNumber: "A140616",
-    brands: ["Genesis"],
+  "A142095": {
+    filterNumber: "A142095",
+    brands: ["HYUNDAI", "KIA"],
     compatibleVehicles: [
-      "Genesis G80",
-      "Genesis G90",
-      "Genesis Genesis"
+      "HYUNDAI Avante / Elantra 2016",
+      "HYUNDAI i30",
+      "HYUNDAI I30 SW",
+      "HYUNDAI Kona",
+      "HYUNDAI Kona / Kauai",
+      "HYUNDAI Veloster",
+      "KIA Cee'd",
+      "KIA Cerato 18",
+      "KIA K3",
+      "KIA Soul",
     ]
   },
-  "A141050": {
-    filterNumber: "A141050",
-    brands: ["Genesis"],
+  "A146923": {
+    filterNumber: "A146923",
+    brands: ["HYUNDAI", "KIA"],
     compatibleVehicles: [
-      "Genesis G80",
-      "Genesis G90",
-      "Genesis Genesis"
-    ]
-  },
-  "A141089": {
-    filterNumber: "A141089",
-    brands: ["Genesis"],
-    compatibleVehicles: [
-      "Genesis G80 2020~",
-      "Genesis Gv70 2020~",
-      "Genesis Gv80 2020~"
-    ]
-  },
-  "A141641": {
-    filterNumber: "A141641",
-    brands: ["Hyundai", "Kia"],
-    compatibleVehicles: [
-      "Hyundai Tucson 2015~",
-      "Kia Sportage 2015~"
-    ]
-  },
-  "A146915": {
-    filterNumber: "A146915",
-    brands: ["Hyundai", "Kia"],
-    compatibleVehicles: [
-      "Hyundai Palisade 2018~",
-      "Hyundai Santa FE 2018~",
-      "Kia Carnival/Sedona 2014~",
-      "Kia Carnival/Sedona 2018~",
-      "Kia Sorento (USA) 2014~",
-      "Kia Sorento 2014~"
+      "HYUNDAI Azera 2011~",
+      "HYUNDAI Grandeur IG",
+      "KIA Cadenza 2016~",
+      "KIA K7",
     ]
   },
   "A140905": {
     filterNumber: "A140905",
-    brands: ["Hyundai", "Kia"],
+    brands: ["HYUNDAI", "KIA"],
     compatibleVehicles: [
-      "Hyundai Azera 2011~",
-      "Hyundai Grandeur IG",
-      "Kia Cadenza 2016~",
-      "Kia K7"
+      "HYUNDAI Avante / Elantra 2011~",
+      "HYUNDAI Creta 2012~",
+      "HYUNDAI i30",
+      "KIA Cee'd 2012~",
+      "KIA Cerato III Forte Coupe",
+      "KIA Cerato III Forte Sedan",
+      "KIA Cerato III Forte Sedan 16",
+      "KIA K3",
+      "KIA Pro Cee'd",
+      "KIA Seltos",
+    ]
+  },
+  "A146927": {
+    filterNumber: "A146927",
+    brands: ["HYUNDAI", "KIA"],
+    compatibleVehicles: [
+      "HYUNDAI Grand Santa FE",
+      "HYUNDAI Santa FE",
+      "HYUNDAI Santa FE 2012~",
+      "KIA Sorento (USA) 2012~",
+      "KIA Sorento 2012~",
+    ]
+  },
+  "A146915": {
+    filterNumber: "A146915",
+    brands: ["KIA"],
+    compatibleVehicles: [
+      "KIA SPORTAGE 2011-2018",
+    ],
+    note: "Turbo USA"
+  },
+  "A147013": {
+    filterNumber: "A147013",
+    brands: ["KIA"],
+    compatibleVehicles: [
+      "KIA K5 2015~",
+      "KIA Optima 2015~",
+    ]
+  },
+  "A140394": {
+    filterNumber: "A140394",
+    brands: ["HYUNDAI", "KIA"],
+    compatibleVehicles: [
+      "HYUNDAI Accent 2003~2012",
+      "HYUNDAI Accent 2005~2012",
+      "KIA Rio 2003~2011",
+    ]
+  },
+  "A140943": {
+    filterNumber: "A140943",
+    brands: ["HYUNDAI"],
+    compatibleVehicles: [
+      "HYUNDAI Grand Starex",
+      "HYUNDAI H1 Starex",
+      "HYUNDAI H1 Starex [H1 Cargo] 07",
+    ]
+  },
+  "A141063": {
+    filterNumber: "A141063",
+    brands: ["HYUNDAI", "KIA"],
+    compatibleVehicles: [
+      "HYUNDAI Entourage",
+      "KIA Carnival / Sedona 06",
+      "KIA Sedona",
+    ]
+  },
+  "A141062": {
+    filterNumber: "A141062",
+    brands: ["KIA"],
+    compatibleVehicles: [
+      "KIA Bongo 2004~2016",
+      "KIA K2700 2000~",
+    ]
+  },
+  "A141731": {
+    filterNumber: "A141731",
+    brands: ["HYUNDAI", "KIA"],
+    compatibleVehicles: [
+      "HYUNDAI i10 2007~2016",
+      "KIA Morning 2011~2017",
+      "KIA Picanto 2011~2017",
+    ]
+  },
+  "A142094": {
+    filterNumber: "A142094",
+    brands: ["HYUNDAI", "KIA"],
+    compatibleVehicles: [
+      "HYUNDAI Palisade",
+      "HYUNDAI Santa FE",
+      "KIA Carnival / Sedona",
+      "KIA Carnival / Sedona 18",
+      "KIA Sorento 15",
+      "KIA Sorento 18",
+    ]
+  },
+  "A141065": {
+    filterNumber: "A141065",
+    brands: ["KIA"],
+    compatibleVehicles: [
+      "KIA Bongo",
+      "KIA K4000",
     ]
   },
   "A142140": {
     filterNumber: "A142140",
-    brands: ["Hyundai", "Kia"],
+    brands: ["GENESIS", "HYUNDAI", "KIA"],
     compatibleVehicles: [
-      "Hyundai Accent 2011~",
-      "Hyundai Solaris 2011~",
-      "Hyundai Veloster 2012~",
-      "Kia Rio 2012~",
-      "Kia Soul"
+      "GENESIS 3.3L G80 2018",
+      "GENESIS 5.0L G80 2018",
+      "GENESIS 3.3L G90 2018",
+      "HYUNDAI GENESIS 2014~2018",
+      "KIA K900 3.3L 2019~",
+    ]
+  },
+  "A146944": {
+    filterNumber: "A146944",
+    brands: ["KIA"],
+    compatibleVehicles: [
+      "KIA Picanto 2017~",
+    ]
+  },
+  "A140940": {
+    filterNumber: "A140940",
+    brands: ["HYUNDAI"],
+    compatibleVehicles: [
+      "HYUNDAI Azera 2005~2012 3.3L",
+      "HYUNDAI Grandeur TG 2006~2012 3.3L",
+      "HYUNDAI Sonata 08 2007~2011 3.3L",
+    ]
+  },
+  "A141042": {
+    filterNumber: "A141042",
+    brands: ["KIA", "HYUNDAI"],
+    compatibleVehicles: [
+      "KIA Quoris",
+      "HYUNDAI Centennial / Equus",
+      "HYUNDAI Genesis",
+    ]
+  },
+  "A142189": {
+    filterNumber: "A142189",
+    brands: ["HYUNDAI", "KIA"],
+    compatibleVehicles: [
+      "HYUNDAI Santa FE",
+      "HYUNDAI Sonata 19",
+      "KIA Carnival / Sedona",
+      "KIA K5",
+      "KIA Sorento",
+    ],
+    note: "2020~"
+  },
+  "A146951": {
+    filterNumber: "A146951",
+    brands: ["HYUNDAI", "KIA"],
+    compatibleVehicles: [
+      "HYUNDAI Accent 2018~",
+      "HYUNDAI Solaris 2017~",
+      "KIA Rio 2017~",
+      "KIA Rio/Stonic 2017~",
     ]
   },
   "A140320": {
     filterNumber: "A140320",
-    brands: ["Hyundai", "Kia"],
+    brands: ["HYUNDAI", "KIA"],
     compatibleVehicles: [
-      "Hyundai Avante/Elantra 2016",
-      "Hyundai i30",
-      "Hyundai i30 SW",
-      "Hyundai Kona",
-      "Hyundai Kona/Kauai",
-      "Hyundai Veloster",
-      "Kia Cee'd",
-      "Kia Cerato 18",
-      "Kia K3",
-      "Kia Soul"
+      "HYUNDAI Avante / Elantra 06",
+      "HYUNDAI i30",
+      "KIA Cee'd",
+      "KIA Cerato",
+      "KIA Forte",
     ]
   },
-
-  // BMW & Mini Air Filters
-  "A142136": {
-    filterNumber: "A142136",
-    brands: ["BMW"],
+  "A141642": {
+    filterNumber: "A141642",
+    brands: ["HYUNDAI", "KIA"],
     compatibleVehicles: [
-      "BMW 116i, 118i, 120i",
-      "BMW 316i, 318i, 320i, 320si",
-      "BMW X1 sDrive 18 I"
+      "HYUNDAI Creta",
+      "HYUNDAI i40",
+      "HYUNDAI iX 35",
+      "HYUNDAI Tucson 2010~",
+      "KIA Carens 2012",
+      "KIA Rondo",
+      "KIA Seltos",
+      "KIA Sportage 2010~",
     ]
   },
-  "A146932": {
-    filterNumber: "A146932",
-    brands: ["BMW", "Mini"],
+  "A142092": {
+    filterNumber: "A142092",
+    brands: ["HYUNDAI", "KIA"],
     compatibleVehicles: [
-      "BMW 216i, 218d, 218i",
-      "BMW 220d, 220i, 225i",
-      "BMW X1 sDrive",
-      "BMW X2 xDrive",
-      "Mini Cooper, Cooper D",
-      "Mini Cooper S, Cooper S ALL4",
-      "Mini Cooper SD",
-      "Mini F54 Clubman",
-      "Mini One, One D",
-      "Mini One First"
+      "HYUNDAI Accent 2018~",
+      "HYUNDAI i20",
+      "KIA Seltos 2019~",
+      "KIA Sonet 2020~",
     ]
   },
-  "A142088": {
-    filterNumber: "A142088",
-    brands: ["BMW"],
+  "A141722": {
+    filterNumber: "A141722",
+    brands: ["HYUNDAI"],
     compatibleVehicles: [
-      "BMW 316i, 318",
-      "BMW 320, 323, 325",
-      "BMW 328i",
-      "BMW 330, 520i, 523i",
-      "BMW 525i",
-      "BMW 528i, 530i",
-      "BMW 728i",
-      "BMW M3",
-      "BMW X3",
-      "BMW Z3 (2000~2006)"
+      "HYUNDAI i10 2007~2013 1.2L",
     ]
   },
-
-  // Mercedes-Benz Air Filters
-  "A142115": {
-    filterNumber: "A142115",
-    brands: ["Mercedes-Benz"],
+  "A140509": {
+    filterNumber: "A140509",
+    brands: ["HYUNDAI"],
     compatibleVehicles: [
-      "Mercedes-Benz C-Classe (W205/A205/C205/S205)",
-      "Mercedes-Benz E-Classe (W/S212) (W/S213, A/C238)",
-      "Mercedes-Benz GLC/GLC Coupé (X253/C253)",
-      "Mercedes-Benz GLE/GLS/GLE Coupe (W167)",
-      "Mercedes-Benz SLC (R172)",
-      "Mercedes-Benz SLK (R172)"
+      "HYUNDAI Santa Fe 2006 ~2010 2.0L 2.2L 2.7L 3.3L",
     ]
   },
-  "A141686": {
-    filterNumber: "A141686",
-    brands: ["Mercedes-Benz"],
+  "A146913": {
+    filterNumber: "A146913",
+    brands: ["HYUNDAI"],
     compatibleVehicles: [
-      "Mercedes-Benz C 230, C 240, C 250, C 280, C 300, C 320, C 350, C 55 AMG",
-      "Mercedes-Benz CL 500, CL 55 AMG",
-      "Mercedes-Benz CLC 230, CLC 350",
-      "Mercedes-Benz CLK 240, CLK 280, CLK 320, CLK 350, CLK 500",
-      "Mercedes-Benz CLS 350, CLS 500",
-      "Mercedes-Benz E 230, E 230 AMG, E 240, E 280, E 300, E 320, E 350, E 500",
-      "Mercedes-Benz G 320, G 500, G 55 AMG",
-      "Mercedes-Benz GL 450, GL 500",
-      "Mercedes-Benz GLK 280",
-      "Mercedes-Benz ML 300, ML 350, ML 500",
-      "Mercedes-Benz R 280, R 350, R 500",
-      "Mercedes-Benz S 280, S 300, S 320L, S 350, S 350 AMG, S 350L, S 430, S 450, S 500, S 55 AMG",
-      "Mercedes-Benz SL 280, SL 300, SL 320, SL 350, SL 500, SL 55 AMG",
-      "Mercedes-Benz SLK 280"
+      "HYUNDAI Eon 2013~2018",
+      "HYUNDAI i10 2013 ~",
     ]
   },
-
-  // Ford & Lincoln Air Filters
-  "A140929": {
-    filterNumber: "A140929",
-    brands: ["Ford", "Lincoln", "Mazda"],
+  "A141023": {
+    filterNumber: "A141023",
+    brands: ["HYUNDAI"],
     compatibleVehicles: [
-      "Ford Edge, Explorer, Flex, Taurus V",
-      "Lincoln MKS, MKT, MKX",
-      "Mazda CX-9, Mazda 6"
+      "HYUNDAI i10 2007 ~2016 1.1L",
     ]
   },
-  "A141131": {
-    filterNumber: "A141131",
-    brands: ["Ford", "Mazda"],
+  "A147004": {
+    filterNumber: "A147004",
+    brands: ["GENESIS", "HYUNDAI", "KIA"],
     compatibleVehicles: [
-      "Ford Ranger",
-      "Mazda BT-50"
+      "GENESIS G80",
+      "GENESIS G90",
+      "HYUNDAI Genesis",
+      "KIA K9",
+      "KIA K900",
+    ],
+    note: "2014 ~"
+  },
+  "A141040": {
+    filterNumber: "A141040",
+    brands: ["KIA"],
+    compatibleVehicles: [
+      "KIA Borrego 2008~2016 3.8L",
+      "KIA Mohave 2008~2022 3.0L 2008~2017 3.8L",
     ]
   },
-  "A140914": {
-    filterNumber: "A140914",
-    brands: ["Ford", "Lincoln"],
+  "A142142": {
+    filterNumber: "A142142",
+    brands: ["HYUNDAI"],
     compatibleVehicles: [
-      "Ford EXPEDITION 2007-2020",
-      "Ford F-150 2009-2021",
-      "Ford F-250 SUPER DUTY, F-350 SUPER DUTY 2008-2016",
-      "Ford F-450 SUPER DUTY 2008-2016",
-      "Lincoln NAVIGATOR 2007-2020"
+      "HYUNDAI Venue 2019~ 1.6L",
     ]
   },
-
-  // Chevrolet & GM Air Filters
-  "A142101": {
-    filterNumber: "A142101",
-    brands: ["Chevrolet", "Cadillac", "Opel"],
+  "A140410": {
+    filterNumber: "A140410",
+    brands: ["HYUNDAI"],
     compatibleVehicles: [
-      "Cadillac ATS",
-      "Chevrolet Cruze",
-      "Opel Astra K"
+      "HYUNDAI Sonata 2004 ~ 2007 2.0L 2.04L 3.3L",
+      "HYUNDAI Sonata 2008 ~ 2013 2.0L 2.4L",
     ]
   },
-  "A142100": {
-    filterNumber: "A142100",
-    brands: ["Chevrolet", "Daewoo", "Holden", "Ravon"],
+  "A140112": {
+    filterNumber: "A140112",
+    brands: ["MITSUBISHI"],
     compatibleVehicles: [
-      "Chevrolet Aveo (T300)",
-      "Chevrolet Cobalt, Optra, Sonic, Spin",
-      "Daewoo Aveo",
-      "Holden Barina",
-      "Ravon R4"
+      "MITSUBISHI Galant",
+      "MITSUBISHI Lancer",
+      "MITSUBISHI Lancer (USA)",
+      "MITSUBISHI Lancer Cargo",
+      "MITSUBISHI Lancer Cedia",
+      "MITSUBISHI Lancer Evolution",
+      "MITSUBISHI Lancer Evolution IX",
+      "MITSUBISHI Outlander",
+      "MITSUBISHI Outlander (USA)",
+      "MITSUBISHI Pajero IO",
     ]
   },
-  "A146963": {
-    filterNumber: "A146963",
-    brands: ["Chevrolet", "Cadillac", "GMC"],
+  "A140092": {
+    filterNumber: "A140092",
+    brands: ["RENAULT"],
     compatibleVehicles: [
-      "Cadillac Escalade, Escalade ESV",
-      "Chevrolet Avalanche, Silverado, Suburban, Tahoe",
-      "GMC Yukon Denali, Yukon XL 2500"
+      "RENAULT Symbol",
+      "RENAULT Logan",
+      "RENAULT Megane",
+      "RENAULT Sandero",
+      "RENAULT Clio II",
+      "RENAULT Clio Symbol",
+      "RENAULT Duster",
+      "RENAULT Espace",
+      "RENAULT Kangoo",
+      "RENAULT Kangoo II",
     ]
   },
-
-  // Jeep, Dodge, Chrysler Air Filters
-  "A142137": {
-    filterNumber: "A142137",
-    brands: ["Jeep", "Mitsubishi"],
+  "A141434": {
+    filterNumber: "A141434",
+    brands: ["SSANGYONG"],
     compatibleVehicles: [
-      "Jeep Grand Cherokee",
-      "Mitsubishi L200",
-      "Mitsubishi Pajero/Montero",
-      "Mitsubishi Pajero/Montero Sport",
-      "Mitsubishi Pajero Sport",
-      "Mitsubishi Triton"
+      "SSANGYONG Actyon",
+      "SSANGYONG Actyon Sports",
+      "SSANGYONG Actyon Sports II",
+      "SSANGYONG Kyron",
+      "SSANGYONG Rodius/Stavic",
+      "SSANGYONG Rodius/Stavic II",
     ]
   },
-  "A141009": {
-    filterNumber: "A141009",
-    brands: ["Chrysler", "Dodge", "Jeep"],
+  "A141425": {
+    filterNumber: "A141425",
+    brands: ["MITSUBISHI"],
     compatibleVehicles: [
-      "Chrysler 300C",
-      "Dodge Charger, Magnum",
-      "Jeep Cherokee, Cherokee Pioneer",
-      "Jeep Grand Cherokee, Liberty",
-      "Jeep Wrangler 20112018 3.6L, 20062012 3.8L"
+      "MITSUBISHI ASX",
+      "MITSUBISHI Galant Fortis",
+      "MITSUBISHI Lancer",
+      "MITSUBISHI Lancer Evolution X",
+      "MITSUBISHI Lancer EX",
+      "MITSUBISHI Lancer Sportback",
+      "MITSUBISHI Outlander",
+      "MITSUBISHI Outlander (USA)",
+      "MITSUBISHI Outlander Sport",
+      "MITSUBISHI RVR",
     ]
   },
-  "A141632": {
-    filterNumber: "A141632",
-    brands: ["Jeep", "Ram"],
+  "A142125": {
+    filterNumber: "A142125",
+    brands: ["RENAULT"],
     compatibleVehicles: [
-      "Jeep COMPASS 2018-2021",
-      "Jeep RENEGADE 2015-2021",
-      "Ram PROMASTER CITY 2015-2021"
+      "RENAULT Talisman",
+      "RENAULT Megane IV",
+      "RENAULT Megane IV Sedan",
+      "RENAULT Espace V",
+      "RENAULT Grand Scenic IV",
+      "RENAULT Scenic IV",
     ]
   },
-
-  // Volkswagen, Audi, Skoda Air Filters
+  "A142130": {
+    filterNumber: "A142130",
+    brands: ["SSANGYONG"],
+    compatibleVehicles: [
+      "SSANGYONG Korando",
+      "SSANGYONG NEW Actyon (Korando C)",
+    ]
+  },
+  "A140833": {
+    filterNumber: "A140833",
+    brands: ["KMITSUBISHI", "MITSUBISHI"],
+    compatibleVehicles: [
+      "KMITSUBISHI ASX",
+      "MITSUBISHI Eclipse Cross",
+      "MITSUBISHI Galant Fortis",
+      "MITSUBISHI Grandis",
+      "MITSUBISHI Outlander",
+      "MITSUBISHI Outlander Sport",
+      "MITSUBISHI RVR",
+    ]
+  },
+  "A141252": {
+    filterNumber: "A141252",
+    brands: ["RENAULT"],
+    compatibleVehicles: [
+      "RENAULT Fluence",
+      "RENAULT Megane III",
+      "RENAULT Scenic III",
+    ]
+  },
+  "A142129": {
+    filterNumber: "A142129",
+    brands: ["SSANGYONG"],
+    compatibleVehicles: [
+      "SSANGYONG Actyon Sports",
+      "SSANGYONG Actyon Sports II",
+      "SSANGYONG Musso",
+      "SSANGYONG Rexton Sports",
+      "SSANGYONG Rodius/Stavic",
+      "SSANGYONG Rodius/Stavic II",
+    ]
+  },
+  "A141422": {
+    filterNumber: "A141422",
+    brands: ["MITSUBISHI"],
+    compatibleVehicles: [
+      "MITSUBISHI L200",
+      "MITSUBISHI Nativa",
+      "MITSUBISHI Pajero / Montero",
+      "MITSUBISHI Pajero / Montero Sport",
+      "MITSUBISHI Pajero Sport",
+      "MITSUBISHI Triton",
+    ]
+  },
+  "A146992": {
+    filterNumber: "A146992",
+    brands: ["SSANGYONG"],
+    compatibleVehicles: [
+      "SSANGYONG Tivoli 1.6L 2015~",
+      "SSANGYONG XLV 1.6L 2016~",
+    ]
+  },
+  "A140408": {
+    filterNumber: "A140408",
+    brands: ["MITSUBISHI"],
+    compatibleVehicles: [
+      "MITSUBISHI Pajero",
+      "MITSUBISHI Pajero / Montero",
+      "MITSUBISHI Shogun",
+    ]
+  },
+  "A141365": {
+    filterNumber: "A141365",
+    brands: ["Chery"],
+    compatibleVehicles: [
+      "Chery Chery Tiggo 1.6L 2012~2013, 1.8L 2008~2012, 2.0L 2006~",
+    ]
+  },
+  "A140519": {
+    filterNumber: "A140519",
+    brands: [],
+    compatibleVehicles: [
+    ]
+  },
   "A140853": {
     filterNumber: "A140853",
-    brands: ["Volkswagen", "Audi", "Skoda"],
+    brands: ["AUDI", "SKODA", "VOLKSWAGEN"],
     compatibleVehicles: [
-      "Audi A3, Q3, TT",
-      "Skoda Octavia II, Octavia RS",
-      "Volkswagen Beetle",
-      "Volkswagen Caddy III",
-      "Volkswagen Golf V, VI",
-      "Volkswagen Jetta V, VI",
-      "Volkswagen New Beetle",
-      "Volkswagen Passat",
-      "Volkswagen Passat CC",
-      "Volkswagen Tiguan"
+      "AUDI A3 Q3 TT",
+      "SKODA Octavia II Octavia RS",
+      "VOLKSWAGEN Beetle",
+      "VOLKSWAGEN Caddy III",
+      "VOLKSWAGEN Golf V * VI",
+      "VOLKSWAGEN Jetta V * VI",
+      "VOLKSWAGEN New Beetle",
+      "VOLKSWAGEN Passat",
+      "VOLKSWAGEN Passat CC",
+      "VOLKSWAGEN Tiguan",
+    ]
+  },
+  "A147011": {
+    filterNumber: "A147011",
+    brands: ["VOLKSWAGEN"],
+    compatibleVehicles: [
+      "VOLKSWAGEN Altas 2017~ 2.0L 2017~ 2.0L 2016~ 3.6L",
+      "VOLKSWAGEN Teramont 2017~ 2.0L 2019~ 3.6L",
+    ]
+  },
+  "A141933": {
+    filterNumber: "A141933",
+    brands: ["AUDI", "VOLKSWAGEN"],
+    compatibleVehicles: [
+      "AUDI Q7",
+      "VOLKSWAGEN Touareg",
+    ]
+  },
+  "A140750": {
+    filterNumber: "A140750",
+    brands: ["AUDI", "SKODA", "VOLKSWAGEN"],
+    compatibleVehicles: [
+      "AUDI A3 A3 II",
+      "SKODA Octavia II",
+      "VOLKSWAGEN Caddy III",
+      "VOLKSWAGEN Golf Golf V",
+      "VOLKSWAGEN Golf VI",
+      "VOLKSWAGEN Jetta V Jetta VI",
+      "VOLKSWAGEN New Passat",
+      "VOLKSWAGEN Passat",
+      "VOLKSWAGEN Tiguan",
+      "VOLKSWAGEN Touran",
+    ]
+  },
+  "A141726": {
+    filterNumber: "A141726",
+    brands: ["AUDI", "SKODA", "VOLKSWAGEN"],
+    compatibleVehicles: [
+      "AUDI A3 III",
+      "AUDI Q2 Q3 TT",
+      "SKODA Octavia",
+      "VOLKSWAGEN Arteon",
+      "VOLKSWAGEN Golf",
+      "VOLKSWAGEN Jetta",
+      "VOLKSWAGEN Passat",
+      "VOLKSWAGEN Tiguan",
+      "VOLKSWAGEN Touran",
     ]
   },
   "A141837": {
     filterNumber: "A141837",
-    brands: ["Volkswagen", "Audi", "Skoda"],
+    brands: ["AUDI"],
     compatibleVehicles: [
-      "Audi A3 III",
-      "Audi Q2, Q3, TT",
-      "Skoda Octavia",
-      "Volkswagen Arteon",
-      "Volkswagen Golf",
-      "Volkswagen Jetta",
-      "Volkswagen Passat",
-      "Volkswagen Tiguan",
-      "Volkswagen Touran"
+      "AUDI A8 3.0L 4.0L 4.2L",
     ]
   },
-
-  // Land Rover & Jaguar Air Filters
+  "A140460": {
+    filterNumber: "A140460",
+    brands: ["AUDI", "SKODA", "VOLKSWAGEN"],
+    compatibleVehicles: [
+      "AUDI A3 Q3 TT",
+      "SKODA Octavia II Octavia RS",
+      "VOLKSWAGEN Beetle",
+      "VOLKSWAGEN Caddy III",
+      "VOLKSWAGEN Golf V * VI",
+      "VOLKSWAGEN Jetta V * VI",
+      "VOLKSWAGEN New Beetle",
+      "VOLKSWAGEN Passat",
+      "VOLKSWAGEN Passat CC",
+      "VOLKSWAGEN Tiguan",
+    ]
+  },
+  "A141782": {
+    filterNumber: "A141782",
+    brands: ["AUDI", "SKODA", "VOLKSWAGEN"],
+    compatibleVehicles: [
+      "AUDI A3 III",
+      "AUDI Q2 Q3 TT",
+      "SKODA Octavia",
+      "VOLKSWAGEN Arteon",
+      "VOLKSWAGEN Golf",
+      "VOLKSWAGEN Jetta",
+      "VOLKSWAGEN Passat",
+      "VOLKSWAGEN Tiguan",
+      "VOLKSWAGEN Touran",
+    ],
+    note: "Turbo"
+  },
+  "A140894": {
+    filterNumber: "A140894",
+    brands: ["AUDI"],
+    compatibleVehicles: [
+      "AUDI A4",
+      "AUDI A5",
+      "AUDI Q5",
+      "AUDI S4",
+      "AUDI S5",
+      "AUDI Sq5",
+    ]
+  },
+  "A140012": {
+    filterNumber: "A140012",
+    brands: ["AUDI", "SEAT", "SKODA", "VOLKSWAGEN"],
+    compatibleVehicles: [
+      "AUDI A3",
+      "AUDI A3 I",
+      "AUDI TT",
+      "SEAT Leon I",
+      "SEAT Toledo II",
+      "SKODA Octavia I",
+      "VOLKSWAGEN Beetle Convertible",
+      "VOLKSWAGEN Bora",
+      "VOLKSWAGEN Golf Estate",
+      "VOLKSWAGEN Golf IV",
+      "VOLKSWAGEN New Beetle",
+    ]
+  },
+  "A141700": {
+    filterNumber: "A141700",
+    brands: ["AUDI"],
+    compatibleVehicles: [
+      "AUDI A6 2.8L 3.0L 4.0L",
+      "AUDI A7 2.8L 3.0L 4.0L",
+    ]
+  },
+  "A142198": {
+    filterNumber: "A142198",
+    brands: ["VOLKSWAGEN"],
+    compatibleVehicles: [
+      "VOLKSWAGEN Golf VIII 2019~ 1.8L",
+      "VOLKSWAGEN Jetta 2019~ 1.4L",
+    ]
+  },
+  "A141727": {
+    filterNumber: "A141727",
+    brands: ["AUDI"],
+    compatibleVehicles: [
+      "AUDI A6",
+      "AUDI A6L",
+      "AUDI A7",
+    ]
+  },
+  "A146948": {
+    filterNumber: "A146948",
+    brands: ["AUDI"],
+    compatibleVehicles: [
+      "AUDI A4 2015~ 2.0L",
+      "AUDI Q5 2016~ 2.0L",
+    ]
+  },
+  "A140860": {
+    filterNumber: "A140860",
+    brands: ["VOLKSWAGEN"],
+    compatibleVehicles: [
+      "VOLKSWAGEN Jetta V",
+      "VOLKSWAGEN Jetta VI",
+      "VOLKSWAGEN Passat",
+    ]
+  },
+  "A140749": {
+    filterNumber: "A140749",
+    brands: ["Audi"],
+    compatibleVehicles: [
+      "Audi A6",
+      "Audi A6 Allroad",
+      "Audi A6 A6L",
+    ]
+  },
+  "A141242": {
+    filterNumber: "A141242",
+    brands: ["AUDI"],
+    compatibleVehicles: [
+      "AUDI A4 2007~2013 1.8L 2.0L",
+      "AUDI A4 Allroad 2008~2016",
+      "AUDI A4L 2008~2016",
+      "AUDI A5 2009~2017",
+      "AUDI Q5 2009~2017",
+    ]
+  },
+  "A142018": {
+    filterNumber: "A142018",
+    brands: ["PORSCHE"],
+    compatibleVehicles: [
+      "PORSCHE Panamera",
+      "PORSCHE Panamera 4",
+      "PORSCHE Panamera 4S",
+      "PORSCHE Panamera S",
+      "PORSCHE Panamera TURBO S",
+    ]
+  },
+  "A141444": {
+    filterNumber: "A141444",
+    brands: ["JAGUAR"],
+    compatibleVehicles: [
+      "JAGUAR S-Type",
+      "JAGUAR XF",
+      "JAGUAR XFR",
+      "JAGUAR XJ",
+      "JAGUAR Xj6",
+      "JAGUAR Xj8",
+      "JAGUAR XJ8L",
+      "JAGUAR XJR",
+    ]
+  },
   "A142088": {
     filterNumber: "A142088",
-    brands: ["Land Rover"],
+    brands: ["LAND ROVER"],
     compatibleVehicles: [
-      "Land Rover Discovery IV, Discovery V",
-      "Land Rover Range Rover, Range Rover III, Range Rover IV",
-      "Land Rover Range Rover Sport",
-      "Land Rover Range Rover Vogue"
+      "LAND ROVER Discovery IV",
+      "LAND ROVER Discovery V",
+      "LAND ROVER Range Rover",
+      "LAND ROVER Range Rover III",
+      "LAND ROVER Range Rover IV",
+      "LAND ROVER Range Rover Sport",
+      "LAND ROVER Range Rover Vogue",
+    ]
+  },
+  "A140852": {
+    filterNumber: "A140852",
+    brands: ["AUDI", "LAND ROVER", "PORSCHE", "VOLKSWAGEN"],
+    compatibleVehicles: [
+      "AUDI Q7",
+      "LAND ROVER Range Rover III",
+      "LAND ROVER Range Rover Sport",
+      "PORSCHE Cayenne",
+      "PORSCHE Cayenne GTS",
+      "PORSCHE Cayenne S",
+      "PORSCHE Cayenne TURBO",
+      "PORSCHE Cayenne TURBO S",
+      "VOLKSWAGEN Touareg",
+    ]
+  },
+  "A140009": {
+    filterNumber: "A140009",
+    brands: ["VOLKSWAGEN"],
+    compatibleVehicles: [
+      "VOLKSWAGEN Caddy I",
+      "VOLKSWAGEN Golf Cabriolet",
+      "VOLKSWAGEN Golf II",
+      "VOLKSWAGEN Scirocco",
     ]
   },
   "A141741": {
     filterNumber: "A141741",
-    brands: ["Land Rover", "Range Rover"],
+    brands: ["LAND ROVER", "Range Rover"],
     compatibleVehicles: [
-      "Land Rover Discovery Sport",
-      "Land Rover Freelander II",
-      "Range Rover Evoque"
+      "LAND ROVER Discovery Sport",
+      "LAND ROVER Freelander II",
+      "Range Rover Evoque",
     ]
   },
-
-  // Honda & Acura Air Filters
-  "A147007": {
-    filterNumber: "A147007",
-    brands: ["Honda"],
+  "A141783": {
+    filterNumber: "A141783",
+    brands: ["AUDI", "SKODA", "VOLKSWAGEN"],
     compatibleVehicles: [
-      "Honda Civic, Civic (USA)",
-      "Honda Accord 2017~ 1.5L"
+      "AUDI A3 Q3 TT",
+      "SKODA Octavia II Octavia RS",
+      "VOLKSWAGEN Beetle",
+      "VOLKSWAGEN Caddy III",
+      "VOLKSWAGEN Golf V * VI",
+      "VOLKSWAGEN Jetta V * VI",
+      "VOLKSWAGEN New Beetle",
+      "VOLKSWAGEN Passat",
+      "VOLKSWAGEN Passat CC",
+      "VOLKSWAGEN Tiguan",
     ]
   },
-  "A146918": {
-    filterNumber: "A146918",
-    brands: ["Honda", "Acura"],
+  "A142136": {
+    filterNumber: "A142136",
+    brands: ["AUDI", "SKODA", "VOLKSWAGEN"],
     compatibleVehicles: [
-      "Honda CR-V 2011~2016 2.4L",
-      "Honda CR-V (USA) 2011~2014 2.4L",
-      "Acura ILX 2012~2015 2000"
+      "AUDI A1",
+      "AUDI A3 III",
+      "AUDI Q2",
+      "SKODA Fabia",
+      "SKODA Karoq",
+      "SKODA Octavia III",
+      "VOLKSWAGEN Golf VII",
+      "VOLKSWAGEN Polo VI",
+      "VOLKSWAGEN T-Roc",
+      "VOLKSWAGEN UP",
     ]
   },
-  "A140342": {
-    filterNumber: "A140342",
-    brands: ["Honda"],
+  "A141453": {
+    filterNumber: "A141453",
+    brands: ["LAND ROVER"],
     compatibleVehicles: [
-      "Honda Civic, Civic (USA)",
-      "Honda Civic Coupe",
-      "Honda Civic VIII (EUR)",
-      "Honda Crossroad, FR-V, Stream (2001~2012)"
+      "LAND ROVER Freelander II 2006~2014 2.2L, 2006~2014 3.2L",
     ]
   },
-
-  // Mazda Air Filters
-  "A141795": {
-    filterNumber: "A141795",
-    brands: ["Mazda"],
+  "A140890": {
+    filterNumber: "A140890",
+    brands: ["AUDI", "SEAT", "SKODA", "VOLKSWAGEN"],
     compatibleVehicles: [
-      "Mazda CX-4, CX-5, CX-8",
-      "Mazda 3, Mazda 5",
-      "Mazda 6, Mazda 6 Wagon"
+      "AUDI A1",
+      "AUDI A3 III",
+      "AUDI Q2",
+      "AUDI Q3",
+      "SEAT Alhambra II",
+      "SEAT Ateca",
+      "SEAT Ibiza MK IV",
+      "SEAT Leon",
+      "SEAT Leon III",
+      "SEAT Tarraco",
+      "SEAT Toledo IV",
+      "SKODA Fabia",
+      "SKODA Karoq",
+      "SKODA Kodiaq",
+      "SKODA Octavia I",
+      "SKODA Octavia III",
+      "SKODA Octavia IV",
+      "SKODA Rapid",
+      "SKODA SuperB III",
+      "VOLKSWAGEN CC",
+      "VOLKSWAGEN Golf Sportsvan",
+      "VOLKSWAGEN Golf Variant",
+      "VOLKSWAGEN Golf VII",
+      "VOLKSWAGEN Jetta VI",
+      "VOLKSWAGEN Polo V",
+      "VOLKSWAGEN Polo V Sedan",
+      "VOLKSWAGEN Taos",
+      "VOLKSWAGEN Tiguan",
+      "VOLKSWAGEN Tiguan II",
+      "VOLKSWAGEN Touran",
     ]
   },
-
-  // Volvo Air Filters
-  "A140595": {
-    filterNumber: "A140595",
-    brands: ["Volvo"],
+  "A141934": {
+    filterNumber: "A141934",
+    brands: ["PORSCHE"],
     compatibleVehicles: [
-      "Volvo S60, S60 II, S80",
-      "Volvo V60, V70",
-      "Volvo XC60, XC70"
+      "PORSCHE Macan",
+      "PORSCHE Macan S",
+      "PORSCHE Macan Turbo",
     ]
   },
-
-  // Chinese Brands Air Filters
-  "A142225": {
-    filterNumber: "A142225",
-    brands: ["Haval"],
+  "A140336": {
+    filterNumber: "A140336",
+    brands: ["SKODA", "VOLKSWAGEN"],
     compatibleVehicles: [
-      "Haval H9"
+      "SKODA Fabia",
+      "SKODA Octavia II",
+      "SKODA Praktik",
+      "SKODA Rapid",
+      "SKODA Roomster",
+      "VOLKSWAGEN Golf VI",
+      "VOLKSWAGEN Jetta VI",
+      "VOLKSWAGEN Polo IV",
+      "VOLKSWAGEN Polo V Sedan",
+      "VOLKSWAGEN Vento",
+    ]
+  },
+  "A146993": {
+    filterNumber: "A146993",
+    brands: ["JAGUAR", "LAND ROVER"],
+    compatibleVehicles: [
+      "JAGUAR F-Pace",
+      "JAGUAR XE",
+      "JAGUAR XF",
+      "LAND ROVER Range Rover Velar",
+    ],
+    note: "Right"
+  },
+  "A146938": {
+    filterNumber: "A146938",
+    brands: ["JAGUAR", "LAND ROVER"],
+    compatibleVehicles: [
+      "JAGUAR F-Pace",
+      "JAGUAR XE",
+      "JAGUAR XF",
+      "LAND ROVER Range Rover Velar",
+    ],
+    note: "Left"
+  },
+  "A146932": {
+    filterNumber: "A146932",
+    brands: ["JAGUAR", "LAND ROVER", "Range Rover"],
+    compatibleVehicles: [
+      "JAGUAR E-Pace 2.0L",
+      "LAND ROVER Discovery Sport 1.5L 2.0L",
+      "Range Rover Evoque 1.5L 2.0L",
     ]
   },
   "A142226": {
     filterNumber: "A142226",
-    brands: ["Haval"],
+    brands: ["HAVAL"],
     compatibleVehicles: [
-      "Haval H2"
+      "HAVAL H6 2021",
+      "HAVAL Dargo",
+    ]
+  },
+  "A146949": {
+    filterNumber: "A146949",
+    brands: ["HAVAL"],
+    compatibleVehicles: [
+      "HAVAL H2",
     ]
   },
   "A142227": {
     filterNumber: "A142227",
-    brands: ["Haval", "Great Wall"],
+    brands: ["GREAT WALL"],
     compatibleVehicles: [
-      "Haval H6",
-      "Great Wall PICKUP POER",
-      "Great Wall WINGLE 5"
+      "GREAT WALL 7",
     ]
-  }
+  },
+  "A147014": {
+    filterNumber: "A147014",
+    brands: ["HAVAL"],
+    compatibleVehicles: [
+      "HAVAL H6",
+    ]
+  },
+  "A147009": {
+    filterNumber: "A147009",
+    brands: ["GREAT WALL"],
+    compatibleVehicles: [
+      "GREAT WALL PICKUP POER",
+    ]
+  },
+  "A141809": {
+    filterNumber: "A141809",
+    brands: ["GREAT WALL"],
+    compatibleVehicles: [
+      "GREAT WALL WINGLE 5",
+    ]
+  },
+  "A140950": {
+    filterNumber: "A140950",
+    brands: ["INFINITI", "NISSAN"],
+    compatibleVehicles: [
+      "INFINITI Qx56",
+      "NISSAN Armada (USA)",
+      "NISSAN Frontier",
+      "NISSAN NV",
+      "NISSAN Nv3500",
+      "NISSAN Pathfinder",
+    ]
+  },
+  "A141063": {
+    filterNumber: "A141063",
+    brands: ["HYUNDAI", "KIA"],
+    compatibleVehicles: [
+      "HYUNDAI Entourage",
+      "KIA Carnival / Sedona",
+      "KIA Carnival / Sedona 06",
+    ]
+  },
+  "A142094": {
+    filterNumber: "A142094",
+    brands: ["HYUNDAI", "KIA"],
+    compatibleVehicles: [
+      "HYUNDAI Palisade",
+      "HYUNDAI Santa FE",
+      "KIA Carnival / Sedona",
+      "KIA Carnival / Sedona 18",
+      "KIA Sorento 2015 2.0L 2.2L",
+    ]
+  },
 };
 
-// Helper function to search for air filter by vehicle make and model
+// Brand mapping for consistent brand names
+const brandMapping: { [key: string]: string } = {
+  'LEXUS': 'Lexus',
+  'TOYOTA': 'Toyota',
+  'NISSAN': 'Nissan',
+  'INFINITI': 'Infiniti',
+  'HYUNDAI': 'Hyundai',
+  'KIA': 'Kia',
+  'GENESIS': 'Genesis',
+  'MITSUBISHI': 'Mitsubishi',
+  'RENAULT': 'Renault',
+  'SSANGYONG': 'SsangYong',
+  'DAIHATSU': 'Daihatsu',
+  'BYD': 'BYD',
+  'GEELY': 'Geely',
+  'CHERY': 'Chery',
+  'PEUGEOT': 'Peugeot',
+  'AUDI': 'Audi',
+  'SKODA': 'Skoda',
+  'VOLKSWAGEN': 'Volkswagen',
+  'SEAT': 'Seat',
+  'PORSCHE': 'Porsche',
+  'JAGUAR': 'Jaguar',
+  'LAND ROVER': 'Land Rover',
+  'RANGE ROVER': 'Range Rover',
+  'BMW': 'BMW',
+  'MINI': 'Mini',
+  'ROLLS-ROYCE': 'Rolls-Royce',
+  'FORD': 'Ford',
+  'SUZUKI': 'Suzuki',
+  'HONDA': 'Honda',
+  'ACURA': 'Acura',
+  'MAZDA': 'Mazda',
+  'SUBARU': 'Subaru',
+  'VOLVO': 'Volvo',
+  'HAVAL': 'Haval',
+  'GREAT WALL': 'Great Wall',
+  'MG (Morris Garages)': 'MG'
+};
+
+// Model mapping for consistent model names
+const modelMapping: { [key: string]: string } = {
+  // Will be populated as needed
+};
+
+/**
+ * Find air filter by vehicle make and model
+ */
 export function findAirFilterByVehicle(make: string, model: string): string | null {
-  const normalizedMake = make?.toLowerCase?.()?.trim?.() || '';
-  const normalizedModel = model?.toLowerCase?.()?.trim?.() || '';
+  const normalizedMake = make.toLowerCase().trim();
+  const normalizedModel = model.toLowerCase().trim();
   
-  // Create a comprehensive mapping of Arabic/English brand names
-  const makeMapping: { [key: string]: string } = {
-    // Toyota & Lexus
-    'تويوتا': 'toyota',
-    'toyota': 'toyota',
-    'لكزس': 'lexus',
-    'lexus': 'lexus',
-    
-    // Hyundai & Genesis
-    'هيونداي': 'hyundai',
-    'hyundai': 'hyundai',
-    'جينيسيس': 'genesis',
-    'جينسيس': 'genesis',
-    'genesis': 'genesis',
-    
-    // Kia
-    'كيا': 'kia',
-    'kia': 'kia',
-    
-    // Ford & Lincoln
-    'فورد': 'ford',
-    'ford': 'ford',
-    'لينكولن': 'lincoln',
-    'lincoln': 'lincoln',
-    
-    // Chevrolet & GM brands
-    'شيفروليه': 'chevrolet',
-    'chevrolet': 'chevrolet',
-    'جي ام سي': 'gmc',
-    'gmc': 'gmc',
-    'كاديلاك': 'cadillac',
-    'cadillac': 'cadillac',
-    'بيويك': 'buick',
-    'buick': 'buick',
-    'هامر': 'hummer',
-    'hummer': 'hummer',
-    'اولدزموبيل': 'oldsmobile',
-    'oldsmobile': 'oldsmobile',
-    'بونتياك': 'pontiac',
-    'pontiac': 'pontiac',
-    'ساتورن': 'saturn',
-    'saturn': 'saturn',
-    'هولدن': 'holden',
-    'holden': 'holden',
-    'دايو': 'daewoo',
-    'daewoo': 'daewoo',
-    'رافون': 'ravon',
-    'ravon': 'ravon',
-    
-    // Nissan & Infiniti
-    'نيسان': 'nissan',
-    'nissan': 'nissan',
-    'انفينيتي': 'infiniti',
-    'infiniti': 'infiniti',
-    
-    // Mercedes-Benz
-    'مرسيدس': 'mercedes-benz',
-    'mercedes': 'mercedes-benz',
-    'mercedes-benz': 'mercedes-benz',
-    'مايباخ': 'maybach',
-    'maybach': 'maybach',
-    'سمارت': 'smart',
-    'smart': 'smart',
-    
-    // BMW & Mini
-    'بي ام دبليو': 'bmw',
-    'bmw': 'bmw',
-    'ميني': 'mini',
-    'mini': 'mini',
-    
-    // Volkswagen Group
-    'فولكس واجن': 'volkswagen',
-    'volkswagen': 'volkswagen',
-    'فولكسفاجن': 'volkswagen',
-    'اودي': 'audi',
-    'audi': 'audi',
-    'سكودا': 'skoda',
-    'skoda': 'skoda',
-    'سيات': 'seat',
-    'seat': 'seat',
-    'بورش': 'porsche',
-    'porsche': 'porsche',
-    'بنتلي': 'bentley',
-    'bentley': 'bentley',
-    'لامبورجيني': 'lamborghini',
-    'lamborghini': 'lamborghini',
-    'بوجاتي': 'bugatti',
-    'bugatti': 'bugatti',
-    'كوبرا': 'cupra',
-    'cupra': 'cupra',
-    
-    // Jaguar Land Rover
-    'لاند روفر': 'land rover',
-    'land rover': 'land rover',
-    'رينج روفر': 'range rover',
-    'range rover': 'range rover',
-    'جاكوار': 'jaguar',
-    'jaguar': 'jaguar',
-    
-    // Chrysler Group
-    'كرايسلر': 'chrysler',
-    'chrysler': 'chrysler',
-    'دودج': 'dodge',
-    'dodge': 'dodge',
-    'جيب': 'jeep',
-    'jeep': 'jeep',
-    'رام': 'ram',
-    'ram': 'ram',
-    'بليموث': 'plymouth',
-    'plymouth': 'plymouth',
-    'ايجل': 'eagle',
-    'eagle': 'eagle',
-    
-    // Japanese brands
-    'هوندا': 'honda',
-    'honda': 'honda',
-    'اكورا': 'acura',
-    'acura': 'acura',
-    'مازدا': 'mazda',
-    'mazda': 'mazda',
-    'سوزوكي': 'suzuki',
-    'suzuki': 'suzuki',
-    'ميتسوبيشي': 'mitsubishi',
-    'mitsubishi': 'mitsubishi',
-    'سوبارو': 'subaru',
-    'subaru': 'subaru',
-    'ايسوزو': 'isuzu',
-    'isuzu': 'isuzu',
-    'دايهاتسو': 'daihatsu',
-    'daihatsu': 'daihatsu',
-    
-    // European brands
-    'اوبل': 'opel',
-    'opel': 'opel',
-    'فولفو': 'volvo',
-    'volvo': 'volvo',
-    'ساب': 'saab',
-    'saab': 'saab',
-    'فيات': 'fiat',
-    'fiat': 'fiat',
-    'الفا روميو': 'alfa romeo',
-    'alfa romeo': 'alfa romeo',
-    'لانشيا': 'lancia',
-    'lancia': 'lancia',
-    'فيراري': 'ferrari',
-    'ferrari': 'ferrari',
-    'مازيراتي': 'maserati',
-    'maserati': 'maserati',
-    'رينو': 'renault',
-    'renault': 'renault',
-    'بيجو': 'peugeot',
-    'peugeot': 'peugeot',
-    'سيتروين': 'citroen',
-    'citroen': 'citroen',
-    'دي اس': 'ds',
-    'ds': 'ds',
-    
-    // Chinese brands
-    'هافال': 'haval',
-    'haval': 'haval',
-    'جريت وول': 'great wall',
-    'great wall': 'great wall',
-    'جيلي': 'geely',
-    'geely': 'geely',
-    'بي واي دي': 'byd',
-    'byd': 'byd',
-    'شيري': 'chery',
-    'chery': 'chery',
-    'ام جي': 'mg',
-    'mg': 'mg',
-    'بيستورن': 'besturn',
-    'besturn': 'besturn',
-    'فاو': 'faw',
-    'faw': 'faw',
-    'دونج فينج': 'dongfeng',
-    'dongfeng': 'dongfeng',
-    'جاك': 'jac',
-    'jac': 'jac',
-    'تاتا': 'tata',
-    'tata': 'tata',
-    'ماهيندرا': 'mahindra',
-    'mahindra': 'mahindra',
-    
-    // Luxury brands
-    'رولز رويس': 'rolls-royce',
-    'rolls-royce': 'rolls-royce',
-    'استون مارتن': 'aston martin',
-    'aston martin': 'aston martin',
-    'مكلارين': 'mclaren',
-    'mclaren': 'mclaren',
-    'لوتس': 'lotus',
-    'lotus': 'lotus',
-    'دايملر': 'daimler',
-    'daimler': 'daimler',
-    
-    // Other brands
-    'تيسلا': 'tesla',
-    'tesla': 'tesla',
-    'ريفيان': 'rivian',
-    'rivian': 'rivian',
-    'لوسيد': 'lucid',
-    'lucid': 'lucid'
-  };
-
-  // Comprehensive model mapping for Arabic to English (extracted from database)
-  const modelMapping: { [key: string]: string } = {
-    // Toyota Models (from air filter database)
-    'كامري': 'camry',
-    'camry': 'camry',
-    'كورولا': 'corolla',
-    'corolla': 'corolla',
-    'بريوس': 'prius',
-    'prius': 'prius',
-    'راف فور': 'rav 4',
-    'rav4': 'rav 4',
-    'rav 4': 'rav 4',
-    'يارس': 'yaris',
-    'yaris': 'yaris',
-    'هايلكس': 'hilux',
-    'hilux': 'hilux',
-    'لاندكروزر': 'land cruiser',
-    'landcruiser': 'land cruiser',
-    'land cruiser': 'land cruiser',
-    'برادو': 'prado',
-    'prado': 'prado',
-    'فورتشنر': 'fortuner',
-    'fortuner': 'fortuner',
-    'افالون': 'avalon',
-    'avalon': 'avalon',
-    'هايس': 'hiace',
-    'hiace': 'hiace',
-    'سي اتش ار': 'c-hr',
-    'c-hr': 'c-hr',
-    'chr': 'c-hr',
-    'راش': 'rush',
-    'rush': 'rush',
-    'سيكويا': 'sequoia',
-    'sequoia': 'sequoia',
-    'تندرا': 'tundra',
-    'tundra': 'tundra',
-    'فور رانر': '4 runner',
-    '4runner': '4 runner',
-    '4 runner': '4 runner',
-    'اف جي كروزر': 'fj cruiser',
-    'fj cruiser': 'fj cruiser',
-    'كراون': 'crown',
-    'crown': 'crown',
-    'دينا': 'dyna',
-    'dyna': 'dyna',
-    'كوستر': 'coaster',
-    'coaster': 'coaster',
-    'جرانفيا': 'granvia',
-    'granvia': 'granvia',
-    'الفارد': 'alphard',
-    'alphard': 'alphard',
-    'اوريس': 'auris',
-    'auris': 'auris',
-    'افينسيس': 'avensis',
-    'avensis': 'avensis',
-    'هايلاندر': 'highlander',
-    'highlander': 'highlander',
-    'فينزا': 'venza',
-    'venza': 'venza',
-    'تاكوما': 'tacoma',
-    'tacoma': 'tacoma',
-    'هاريير': 'harrier',
-    'harrier': 'harrier',
-    'ثمانية وستة': '86',
-    '86': '86',
-
-    // Lexus Models (from air filter database)
-    'ال اكس': 'lx',
-    'lx': 'lx',
-    'جي اكس': 'gx',
-    'gx': 'gx',
-    'ار اكس': 'rx',
-    'rx': 'rx',
-    'اي اس': 'es',
-    'es': 'es',
-    'جي اس': 'gs',
-    'gs': 'gs',
-    'ال اس': 'ls',
-    'ls': 'ls',
-    'ان اكس': 'nx',
-    'nx': 'nx',
-    'يو اكس': 'ux',
-    'ux': 'ux',
-    'ار سي': 'rc',
-    'rc': 'rc',
-    'ال سي': 'lc',
-    'lc': 'lc',
-
-    // Hyundai Models (from air filter database)
-    'النترا': 'elantra',
-    'elantra': 'elantra',
-    'افانتي': 'avante',
-    'avante': 'avante',
-    'سوناتا': 'sonata',
-    'sonata': 'sonata',
-    'توكسون': 'tucson',
-    'tucson': 'tucson',
-    'سانتافي': 'santa fe',
-    'santa fe': 'santa fe',
-    'سانتا في': 'santa fe',
-    'كريتا': 'creta',
-    'creta': 'creta',
-    'اكسنت': 'accent',
-    'accent': 'accent',
-    'ازيرا': 'azera',
-    'azera': 'azera',
-    'جراندير': 'grandeur',
-    'grandeur': 'grandeur',
-    'فيلوستر': 'veloster',
-    'veloster': 'veloster',
-    'كونا': 'kona',
-    'kona': 'kona',
-    'باليسيد': 'palisade',
-    'palisade': 'palisade',
-    'فينيو': 'venue',
-    'venue': 'venue',
-    'ستاريا': 'staria',
-    'staria': 'staria',
-    'اي تين': 'i10',
-    'i10': 'i10',
-    'اي تيرتي': 'i30',
-    'i30': 'i30',
-    'اي فورتي': 'i40',
-    'i40': 'i40',
-    'اكس اي فايف وثلاثين': 'ix35',
-    'ix35': 'ix35',
-    'سولاريس': 'solaris',
-    'solaris': 'solaris',
-
-    // Kia Models (from air filter database)
-    'سبورتاج': 'sportage',
-    'sportage': 'sportage',
-    'سورينتو': 'sorento',
-    'sorento': 'sorento',
-    'سيراتو': 'cerato',
-    'cerato': 'cerato',
-    'اوبتيما': 'optima',
-    'optima': 'optima',
-    'كادينزا': 'cadenza',
-    'cadenza': 'cadenza',
-    'كارنيفال': 'carnival',
-    'carnival': 'carnival',
-    'سيدونا': 'sedona',
-    'sedona': 'sedona',
-    'ريو': 'rio',
-    'rio': 'rio',
-    'بيكانتو': 'picanto',
-    'picanto': 'picanto',
-    'سول': 'soul',
-    'soul': 'soul',
-    'سيد': 'ceed',
-    'ceed': 'ceed',
-    'سيلتوس': 'seltos',
-    'seltos': 'seltos',
-    'سونيت': 'sonet',
-    'sonet': 'sonet',
-    'ستينجر': 'stinger',
-    'stinger': 'stinger',
-    'كي فايف': 'k5',
-    'k5': 'k5',
-    'كي سيفن': 'k7',
-    'k7': 'k7',
-    'كي ناين': 'k9',
-    'k9': 'k9',
-    'كي نايت هندرد': 'k900',
-    'k900': 'k900',
-    'موهافي': 'mohave',
-    'mohave': 'mohave',
-    'بورجو': 'borrego',
-    'borrego': 'borrego',
-    'كي ثري': 'k3',
-    'k3': 'k3',
-
-    // Nissan Models (from air filter database)
-    'صني': 'sunny',
-    'sunny': 'sunny',
-    'التيما': 'altima',
-    'altima': 'altima',
-    'باترول': 'patrol',
-    'patrol': 'patrol',
-    'نافارا': 'navara',
-    'navara': 'navara',
-    'تيدا': 'tiida',
-    'tiida': 'tiida',
-    'مايكرا': 'micra',
-    'micra': 'micra',
-    'نوت': 'note',
-    'note': 'note',
-    'جوك': 'juke',
-    'juke': 'juke',
-    'قشقاي': 'qashqai',
-    'qashqai': 'qashqai',
-    'اكس تريل': 'x-trail',
-    'x-trail': 'x-trail',
-    'xtrail': 'x-trail',
-    'مورانو': 'murano',
-    'murano': 'murano',
-    'ماكسيما': 'maxima',
-    'maxima': 'maxima',
-    'سنترا': 'sentra',
-    'sentra': 'sentra',
-    'فيرسا': 'versa',
-    'versa': 'versa',
-    'كيكس': 'kicks',
-    'kicks': 'kicks',
-    'ارمادا': 'armada',
-    'armada': 'armada',
-    'تيتان': 'titan',
-    'titan': 'titan',
-    'فرونتير': 'frontier',
-    'frontier': 'frontier',
-    'باثفايندر': 'pathfinder',
-    'pathfinder': 'pathfinder',
-    'تيرا': 'terra',
-    'terra': 'terra',
-    'ان في مئتان': 'nv200',
-    'nv200': 'nv200',
-    'روج': 'rogue',
-    'rogue': 'rogue',
-    'ثلاثمئة وخمسين زي': '350z',
-    '350z': '350z',
-
-    // Infiniti Models (from air filter database)
-    'كيو خمسين': 'q50',
-    'q50': 'q50',
-    'كيو ستين': 'q60',
-    'q60': 'q60',
-    'كيو سيفنتي': 'q70',
-    'q70': 'q70',
-    'كيو اكس خمسين': 'qx50',
-    'qx50': 'qx50',
-    'كيو اكس ستين': 'qx60',
-    'qx60': 'qx60',
-    'كيو اكس سيفنتي': 'qx70',
-    'qx70': 'qx70',
-    'كيو اكس ايتي': 'qx80',
-    'qx80': 'qx80',
-    'كيو اكس ستة وخمسين': 'qx56',
-    'qx56': 'qx56',
-    'اف اكس': 'fx',
-    'fx': 'fx',
-    'اف اكس خمسة وثلاثين': 'fx35',
-    'fx35': 'fx35',
-
-    // Ford Models (from air filter database)
-    'فوكس': 'focus',
-    'focus': 'focus',
-    'فيستا': 'fiesta',
-    'fiesta': 'fiesta',
-    'فيوجن': 'fusion',
-    'fusion': 'fusion',
-    'اسكيب': 'escape',
-    'escape': 'escape',
-    'ايدج': 'edge',
-    'edge': 'edge',
-    'اكسبلورر': 'explorer',
-    'explorer': 'explorer',
-    'اكسبيديشن': 'expedition',
-    'expedition': 'expedition',
-    'رانجر': 'ranger',
-    'ranger': 'ranger',
-    'موستانج': 'mustang',
-    'mustang': 'mustang',
-    'تورس': 'taurus',
-    'taurus': 'taurus',
-    'ايكو سبورت': 'ecosport',
-    'ecosport': 'ecosport',
-    'مونديو': 'mondeo',
-    'mondeo': 'mondeo',
-    'ترانزيت': 'transit',
-    'transit': 'transit',
-    'اف ون فيفتي': 'f-150',
-    'f-150': 'f-150',
-    'f150': 'f-150',
-    'اف تو فيفتي': 'f-250',
-    'f-250': 'f-250',
-    'f250': 'f-250',
-    'اف ثري فيفتي': 'f-350',
-    'f-350': 'f-350',
-    'f350': 'f-350',
-    'اف اربعة وخمسين': 'f-450',
-    'f-450': 'f-450',
-    'f450': 'f-450',
-    'فليكس': 'flex',
-    'flex': 'flex',
-    'برونكو': 'bronco',
-    'bronco': 'bronco',
-    'مافريك': 'maverick',
-    'maverick': 'maverick',
-    'بي تي خمسين': 'bt-50',
-    'bt-50': 'bt-50',
-
-    // Lincoln Models (from air filter database)
-    'ام كي اس': 'mks',
-    'mks': 'mks',
-    'ام كي تي': 'mkt',
-    'mkt': 'mkt',
-    'ام كي اكس': 'mkx',
-    'mkx': 'mkx',
-    'نافيجيتور': 'navigator',
-    'navigator': 'navigator',
-
-    // Chevrolet Models (from air filter database)
-    'كروز': 'cruze',
-    'cruze': 'cruze',
-    'افيو': 'aveo',
-    'aveo': 'aveo',
-    'ماليبو': 'malibu',
-    'malibu': 'malibu',
-    'كابتيفا': 'captiva',
-    'captiva': 'captiva',
-    'اكوينوكس': 'equinox',
-    'equinox': 'equinox',
-    'تراكس': 'trax',
-    'trax': 'trax',
-    'تراكر': 'tracker',
-    'tracker': 'tracker',
-    'سبارك': 'spark',
-    'spark': 'spark',
-    'سيلفرادو': 'silverado',
-    'silverado': 'silverado',
-    'تاهو': 'tahoe',
-    'tahoe': 'tahoe',
-    'سوبربان': 'suburban',
-    'suburban': 'suburban',
-    'كامارو': 'camaro',
-    'camaro': 'camaro',
-    'كورفيت': 'corvette',
-    'corvette': 'corvette',
-    'امبالا': 'impala',
-    'impala': 'impala',
-    'ترافيرس': 'traverse',
-    'traverse': 'traverse',
-    'كولورادو': 'colorado',
-    'colorado': 'colorado',
-    'اوبترا': 'optra',
-    'optra': 'optra',
-    'اورلاندو': 'orlando',
-    'orlando': 'orlando',
-    'سونيك': 'sonic',
-    'sonic': 'sonic',
-    'افالانش': 'avalanche',
-    'avalanche': 'avalanche',
-    'كوبالت': 'cobalt',
-    'cobalt': 'cobalt',
-    'سبين': 'spin',
-    'spin': 'spin',
-
-    // Cadillac Models (from air filter database)
-    'اي تي اس': 'ats',
-    'ats': 'ats',
-    'اسكاليد': 'escalade',
-    'escalade': 'escalade',
-
-    // GMC Models (from air filter database)
-    'يوكون دينالي': 'yukon denali',
-    'yukon denali': 'yukon denali',
-    'يوكون اكس ال الفان وخمسمئة': 'yukon xl 2500',
-    'yukon xl 2500': 'yukon xl 2500',
-
-    // BMW Models (from air filter database)
-    'سيريز ون': '1 series',
-    '1 series': '1 series',
-    'سيريز تو': '2 series',
-    '2 series': '2 series',
-    'سيريز ثري': '3 series',
-    '3 series': '3 series',
-    'سيريز فور': '4 series',
-    '4 series': '4 series',
-    'سيريز فايف': '5 series',
-    '5 series': '5 series',
-    'سيريز سيكس': '6 series',
-    '6 series': '6 series',
-    'سيريز سيفن': '7 series',
-    '7 series': '7 series',
-    'سيريز ايت': '8 series',
-    '8 series': '8 series',
-    'اكس ون': 'x1',
-    'x1': 'x1',
-    'اكس تو': 'x2',
-    'x2': 'x2',
-    'اكس ثري': 'x3',
-    'x3': 'x3',
-    'اكس فور': 'x4',
-    'x4': 'x4',
-    'اكس فايف': 'x5',
-    'x5': 'x5',
-    'اكس سيكس': 'x6',
-    'x6': 'x6',
-    'اكس سيفن': 'x7',
-    'x7': 'x7',
-    'زي ثري': 'z3',
-    'z3': 'z3',
-    'زي فور': 'z4',
-    'z4': 'z4',
-    'ام ثري': 'm3',
-    'm3': 'm3',
-    'ام فايف': 'm5',
-    'm5': 'm5',
-    'ام سيكس': 'm6',
-    'm6': 'm6',
-
-    // Mini Models (from air filter database)
-    'كوبر': 'cooper',
-    'cooper': 'cooper',
-    'كوبر اس': 'cooper s',
-    'cooper s': 'cooper s',
-    'كوبر دي': 'cooper d',
-    'cooper d': 'cooper d',
-    'كوبر اس دي': 'cooper sd',
-    'cooper sd': 'cooper sd',
-    'كوبر اول فور': 'cooper all4',
-    'cooper all4': 'cooper all4',
-    'كوبر اس اول فور': 'cooper s all4',
-    'cooper s all4': 'cooper s all4',
-    'جون كوبر وركس': 'john cooper works',
-    'john cooper works': 'john cooper works',
-    'جون كوبر وركس اول فور': 'john cooper works all4',
-    'john cooper works all4': 'john cooper works all4',
-    'جون كوبر وركس جي بي': 'john cooper works gp',
-    'john cooper works gp': 'john cooper works gp',
-    'ون': 'one',
-    'one': 'one',
-    'ون دي': 'one d',
-    'one d': 'one d',
-    'ون فيرست': 'one first',
-    'one first': 'one first',
-    'ون ايكو': 'one eco',
-    'one eco': 'one eco',
-    'اف فورة وخمسين كلوبمان': 'f54 clubman',
-    'f54 clubman': 'f54 clubman',
-
-    // Mercedes-Benz Models (from air filter database)
-    'اي كلاس': 'e-class',
-    'e-class': 'e-class',
-    'سي كلاس': 'c-class',
-    'c-class': 'c-class',
-    'اس كلاس': 's-class',
-    's-class': 's-class',
-    'جي كلاس': 'g-class',
-    'g-class': 'g-class',
-    'ام كلاس': 'm-class',
-    'm-class': 'm-class',
-    'ار كلاس': 'r-class',
-    'r-class': 'r-class',
-    'جي ال كي': 'glk',
-    'glk': 'glk',
-    'جي ال اي': 'gla',
-    'gla': 'gla',
-    'جي ال سي': 'glc',
-    'glc': 'glc',
-    'جي ال اي': 'gle',
-    'gle': 'gle',
-    'جي ال اس': 'gls',
-    'gls': 'gls',
-    'جي ال': 'gl',
-    'gl': 'gl',
-    'سي ال اي': 'cla',
-    'cla': 'cla',
-    'سي ال سي': 'clc',
-    'clc': 'clc',
-    'سي ال اس': 'cls',
-    'cls': 'cls',
-    'سي ال كي': 'clk',
-    'clk': 'clk',
-    'سي ال': 'cl',
-    'cl': 'cl',
-    'اس ال': 'sl',
-    'sl': 'sl',
-    'اس ال كي': 'slk',
-    'slk': 'slk',
-    'اس ال سي': 'slc',
-    'slc': 'slc',
-    'ايه كلاس': 'a-class',
-    'a-class': 'a-class',
-    'بي كلاس': 'b-class',
-    'b-class': 'b-class',
-    'فيانو': 'viano',
-    'viano': 'viano',
-
-    // Volkswagen Models (from air filter database)
-    'جولف': 'golf',
-    'golf': 'golf',
-    'باسات': 'passat',
-    'passat': 'passat',
-    'جيتا': 'jetta',
-    'jetta': 'jetta',
-    'بولو': 'polo',
-    'polo': 'polo',
-    'تيجوان': 'tiguan',
-    'tiguan': 'tiguan',
-    'توران': 'touran',
-    'touran': 'touran',
-    'توارق': 'touareg',
-    'touareg': 'touareg',
-    'بيتل': 'beetle',
-    'beetle': 'beetle',
-    'نيو بيتل': 'new beetle',
-    'new beetle': 'new beetle',
-    'كادي': 'caddy',
-    'caddy': 'caddy',
-    'شيروكو': 'scirocco',
-    'scirocco': 'scirocco',
-    'اوب': 'up',
-    'up': 'up',
-    'تي روك': 't-roc',
-    't-roc': 't-roc',
-    'اطلس': 'atlas',
-    'atlas': 'atlas',
-    'تيرامونت': 'teramont',
-    'teramont': 'teramont',
-    'ايوس': 'eos',
-    'eos': 'eos',
-    'فينتو': 'vento',
-    'vento': 'vento',
-    'اماروك': 'amarok',
-    'amarok': 'amarok',
-    'ارتيون': 'arteon',
-    'arteon': 'arteon',
-
-    // Audi Models (from air filter database)
-    'اي ون': 'a1',
-    'a1': 'a1',
-    'اي تو': 'a2',
-    'a2': 'a2',
-    'اي ثري': 'a3',
-    'a3': 'a3',
-    'اي فور': 'a4',
-    'a4': 'a4',
-    'اي فايف': 'a5',
-    'a5': 'a5',
-    'اي سيكس': 'a6',
-    'a6': 'a6',
-    'اي سيفن': 'a7',
-    'a7': 'a7',
-    'اي ايت': 'a8',
-    'a8': 'a8',
-    'كيو تو': 'q2',
-    'q2': 'q2',
-    'كيو ثري': 'q3',
-    'q3': 'q3',
-    'كيو فايف': 'q5',
-    'q5': 'q5',
-    'كيو سيفن': 'q7',
-    'q7': 'q7',
-    'كيو ايت': 'q8',
-    'q8': 'q8',
-    'تي تي': 'tt',
-    'tt': 'tt',
-    'ار ايت': 'r8',
-    'r8': 'r8',
-
-    // Skoda Models (from air filter database)
-    'اوكتافيا': 'octavia',
-    'octavia': 'octavia',
-    'سوبرب': 'superb',
-    'superb': 'superb',
-    'فابيا': 'fabia',
-    'fabia': 'fabia',
-    'رابيد': 'rapid',
-    'rapid': 'rapid',
-    'كودياك': 'kodiaq',
-    'kodiaq': 'kodiaq',
-    'كاروك': 'karoq',
-    'karoq': 'karoq',
-    'سكالا': 'scala',
-    'scala': 'scala',
-    'كامك': 'kamiq',
-    'kamiq': 'kamiq',
-
-    // Land Rover Models (from air filter database)
-    'ديسكفري': 'discovery',
-    'discovery': 'discovery',
-    'رينج روفر': 'range rover',
-    'range rover': 'range rover',
-    'ايفوك': 'evoque',
-    'evoque': 'evoque',
-    'فيلار': 'velar',
-    'velar': 'velar',
-    'سبورت': 'sport',
-    'sport': 'sport',
-    'ديفندر': 'defender',
-    'defender': 'defender',
-    'فريلاندر': 'freelander',
-    'freelander': 'freelander',
-    'فوج': 'vogue',
-    'vogue': 'vogue',
-
-    // Jaguar Models (from air filter database)
-    'اكس اي': 'xe',
-    'xe': 'xe',
-    'اكس اف': 'xf',
-    'xf': 'xf',
-    'اكس جي': 'xj',
-    'xj': 'xj',
-    'اكس كي': 'xk',
-    'xk': 'xk',
-    'اف بيس': 'f-pace',
-    'f-pace': 'f-pace',
-    'اي بيس': 'e-pace',
-    'e-pace': 'e-pace',
-    'اف تايب': 'f-type',
-    'f-type': 'f-type',
-
-    // Jeep Models (from air filter database)
-    'شيروكي': 'cherokee',
-    'cherokee': 'cherokee',
-    'جراند شيروكي': 'grand cherokee',
-    'grand cherokee': 'grand cherokee',
-    'رانجلر': 'wrangler',
-    'wrangler': 'wrangler',
-    'كومباس': 'compass',
-    'compass': 'compass',
-    'رينيجيد': 'renegade',
-    'renegade': 'renegade',
-    'باتريوت': 'patriot',
-    'patriot': 'patriot',
-    'ليبرتي': 'liberty',
-    'liberty': 'liberty',
-
-    // Mitsubishi Models (from air filter database)
-    'لانسر': 'lancer',
-    'lancer': 'lancer',
-    'اوتلاندر': 'outlander',
-    'outlander': 'outlander',
-    'باجيرو': 'pajero',
-    'pajero': 'pajero',
-    'مونتيرو': 'montero',
-    'montero': 'montero',
-    'ال تو هندرد': 'l200',
-    'l200': 'l200',
-    'تريتون': 'triton',
-    'triton': 'triton',
-    'اي اس اكس': 'asx',
-    'asx': 'asx',
-    'اكليبس كروس': 'eclipse cross',
-    'eclipse cross': 'eclipse cross',
-    'مايراج': 'mirage',
-    'mirage': 'mirage',
-    'اتراج': 'attrage',
-    'attrage': 'attrage',
-
-    // Ram Models (from air filter database)
-    'برو ماستر سيتي': 'promaster city',
-    'promaster city': 'promaster city',
-
-    // Chrysler/Dodge Models (from air filter database)
-    'ثلاثمئة سي': '300c',
-    '300c': '300c',
-    'تشارجر': 'charger',
-    'charger': 'charger',
-    'ماجنوم': 'magnum',
-    'magnum': 'magnum',
-
-    // Honda Models (from air filter database)
-    'سيفيك': 'civic',
-    'civic': 'civic',
-    'اكورد': 'accord',
-    'accord': 'accord',
-    'سي ار في': 'cr-v',
-    'cr-v': 'cr-v',
-    'اتش ار في': 'hr-v',
-    'hr-v': 'hr-v',
-    'بايلوت': 'pilot',
-    'pilot': 'pilot',
-    'ريدجلاين': 'ridgeline',
-    'ridgeline': 'ridgeline',
-    'فيت': 'fit',
-    'fit': 'fit',
-    'انسايت': 'insight',
-    'insight': 'insight',
-    'اوديسي': 'odyssey',
-    'odyssey': 'odyssey',
-    'باسبورت': 'passport',
-    'passport': 'passport',
-    'كروس رود': 'crossroad',
-    'crossroad': 'crossroad',
-    'اف ار في': 'fr-v',
-    'fr-v': 'fr-v',
-    'ستريم': 'stream',
-    'stream': 'stream',
-
-    // Acura Models (from air filter database)
-    'اي ال اكس': 'ilx',
-    'ilx': 'ilx',
-
-    // Mazda Models (from air filter database)
-    'مازدا تو': 'mazda 2',
-    'mazda 2': 'mazda 2',
-    'مازدا ثري': 'mazda 3',
-    'mazda 3': 'mazda 3',
-    'مازدا فايف': 'mazda 5',
-    'mazda 5': 'mazda 5',
-    'مازدا سيكس': 'mazda 6',
-    'mazda 6': 'mazda 6',
-    'سي اكس ثري': 'cx-3',
-    'cx-3': 'cx-3',
-    'سي اكس فور': 'cx-4',
-    'cx-4': 'cx-4',
-    'سي اكس فايف': 'cx-5',
-    'cx-5': 'cx-5',
-    'سي اكس سيفن': 'cx-7',
-    'cx-7': 'cx-7',
-    'سي اكس ايت': 'cx-8',
-    'cx-8': 'cx-8',
-    'سي اكس ناين': 'cx-9',
-    'cx-9': 'cx-9',
-    'بي تي خمسين': 'bt-50',
-    'bt-50': 'bt-50',
-    'ام اكس فايف': 'mx-5',
-    'mx-5': 'mx-5',
-
-    // Volvo Models (from air filter database)
-    'اس ستين': 's60',
-    's60': 's60',
-    'اس ايتي': 's80',
-    's80': 's80',
-    'في ستين': 'v60',
-    'v60': 'v60',
-    'في سيفنتي': 'v70',
-    'v70': 'v70',
-    'اكس سي ستين': 'xc60',
-    'xc60': 'xc60',
-    'اكس سي سيفنتي': 'xc70',
-    'xc70': 'xc70',
-    'اكس سي نايتي': 'xc90',
-    'xc90': 'xc90',
-
-    // Chinese Brands Models (from air filter database)
-    'هافال اتش تو': 'h2',
-    'h2': 'h2',
-    'هافال اتش سيكس': 'h6',
-    'h6': 'h6',
-    'هافال اتش ناين': 'h9',
-    'h9': 'h9',
-    'جريت وول بيك اب بوير': 'pickup poer',
-    'pickup poer': 'pickup poer',
-    'جريت وول وينجل فايف': 'wingle 5',
-    'wingle 5': 'wingle 5',
-
-    // Opel Models (from air filter database)
-    'استرا كي': 'astra k',
-    'astra k': 'astra k',
-
-    // Daewoo Models (from air filter database)
-    'افيو': 'aveo',
-    'aveo': 'aveo',
-
-    // Holden Models (from air filter database)
-    'بارينا': 'barina',
-    'barina': 'barina',
-
-    // Ravon Models (from air filter database)
-    'ار فور': 'r4',
-    'r4': 'r4',
-
-    // Common variations and engine specifications
-    'e250': 'e250',
-    'e 250': 'e250',
-    'e-250': 'e250',
-    'c250': 'c250',
-    'c 250': 'c250',
-    'c-250': 'c250',
-    's350': 's350',
-    's 350': 's350',
-    's-350': 's350',
-    'glc300': 'glc300',
-    'glc 300': 'glc300',
-    'glc-300': 'glc300',
-    'gle350': 'gle350',
-    'gle 350': 'gle350',
-    'gle-350': 'gle350',
-    'x5': 'x5',
-    'x 5': 'x5',
-    'x-5': 'x5',
-    'q7': 'q7',
-    'q 7': 'q7',
-    'q-7': 'q7',
-    'a4': 'a4',
-    'a 4': 'a4',
-    'a-4': 'a4',
-    '320i': '320i',
-    '320 i': '320i',
-    '328i': '328i',
-    '328 i': '328i',
-    '335i': '335i',
-    '335 i': '335i',
-    '520i': '520i',
-    '520 i': '520i',
-    '528i': '528i',
-    '528 i': '528i',
-    '535i': '535i',
-    '535 i': '535i',
-    '740i': '740i',
-    '740 i': '740i',
-    '750i': '750i',
-    '750 i': '750i',
-    
-    // Engine size variations
-    '1.5l': '1.5l',
-    '1.6l': '1.6l',
-    '1.8l': '1.8l',
-    '2.0l': '2.0l',
-    '2.2l': '2.2l',
-    '2.4l': '2.4l',
-    '2.5l': '2.5l',
-    '2.7l': '2.7l',
-    '2.8l': '2.8l',
-    '3.0l': '3.0l',
-    '3.3l': '3.3l',
-    '3.5l': '3.5l',
-    '3.6l': '3.6l',
-    '4.0l': '4.0l',
-    '4.6l': '4.6l',
-    '4.7l': '4.7l',
-    '5.7l': '5.7l',
-    'v6': 'v6',
-    'v8': 'v8'
-  };
-
-  const mappedMake = makeMapping[normalizedMake] || normalizedMake;
-  const mappedModel = modelMapping[normalizedModel] || normalizedModel;
-
-  // Search through all air filters
-  for (const [filterNumber, filterData] of Object.entries(denckermannAirFilters)) {
-    // Check if any brand matches
-    const brandMatch = filterData.brands.some(brand => 
-      brand.toLowerCase() === mappedMake
-    );
-    
-    if (brandMatch) {
-      // Check if any compatible vehicle matches the model
-      const matchingVehicle = filterData.compatibleVehicles.find(vehicle => {
-        const vehicleName = vehicle.toLowerCase();
-        // Try both original and mapped model names
-        return vehicleName.includes(mappedModel) || 
-               vehicleName.includes(normalizedModel) ||
-               mappedModel.includes(vehicleName.split(' ').pop() || '') ||
-               normalizedModel.includes(vehicleName.split(' ').pop() || '');
-      });
+  for (const [filterNumber, filter] of Object.entries(denckermannAirFilters)) {
+    for (const vehicle of filter.compatibleVehicles) {
+      const vehicleLower = vehicle.toLowerCase();
       
-      if (matchingVehicle) {
+      // Check if the vehicle string contains both make and model
+      if (vehicleLower.includes(normalizedMake) && vehicleLower.includes(normalizedModel)) {
+        return filterNumber;
+      }
+      
+      // Also check if model matches the end of vehicle name (for cases like "Toyota Camry")
+      const vehicleName = vehicleLower.replace(normalizedMake, '').trim();
+      if (vehicleName.startsWith(normalizedModel) || 
+          normalizedModel.includes(vehicleName.split(' ')[0] || '') ||
+          normalizedModel.includes(vehicleName.split(' ').pop() || '')) {
         return filterNumber;
       }
     }
   }
-
+  
   return null;
 }
 
-// Helper function to get air filter details
+/**
+ * Get air filter details by filter number
+ */
 export function getAirFilterDetails(filterNumber: string): DenckermannAirFilter | null {
   return denckermannAirFilters[filterNumber] || null;
 }
 
-// Helper function to search air filters by partial vehicle name
+/**
+ * Search air filters by vehicle name
+ */
 export function searchAirFiltersByVehicleName(searchTerm: string): Array<{filterNumber: string, vehicle: string, brands: string[]}> {
   const results: Array<{filterNumber: string, vehicle: string, brands: string[]}> = [];
-  const normalizedSearch = searchTerm?.toLowerCase()?.trim() || '';
-
-  for (const [filterNumber, filterData] of Object.entries(denckermannAirFilters)) {
-    const matchingVehicles = (filterData?.compatibleVehicles || []).filter(vehicle => 
-      vehicle?.toLowerCase()?.includes(normalizedSearch)
-    );
-    
-    matchingVehicles.forEach(vehicle => {
-      results.push({
-        filterNumber,
-        vehicle,
-        brands: filterData.brands
-      });
-    });
+  const normalizedSearch = searchTerm.toLowerCase().trim();
+  
+  for (const [filterNumber, filter] of Object.entries(denckermannAirFilters)) {
+    for (const vehicle of filter.compatibleVehicles) {
+      if (vehicle.toLowerCase().includes(normalizedSearch)) {
+        results.push({
+          filterNumber,
+          vehicle,
+          brands: filter.brands
+        });
+      }
+    }
   }
-
+  
   return results;
 }
 

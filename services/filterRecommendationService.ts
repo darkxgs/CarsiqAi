@@ -5,6 +5,7 @@
 
 import { findFilterByVehicle, getFilterDetails, searchFiltersByVehicleName, denckermannFilters } from '../data/denckermann-filters';
 import { findAirFilterByVehicle, getAirFilterDetails, searchAirFiltersByVehicleName, denckermannAirFilters } from '../data/denckermann-air-filters';
+import { findACFilterByVehicle, getACFilterDetails, denckermannACFilters } from '../data/denckermann-ac-filters.ts';
 import logger from '../utils/logger';
 
 export interface FilterRecommendation {
@@ -19,15 +20,19 @@ export interface FilterRecommendation {
 export interface EnhancedOilRecommendation {
   oilFilter: FilterRecommendation;
   airFilter?: FilterRecommendation;
+  acFilter?: FilterRecommendation;
   notes?: string;
 }
 
 /**
- * Get verified filter recommendation (oil or air) using Denckermann database
+ * Get verified filter recommendation (oil, air, or ac) using Denckermann database
  */
-export function getVerifiedFilter(make: string, model: string, year?: number, filterType: 'oil' | 'air' = 'oil'): FilterRecommendation | null {
+export function getVerifiedFilter(make: string, model: string, year?: number, filterType: 'oil' | 'air' | 'ac' = 'oil'): FilterRecommendation | null {
   if (filterType === 'air') {
     return getVerifiedAirFilter(make, model, year);
+  }
+  if (filterType === 'ac') {
+    return getVerifiedACFilter(make, model, year);
   }
   return getVerifiedOilFilter(make, model, year);
 }
@@ -164,6 +169,44 @@ export function getVerifiedAirFilter(make: string, model: string, year?: number)
 
   } catch (error) {
     logger.error('Error getting verified air filter', { error, make, model, year });
+    return null;
+  }
+}
+
+/**
+ * Get verified AC filter recommendation using Denckermann database
+ */
+export function getVerifiedACFilter(make: string, model: string, year?: number): FilterRecommendation | null {
+  try {
+    // First, try to find exact match in Denckermann AC filter database
+    const denckermannFilter = findACFilterByVehicle(make, model);
+    
+    if (denckermannFilter) {
+      const filterDetails = getACFilterDetails(denckermannFilter);
+      if (filterDetails) {
+        logger.info(`Found verified Denckermann AC filter for ${make} ${model}`, {
+          filterNumber: denckermannFilter,
+          make,
+          model,
+          year
+        });
+
+        return {
+          filterNumber: denckermannFilter,
+          brand: 'Denckermann',
+          isVerified: true,
+          source: 'denckermann',
+          compatibleVehicles: filterDetails.compatibleVehicles,
+          confidence: 'high'
+        };
+      }
+    }
+
+    logger.warn(`No Denckermann AC filter found for ${make} ${model}`, { make, model, year });
+    return null;
+
+  } catch (error) {
+    logger.error('Error getting verified AC filter', { error, make, model, year });
     return null;
   }
 }
@@ -367,9 +410,65 @@ export function isAirFilterQuery(query: string): boolean {
   return airFilterKeywords.some(keyword => normalizedQuery.includes(keyword));
 }
 
+/**
+ * Get enhanced oil recommendation with all filters (oil, air, AC)
+ */
+export function getEnhancedOilRecommendation(make: string, model: string, year?: number): EnhancedOilRecommendation | null {
+  try {
+    const oilFilter = getVerifiedOilFilter(make, model, year);
+    
+    if (!oilFilter) {
+      logger.warn(`No oil filter found for ${make} ${model}`, { make, model, year });
+      return null;
+    }
+
+    const airFilter = getVerifiedAirFilter(make, model, year);
+    const acFilter = getVerifiedACFilter(make, model, year);
+
+    logger.info(`Enhanced recommendation for ${make} ${model}`, {
+      oilFilter: oilFilter.filterNumber,
+      airFilter: airFilter?.filterNumber || 'not found',
+      acFilter: acFilter?.filterNumber || 'not found',
+      make,
+      model,
+      year
+    });
+
+    return {
+      oilFilter,
+      airFilter: airFilter || undefined,
+      acFilter: acFilter || undefined,
+      notes: `توصيات الفلاتر لسيارة ${make} ${model}${year ? ` ${year}` : ''} من قاعدة بيانات Denckermann المعتمدة`
+    };
+
+  } catch (error) {
+    logger.error('Error getting enhanced oil recommendation', { error, make, model, year });
+    return null;
+  }
+}
+
+/**
+ * Check if a query is asking about AC filter
+ */
+export function isACFilterQuery(query: string): boolean {
+  const acFilterKeywords = [
+    'فلتر مبرد', 'فلتر المبرد', 'فيلتر مبرد', 'فيلتر المبرد',
+    'فلتر تكييف', 'فلتر التكييف', 'فيلتر تكييف', 'فيلتر التكييف',
+    'ac filter', 'air conditioning filter', 'cabin filter'
+  ];
+  
+  const normalizedQuery = query.toLowerCase();
+  return acFilterKeywords.some(keyword => normalizedQuery.includes(keyword));
+}
+
 export default {
   getVerifiedOilFilter,
+  getVerifiedAirFilter,
+  getVerifiedACFilter,
+  getEnhancedOilRecommendation,
   searchFiltersWithArabicSupport,
   generateFilterRecommendationMessage,
-  isFilterQuery
+  isFilterQuery,
+  isAirFilterQuery,
+  isACFilterQuery
 };

@@ -60,7 +60,7 @@ export default function RootLayout({
       <head>
         <title>هندسة السيارات - مساعد الزيوت الذكي</title>
         <meta name="description" content="محادثة ذكية للحصول على استشارات السيارات وتوصيات الشراء بشكل فوري" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no" />
         <link rel="icon" href="/logo.png" />
         <link rel="apple-touch-icon" href="/logo.png" />
         <link rel="shortcut icon" href="/logo.png" type="image/png" />

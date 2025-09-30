@@ -15,6 +15,7 @@ import { CorrectionForm } from "./CorrectionForm"
 interface ChatMessagesProps {
   messages: Message[]
   isLoading: boolean
+  keyboardVisible?: boolean
   isFaqExpanded?: boolean
 }
 
@@ -92,18 +93,34 @@ const extractCarYear = (messages: Message[]): string => {
   return yearMatch ? yearMatch[0] : ''
 }
 
-// Simplified scroll management
-const useScrollToBottom = () => {
+// Custom hook for scroll management
+const useScrollToBottom = (keyboardVisible: boolean) => {
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = useCallback((forceScroll = false) => {
     if (!messagesEndRef.current) return
 
-    messagesEndRef.current.scrollIntoView({
-      behavior: forceScroll ? 'auto' : 'smooth',
-      block: 'end'
-    })
-  }, [])
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
+
+    if (forceScroll) {
+      if (isMobile) {
+        window.scrollTo({
+          top: document.body.scrollHeight,
+          behavior: 'auto'
+        })
+      }
+      messagesEndRef.current.scrollIntoView({
+        block: 'end',
+        inline: 'nearest',
+        behavior: 'auto'
+      })
+    } else {
+      messagesEndRef.current.scrollIntoView({
+        behavior: keyboardVisible ? 'auto' : 'smooth',
+        block: 'end'
+      })
+    }
+  }, [keyboardVisible])
 
   return { messagesEndRef, scrollToBottom }
 }
@@ -639,9 +656,10 @@ const WelcomeScreen = ({ isFaqExpanded }: { isFaqExpanded: boolean }) => {
 export function ChatMessages({
   messages,
   isLoading,
+  keyboardVisible = false,
   isFaqExpanded = false
 }: ChatMessagesProps) {
-  const { messagesEndRef, scrollToBottom } = useScrollToBottom()
+  const { messagesEndRef, scrollToBottom } = useScrollToBottom(keyboardVisible)
   const { copiedMessageId, copyToClipboard } = useClipboard()
   const { downloadMessage, shareMessage } = useFileOperations(copyToClipboard)
 
@@ -658,15 +676,20 @@ export function ChatMessages({
     return () => clearTimeout(timer)
   }, [messages, isLoading, scrollToBottom])
 
-  // Simplified scroll effect
   useEffect(() => {
-    const timer = setTimeout(() => scrollToBottom(true), SCROLL_DELAYS.SHORT)
-    return () => clearTimeout(timer)
-  }, [scrollToBottom])
+    if (keyboardVisible) {
+      const timers = [
+        setTimeout(() => scrollToBottom(true), SCROLL_DELAYS.IMMEDIATE),
+        setTimeout(() => scrollToBottom(true), SCROLL_DELAYS.MEDIUM),
+        setTimeout(() => scrollToBottom(true), SCROLL_DELAYS.LONG)
+      ]
+      return () => timers.forEach(clearTimeout)
+    }
+  }, [keyboardVisible, scrollToBottom])
 
   return (
     <div
-      className="flex-1 overflow-y-auto p-4 w-full h-full"
+      className={`flex-1 overflow-y-auto p-4 w-full ${keyboardVisible ? 'pb-16' : ''} h-full`}
       role="log"
       aria-live="polite"
       aria-label="محادثة مساعد زيوت السيارات"

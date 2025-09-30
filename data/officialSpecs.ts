@@ -2467,27 +2467,27 @@ const mercedes_benz: any = {
     }
   },
   e_class: {
-    "2018-2024": {
-      "E200 2.0L": {
-        capacity: "6.0 L",
-        viscosity: "0W-20",
-        oilType: "Full Synthetic",
-        apiSpec: "MB 229.71"
-      },
-      "E300 2.0L": {
-        capacity: "6.0 L",
-        viscosity: "0W-20",
-        oilType: "Full Synthetic",
-        apiSpec: "MB 229.71"
-      },
-      "E450 3.0L": {
-        capacity: "7.0 L",
-        viscosity: "0W-30",
-        oilType: "Full Synthetic",
-        apiSpec: "MB 229.51"
-      }
+  "2018-2024": {
+    "E200 2.0L": {
+      capacity: "6.5 L",
+      viscosity: "0W-30 / 0W-40",
+      oilType: "Full Synthetic",
+      apiSpec: "MB 229.5 / 229.52"
+    },
+    "E300 2.0L": {
+      capacity: "6.9 L",
+      viscosity: "0W-30 / 0W-40",
+      oilType: "Full Synthetic",
+      apiSpec: "MB 229.5 / 229.52"
+    },
+    "E450 3.0L": {
+      capacity: "7.0 L",
+      viscosity: "0W-30 / 0W-40",
+      oilType: "Full Synthetic",
+      apiSpec: "MB 229.5 / 229.52"
     }
-  },
+  }
+},
   s_class: {
     "2018-2024": {
       "S450 3.0L": {

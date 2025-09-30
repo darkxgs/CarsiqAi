@@ -1,5 +1,5 @@
 import { getAccurateOilRecommendation } from '../utils/vinEngineResolver';
-import { getVerifiedOilFilter, FilterRecommendation } from './filterRecommendationService';
+import { getVerifiedOilFilter, getVerifiedAirFilter, getVerifiedACFilter, FilterRecommendation } from './filterRecommendationService';
 
 /**
  * واجهة توصية الزيت المنسقة للعرض
@@ -17,6 +17,9 @@ export interface FormattedOilRecommendation {
   airFilterChangeInterval?: string;  // فترة تغيير فلتر الهواء (بالكيلومتر)
   airFilterPrice?: string;          // سعر فلتر الهواء (اختياري)
   airFilterImageUrl?: string;       // رابط لصورة فلتر الهواء (اختياري)
+  acFilterNumber?: string;           // رقم فلتر المبرد
+  verifiedAirFilter?: FilterRecommendation;  // معلومات فلتر الهواء Denckermann المعتمد
+  verifiedACFilter?: FilterRecommendation;   // معلومات فلتر المبرد Denckermann المعتمد
   changeInterval: string;
   apiSpec: string;
   cylinders: number;
@@ -115,14 +118,21 @@ function formatRecommendation(recommendation: OilRecommendation, make?: string, 
     ? `${recommendation.changeInterval.miles}` 
     : recommendation.changeInterval || "10000";
 
-  // محاولة الحصول على فلتر Denckermann المعتمد
+  // محاولة الحصول على فلاتر Denckermann المعتمدة
   let verifiedFilter: FilterRecommendation | undefined;
+  let verifiedAirFilter: FilterRecommendation | undefined;
+  let verifiedACFilter: FilterRecommendation | undefined;
+  
   if (make && model) {
     verifiedFilter = getVerifiedOilFilter(make, model) || undefined;
+    verifiedAirFilter = getVerifiedAirFilter(make, model) || undefined;
+    verifiedACFilter = getVerifiedACFilter(make, model) || undefined;
   }
 
   // استخدام فلتر Denckermann إذا كان متوفراً، وإلا استخدام الفلتر من المواصفات الأصلية
   const finalFilterNumber = verifiedFilter?.filterNumber || recommendation.filterNumber;
+  const finalAirFilterNumber = verifiedAirFilter?.filterNumber || recommendation.airFilterNumber;
+  const finalACFilterNumber = verifiedACFilter?.filterNumber;
  
   return {
     engineDescription: recommendation.engineSize,
@@ -133,13 +143,16 @@ function formatRecommendation(recommendation: OilRecommendation, make?: string, 
     oilType: recommendation.oilType,
     filterNumber: finalFilterNumber,
     verifiedFilter: verifiedFilter,
-    airFilterNumber: recommendation.airFilterNumber,
+    airFilterNumber: finalAirFilterNumber,
     airFilterChangeInterval: recommendation.airFilterChangeInterval,
     airFilterPrice: recommendation.airFilterPrice,
     airFilterImageUrl: recommendation.airFilterImageUrl,
+    acFilterNumber: finalACFilterNumber,
+    verifiedAirFilter: verifiedAirFilter,
+    verifiedACFilter: verifiedACFilter,
     changeInterval,
     apiSpec: recommendation.apiSpec || "API SN / SN PLUS",
     cylinders: recommendation.cylinders || 0,
     notes: recommendation.notes || ""
   };
-} 
+}

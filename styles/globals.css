@@ -852,3 +852,192 @@ nav a:hover::after {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(239, 68, 68, 0.6);
 }
+/* M
+obile-specific CSS classes */
+.mobile-container-enhanced {
+  height: 100vh;
+  height: 100svh;
+  max-height: 100vh;
+  max-height: 100svh;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-header-enhanced {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 0.75rem 1rem;
+  transition: all 0.3s ease;
+}
+
+.dark .mobile-header-enhanced {
+  background: rgba(17, 24, 39, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mobile-header-enhanced.scrolled {
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.dark .mobile-header-enhanced.scrolled {
+  background: rgba(17, 24, 39, 0.98);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.mobile-touch-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.mobile-touch-target:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.dark .mobile-touch-target:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.mobile-keyboard-active {
+  height: calc(100vh - var(--mobile-keyboard-height, 0px));
+  height: calc(100svh - var(--mobile-keyboard-height, 0px));
+}
+
+.ios-container {
+  height: calc(var(--vh, 1vh) * 100);
+}
+
+.android-container {
+  height: 100vh;
+  height: 100svh;
+}
+
+/* Mobile text sizing */
+.mobile-text-heading {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.mobile-text-small {
+  font-size: 0.75rem;
+  line-height: 1.1;
+}
+
+/* iOS-specific fixes */
+.ios-device {
+  -webkit-overflow-scrolling: touch;
+}
+
+.ios-device input,
+.ios-device textarea {
+  font-size: 16px !important; /* Prevents zoom on focus */
+}
+
+.android-device {
+  overscroll-behavior: none;
+}
+
+/* Safe area support for devices with notches */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+
+/* Mobile viewport height fixes */
+@media (max-width: 768px) {
+  /* Ensure proper mobile viewport handling */
+  .min-h-screen {
+    min-height: 100vh;
+    min-height: 100svh;
+  }
+  
+  /* Optimize mobile performance by reducing heavy animations */
+  .logo-circle-enhanced,
+  .logo-circle-enhanced::before,
+  .logo-circle-enhanced::after,
+  .animate-gradient-text,
+  .animate-float,
+  .animate-pulse-ring,
+  .animate-glow {
+    animation: none !important;
+  }
+  
+  /* Keep essential gradients but remove animations */
+  .animate-gradient-text {
+    background: linear-gradient(45deg, #ef4444, #f97316, #eab308, #ef4444);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  /* Ensure touch targets are large enough */
+  button, .btn-unified {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Optimize text sizing for mobile */
+  .text-3xl { font-size: 1.5rem; }
+  .text-4xl { font-size: 1.75rem; }
+  .text-5xl { font-size: 2rem; }
+  
+  /* Reduce padding and margins on mobile */
+  .py-24 { padding-top: 3rem; padding-bottom: 3rem; }
+  .py-16 { padding-top: 2rem; padding-bottom: 2rem; }
+  .py-20 { padding-top: 2.5rem; padding-bottom: 2.5rem; }
+  
+  /* Chat-specific mobile optimizations */
+  .chat-container {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+  
+  /* Improve mobile input handling */
+  .mobile-input-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: white;
+    border-top: 1px solid #e5e7eb;
+    padding: 0.75rem;
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+  }
+  
+  .dark .mobile-input-container {
+    background: #1f2937;
+    border-top-color: #374151;
+  }
+  
+  /* Ensure proper spacing for mobile keyboard */
+  .mobile-keyboard-spacer {
+    height: env(keyboard-inset-height, 0px);
+  }
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

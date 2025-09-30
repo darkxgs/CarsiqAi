@@ -9,8 +9,7 @@ import { isFilterQuery, isAirFilterQuery, isACFilterQuery, generateFilterRecomme
 // Brave search service for real-time oil specifications
 import { braveSearchService } from '@/services/braveSearchService'
 import officialSpecs from "@/data/officialSpecs"
-// API Key Rotation System
-import { getCurrentApiKey, handleApiError, resetFailedAttempts } from '@/utils/apiKeyRotation'
+// Simple API key from environment
 
 // Configure for Vercel Edge Runtime
 export const runtime = 'edge'
@@ -174,9 +173,9 @@ Denckermann
   },
 }
 
-// Enhanced OpenRouter client setup with API key rotation
+// Enhanced OpenRouter client setup
 const createOpenRouterClient = () => {
-  const apiKey = getCurrentApiKey()
+  const apiKey = process.env.OPENROUTER_API_KEY
 
   // Validate API key
   if (!apiKey) {
@@ -196,7 +195,7 @@ const createOpenRouterClient = () => {
   })
 }
 
-// Enhanced API call with automatic retry and key rotation
+// Enhanced API call with automatic retry
 const makeApiCallWithRetry = async (
   requestBody: any,
   maxRetries: number = 3
@@ -205,7 +204,11 @@ const makeApiCallWithRetry = async (
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      const currentApiKey = getCurrentApiKey()
+      const currentApiKey = process.env.OPENROUTER_API_KEY
+      if (!currentApiKey) {
+        throw new Error('OpenRouter API key not configured')
+      }
+      
       console.log(`🔄 API attempt ${attempt}/${maxRetries} with key: ${currentApiKey.substring(0, 20)}...`)
 
       const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -220,8 +223,6 @@ const makeApiCallWithRetry = async (
       })
 
       if (response.ok) {
-        // Success - reset failed attempts counter
-        resetFailedAttempts()
         return await response.json()
       }
 
@@ -236,17 +237,7 @@ const makeApiCallWithRetry = async (
 
       console.error(`❌ API call failed (attempt ${attempt}):`, error)
 
-      // Check if we should rotate the API key
-      const rotationOccurred = handleApiError(error)
-
-      if (rotationOccurred) {
-        console.log(`🔄 API key rotated, retrying...`)
-        // Continue to next attempt with new key
-        lastError = error
-        continue
-      }
-
-      // If no rotation occurred and it's not the last attempt, still retry
+      // If not the last attempt, retry
       if (attempt < maxRetries) {
         console.log(`⏳ Retrying in 1 second...`)
         await new Promise(resolve => setTimeout(resolve, 1000))
@@ -260,9 +251,6 @@ const makeApiCallWithRetry = async (
     } catch (fetchError: any) {
       console.error(`🚨 Network error (attempt ${attempt}):`, fetchError)
       lastError = fetchError
-
-      // For network errors, try rotating key as well
-      const rotationOccurred = handleApiError(fetchError)
 
       if (attempt < maxRetries) {
         console.log(`⏳ Retrying after network error in 2 seconds...`)
@@ -612,12 +600,24 @@ export async function POST(request: Request) {
     if (isFilterQuery(userQuery) || isAirFilterQuery(userQuery) || isACFilterQuery(userQuery)) {
       console.log(`[${requestId}] Processing filter query`)
       try {
-        let filterType = 'oil'
+        let filterType: 'oil' | 'air' | 'ac' = 'oil'
         if (isAirFilterQuery(userQuery)) filterType = 'air'
         else if (isACFilterQuery(userQuery)) filterType = 'ac'
 
         const make = carData.carBrand || guessed.brand || ''
         const model = mapArabicModelToEnglishIfNeeded(carData.carModel) || carData.carModel || guessed.model || ''
+
+        // Handle AC filter case
+        if (filterType === 'ac') {
+          const acFilterResponse = `🔍 البحث عن فلتر المكيف\n\n🚗 السيارة: ${make} ${model}${carData.year ? ` ${carData.year}` : ''}\n\n❌ عذراً، بيانات فلاتر المكيف غير متوفرة حالياً في قاعدة البيانات.\n\n💡 نصائح للعثور على فلتر المكيف المناسب:\n• راجع دليل المالك الخاص بسيارتك\n• اتصل بالوكيل المعتمد\n• احضر الفلتر القديم عند الشراء\n• تأكد من رقم المحرك وسنة الصنع\n\n🔄 يمكنك السؤال عن فلتر الزيت أو فلتر الهواء بدلاً من ذلك.`
+
+          return new Response(acFilterResponse, {
+            headers: {
+              'Content-Type': 'text/plain; charset=utf-8',
+            },
+          })
+        }
+
         const filterResponse = generateFilterRecommendationMessage(make, model, carData.year, filterType)
 
         return new Response(filterResponse, {

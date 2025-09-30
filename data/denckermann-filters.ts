@@ -744,7 +744,6 @@ export function findFilterByVehicle(make: string, model: string): string | null 
     'هيونداي': 'hyundai',
     'hyundai': 'hyundai',
     'جينيسيس': 'genesis',
-    'جينسيس': 'genesis',
     'genesis': 'genesis',
     
     // Kia
@@ -2115,9 +2114,9 @@ export function findFilterByVehicle(make: string, model: string): string | null 
 
   // Search through all filters
   for (const [filterNumber, filterData] of Object.entries(denckermannFilters)) {
-    // Check if the brand matches (case-insensitive)
+    // Check if the brand matches
     const filterBrand = filterData.brand.toLowerCase();
-    if (filterBrand === mappedMake || filterBrand === 'universal' || filterBrand === 'multi-brand') {
+    if (filterBrand === mappedMake || filterBrand === 'universal') {
       // Debug log for brand match
       console.log(`[DEBUG] Brand match found for ${filterNumber}:`, { filterBrand, mappedMake, compatibleVehicles: filterData.compatibleVehicles });
       
