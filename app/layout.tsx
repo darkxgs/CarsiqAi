@@ -7,17 +7,46 @@ import { Toaster } from 'sonner'
 import type { Metadata, Viewport } from 'next'
 import { Vazirmatn } from 'next/font/google'
 
-const vazir = Vazirmatn({ 
+const vazir = Vazirmatn({
   subsets: ['arabic'],
   display: 'swap',
-  adjustFontFallback: false, 
+  adjustFontFallback: false,
   weight: ['400', '500', '600', '700']
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://carsiq.ai'),
-  title: 'هندسة السيارات - مساعد الزيوت الذكي',
-  description: 'محادثة ذكية للحصول على استشارات السيارات وتوصيات الشراء بشكل فوري',
+  metadataBase: new URL('https://www.carsiqai.com'),
+  title: {
+    default: 'هندسة السيارات - مساعد الزيوت الذكي',
+    template: '%s | هندسة السيارات'
+  },
+  description: 'احصل على توصيات دقيقة لزيوت المحركات وفلاتر الزيت والهواء لسيارتك. مساعد ذكي متخصص في السيارات اليابانية والكورية والأمريكية والأوروبية. توصيات مناسبة للمناخ العراقي.',
+  keywords: [
+    'زيت محرك',
+    'فلتر زيت',
+    'فلتر هواء',
+    'صيانة سيارات',
+    'تويوتا',
+    'هيونداي',
+    'كيا',
+    'نيسان',
+    'زيوت سيارات',
+    'Denckermann',
+    'Castrol',
+    'Liqui Moly',
+    'Valvoline',
+    'مساعد سيارات',
+    'توصيات زيوت',
+    'العراق'
+  ],
+  authors: [{ name: 'هندسة السيارات' }],
+  creator: 'هندسة السيارات',
+  publisher: 'هندسة السيارات',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   icons: {
     icon: '/logo.png',
     shortcut: '/logo.png',
@@ -32,17 +61,37 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'ar_IQ',
-    url: 'https://carsiq.ai/',
+    url: 'https://www.carsiqai.com',
     title: 'هندسة السيارات - مساعد الزيوت الذكي',
-    description: 'محادثة ذكية للحصول على استشارات السيارات وتوصيات الشراء بشكل فوري',
+    description: 'احصل على توصيات دقيقة لزيوت المحركات وفلاتر الزيت والهواء لسيارتك. مساعد ذكي متخصص مناسب للمناخ العراقي.',
     siteName: 'هندسة السيارات',
     images: [{
       url: '/logo.png',
-      width: 800,
-      height: 600,
+      width: 1200,
+      height: 630,
       alt: 'هندسة السيارات - مساعد الزيوت الذكي'
     }]
-  }
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'هندسة السيارات - مساعد الزيوت الذكي',
+    description: 'احصل على توصيات دقيقة لزيوت المحركات وفلاتر الزيت والهواء لسيارتك',
+    images: ['/logo.png'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  alternates: {
+    canonical: 'https://www.carsiqai.com',
+  },
 }
 
 export const viewport: Viewport = {
@@ -66,9 +115,10 @@ export default function RootLayout({
         <link rel="shortcut icon" href="/logo.png" type="image/png" />
         {/* Add custom Arabic font directly */}
         <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet" />
-        
+
         {/* Custom style to ensure Arabic text alignment */}
-        <style dangerouslySetInnerHTML={{__html: `
+        <style dangerouslySetInnerHTML={{
+          __html: `
           body {
             font-family: 'Vazirmatn', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             direction: rtl;
@@ -84,7 +134,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {/* Static loading indicator */}
-          <div id="loading-container" style={{ 
+          <div id="loading-container" style={{
             position: 'fixed',
             top: 0,
             left: 0,
@@ -99,14 +149,14 @@ export default function RootLayout({
             transition: 'opacity 0.3s ease',
             pointerEvents: 'none', // Prevent interaction
           }}>
-            <div style={{ 
+            <div style={{
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
               gap: '1rem'
             }}>
-              <div style={{ 
+              <div style={{
                 width: '40px',
                 height: '40px',
                 border: '3px solid #f3f3f3',
@@ -116,7 +166,7 @@ export default function RootLayout({
               <p style={{ fontSize: '14px', color: '#666' }}>جاري تحميل المحادثة...</p>
             </div>
           </div>
-          
+
           <div id="root" className="flex min-h-[100svh] flex-col">
             {children}
           </div>
@@ -125,7 +175,7 @@ export default function RootLayout({
 
         {/* Analytics */}
         <Analytics />
-        
+
         {/* Loader script */}
         <Script id="loader-script" strategy="afterInteractive">
           {`

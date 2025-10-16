@@ -7,19 +7,15 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import dynamic from 'next/dynamic'
 
+import { LoadingSkeleton } from '@/components/ui/loading-skeleton'
+import { ErrorBoundary } from '@/components/error-boundary'
+
 // Import the chat component with SSR disabled (we'll use this on a different route)
 const ChatPageClient = dynamic(
   () => import('@/components/chat/ChatPage'),
   {
     ssr: false,
-    loading: () => (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-pulse text-center">
-          <div className="text-4xl mb-4">🛢️</div>
-          <p className="text-gray-600">جاري تحميل مساعد زيوت السيارات...</p>
-        </div>
-      </div>
-    )
+    loading: () => <LoadingSkeleton />
   }
 )
 
