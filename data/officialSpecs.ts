@@ -2572,25 +2572,618 @@ const mercedes_benz: any = {
   }
 };
 
-// Initialize official specs with Hyundai
+// Honda data
+const honda: CarModel = {
+  civic: {
+    "2016-2021": {
+      "1.5L Turbo": {
+        capacity: "3.7 L",
+        viscosity: "0W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN / ILSAC GF-5"
+      },
+      "2.0L": {
+        capacity: "4.4 L",
+        viscosity: "0W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN / ILSAC GF-5"
+      }
+    },
+    "2022-2024": {
+      "1.5L Turbo": {
+        capacity: "3.9 L",
+        viscosity: "0W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SP / ILSAC GF-6"
+      },
+      "2.0L": {
+        capacity: "4.4 L",
+        viscosity: "0W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SP / ILSAC GF-6"
+      }
+    }
+  },
+  accord: {
+    "2013-2017": {
+      "2.4L": {
+        capacity: "4.4 L",
+        viscosity: "0W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN / ILSAC GF-5"
+      },
+      "3.5L V6": {
+        capacity: "4.5 L",
+        viscosity: "0W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN / ILSAC GF-5"
+      }
+    },
+    "2018-2024": {
+      "1.5L Turbo": {
+        capacity: "3.7 L",
+        viscosity: "0W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN / ILSAC GF-5"
+      },
+      "2.0L Turbo": {
+        capacity: "5.7 L",
+        viscosity: "0W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN / ILSAC GF-5"
+      }
+    }
+  },
+  "cr-v": {
+    "2017-2022": {
+      "1.5L Turbo": {
+        capacity: "3.7 L",
+        viscosity: "0W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN / ILSAC GF-5"
+      },
+      "2.4L": {
+        capacity: "4.4 L",
+        viscosity: "0W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN / ILSAC GF-5"
+      }
+    },
+    "2023-2024": {
+      "1.5L Turbo": {
+        capacity: "3.9 L",
+        viscosity: "0W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SP / ILSAC GF-6"
+      }
+    }
+  },
+  city: {
+    "2014-2020": {
+      "1.5L": {
+        capacity: "3.5 L",
+        viscosity: "0W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN / ILSAC GF-5"
+      }
+    },
+    "2021-2024": {
+      "1.5L": {
+        capacity: "3.6 L",
+        viscosity: "0W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SP / ILSAC GF-6"
+      }
+    }
+  },
+  "hr-v": {
+    "2015-2022": {
+      "1.8L": {
+        capacity: "4.2 L",
+        viscosity: "0W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN / ILSAC GF-5"
+      }
+    },
+    "2023-2024": {
+      "2.0L": {
+        capacity: "4.4 L",
+        viscosity: "0W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SP / ILSAC GF-6"
+      }
+    }
+  },
+  pilot: {
+    "2016-2024": {
+      "3.5L V6": {
+        capacity: "4.7 L",
+        viscosity: "0W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN / ILSAC GF-5"
+      }
+    }
+  }
+};
+
+// Mazda data
+const mazda: CarModel = {
+  "3": {
+    "2014-2018": {
+      "2.0L": {
+        capacity: "4.2 L",
+        viscosity: "0W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN / ILSAC GF-5"
+      },
+      "2.5L": {
+        capacity: "4.5 L",
+        viscosity: "0W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN / ILSAC GF-5"
+      }
+    },
+    "2019-2024": {
+      "2.0L": {
+        capacity: "4.2 L",
+        viscosity: "0W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SP / ILSAC GF-6"
+      },
+      "2.5L": {
+        capacity: "4.8 L",
+        viscosity: "0W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SP / ILSAC GF-6"
+      }
+    }
+  },
+  "6": {
+    "2014-2021": {
+      "2.5L": {
+        capacity: "4.5 L",
+        viscosity: "0W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN / ILSAC GF-5"
+      }
+    }
+  },
+  "cx-5": {
+    "2017-2024": {
+      "2.5L": {
+        capacity: "4.8 L",
+        viscosity: "0W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN / ILSAC GF-5"
+      },
+      "2.5L Turbo": {
+        capacity: "5.1 L",
+        viscosity: "0W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN / ILSAC GF-5"
+      }
+    }
+  },
+  "cx-9": {
+    "2016-2024": {
+      "2.5L Turbo": {
+        capacity: "5.1 L",
+        viscosity: "0W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN / ILSAC GF-5"
+      }
+    }
+  },
+  "cx-3": {
+    "2016-2021": {
+      "2.0L": {
+        capacity: "4.2 L",
+        viscosity: "0W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN / ILSAC GF-5"
+      }
+    }
+  },
+  "cx-30": {
+    "2020-2024": {
+      "2.5L": {
+        capacity: "4.8 L",
+        viscosity: "0W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SP / ILSAC GF-6"
+      }
+    }
+  }
+};
+
+// Mitsubishi data
+const mitsubishi: CarModel = {
+  lancer: {
+    "2008-2017": {
+      "1.6L": {
+        capacity: "3.8 L",
+        viscosity: "5W-30",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN"
+      },
+      "2.0L": {
+        capacity: "4.3 L",
+        viscosity: "5W-30",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN"
+      }
+    }
+  },
+  pajero: {
+    "2015-2021": {
+      "3.0L V6": {
+        capacity: "4.8 L",
+        viscosity: "5W-30",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN"
+      },
+      "3.8L V6": {
+        capacity: "5.0 L",
+        viscosity: "5W-30",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN"
+      }
+    }
+  },
+  l200: {
+    "2015-2024": {
+      "2.4L Diesel": {
+        capacity: "7.9 L",
+        viscosity: "5W-30",
+        oilType: "Full Synthetic",
+        apiSpec: "API CJ-4"
+      }
+    }
+  },
+  outlander: {
+    "2014-2021": {
+      "2.4L": {
+        capacity: "4.5 L",
+        viscosity: "0W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN"
+      }
+    },
+    "2022-2024": {
+      "2.5L": {
+        capacity: "4.9 L",
+        viscosity: "0W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SP"
+      }
+    }
+  },
+  eclipse_cross: {
+    "2018-2024": {
+      "1.5L Turbo": {
+        capacity: "4.3 L",
+        viscosity: "0W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN"
+      }
+    }
+  }
+};
+
+// Ford data
+const ford: CarModel = {
+  focus: {
+    "2012-2018": {
+      "2.0L": {
+        capacity: "4.3 L",
+        viscosity: "5W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN"
+      }
+    }
+  },
+  escape: {
+    "2017-2024": {
+      "1.5L EcoBoost": {
+        capacity: "4.3 L",
+        viscosity: "5W-30",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN"
+      },
+      "2.0L EcoBoost": {
+        capacity: "5.7 L",
+        viscosity: "5W-30",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN"
+      }
+    }
+  },
+  explorer: {
+    "2016-2024": {
+      "2.3L EcoBoost": {
+        capacity: "5.7 L",
+        viscosity: "5W-30",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN"
+      },
+      "3.0L EcoBoost": {
+        capacity: "6.0 L",
+        viscosity: "5W-30",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN"
+      }
+    }
+  },
+  "f-150": {
+    "2015-2024": {
+      "2.7L EcoBoost": {
+        capacity: "6.0 L",
+        viscosity: "5W-30",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN"
+      },
+      "3.5L EcoBoost": {
+        capacity: "6.0 L",
+        viscosity: "5W-30",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN"
+      },
+      "5.0L V8": {
+        capacity: "7.7 L",
+        viscosity: "5W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN"
+      }
+    }
+  },
+  ranger: {
+    "2019-2024": {
+      "2.3L EcoBoost": {
+        capacity: "5.7 L",
+        viscosity: "5W-30",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN"
+      }
+    }
+  },
+  mustang: {
+    "2015-2024": {
+      "2.3L EcoBoost": {
+        capacity: "5.7 L",
+        viscosity: "5W-30",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN"
+      },
+      "5.0L V8": {
+        capacity: "8.8 L",
+        viscosity: "5W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN"
+      }
+    }
+  }
+};
+
+// Volkswagen data
+const volkswagen: CarModel = {
+  golf: {
+    "2015-2021": {
+      "1.4L TSI": {
+        capacity: "3.6 L",
+        viscosity: "5W-30",
+        oilType: "Full Synthetic",
+        apiSpec: "VW 504.00 / 507.00"
+      },
+      "2.0L TSI": {
+        capacity: "4.6 L",
+        viscosity: "5W-30",
+        oilType: "Full Synthetic",
+        apiSpec: "VW 504.00 / 507.00"
+      }
+    }
+  },
+  passat: {
+    "2015-2022": {
+      "1.8L TSI": {
+        capacity: "4.6 L",
+        viscosity: "5W-30",
+        oilType: "Full Synthetic",
+        apiSpec: "VW 504.00 / 507.00"
+      },
+      "2.0L TSI": {
+        capacity: "4.9 L",
+        viscosity: "5W-30",
+        oilType: "Full Synthetic",
+        apiSpec: "VW 504.00 / 507.00"
+      }
+    }
+  },
+  tiguan: {
+    "2018-2024": {
+      "2.0L TSI": {
+        capacity: "5.8 L",
+        viscosity: "5W-30",
+        oilType: "Full Synthetic",
+        apiSpec: "VW 504.00 / 507.00"
+      }
+    }
+  },
+  jetta: {
+    "2019-2024": {
+      "1.4L TSI": {
+        capacity: "4.4 L",
+        viscosity: "5W-30",
+        oilType: "Full Synthetic",
+        apiSpec: "VW 504.00 / 507.00"
+      }
+    }
+  },
+  atlas: {
+    "2018-2024": {
+      "2.0L TSI": {
+        capacity: "5.8 L",
+        viscosity: "5W-30",
+        oilType: "Full Synthetic",
+        apiSpec: "VW 504.00 / 507.00"
+      },
+      "3.6L V6": {
+        capacity: "6.4 L",
+        viscosity: "5W-30",
+        oilType: "Full Synthetic",
+        apiSpec: "VW 504.00 / 507.00"
+      }
+    }
+  }
+};
+
+// Audi data
+const audi: CarModel = {
+  a3: {
+    "2015-2024": {
+      "1.4L TFSI": {
+        capacity: "3.6 L",
+        viscosity: "5W-30",
+        oilType: "Full Synthetic",
+        apiSpec: "VW 504.00 / 507.00"
+      },
+      "2.0L TFSI": {
+        capacity: "4.6 L",
+        viscosity: "5W-30",
+        oilType: "Full Synthetic",
+        apiSpec: "VW 504.00 / 507.00"
+      }
+    }
+  },
+  a4: {
+    "2017-2024": {
+      "2.0L TFSI": {
+        capacity: "5.2 L",
+        viscosity: "5W-30",
+        oilType: "Full Synthetic",
+        apiSpec: "VW 504.00 / 507.00"
+      }
+    }
+  },
+  a6: {
+    "2019-2024": {
+      "2.0L TFSI": {
+        capacity: "5.2 L",
+        viscosity: "5W-30",
+        oilType: "Full Synthetic",
+        apiSpec: "VW 504.00 / 507.00"
+      },
+      "3.0L TFSI": {
+        capacity: "6.9 L",
+        viscosity: "5W-30",
+        oilType: "Full Synthetic",
+        apiSpec: "VW 504.00 / 507.00"
+      }
+    }
+  },
+  q5: {
+    "2018-2024": {
+      "2.0L TFSI": {
+        capacity: "5.2 L",
+        viscosity: "5W-30",
+        oilType: "Full Synthetic",
+        apiSpec: "VW 504.00 / 507.00"
+      }
+    }
+  },
+  q7: {
+    "2017-2024": {
+      "2.0L TFSI": {
+        capacity: "5.2 L",
+        viscosity: "5W-30",
+        oilType: "Full Synthetic",
+        apiSpec: "VW 504.00 / 507.00"
+      },
+      "3.0L TFSI": {
+        capacity: "6.9 L",
+        viscosity: "5W-30",
+        oilType: "Full Synthetic",
+        apiSpec: "VW 504.00 / 507.00"
+      }
+    }
+  }
+};
+
+// Lexus data
+const lexus: CarModel = {
+  es: {
+    "2019-2024": {
+      "2.5L": {
+        capacity: "4.6 L",
+        viscosity: "0W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN / ILSAC GF-5"
+      },
+      "3.5L V6": {
+        capacity: "5.7 L",
+        viscosity: "0W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN / ILSAC GF-5"
+      }
+    }
+  },
+  rx: {
+    "2016-2024": {
+      "3.5L V6": {
+        capacity: "5.7 L",
+        viscosity: "0W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN / ILSAC GF-5"
+      }
+    }
+  },
+  nx: {
+    "2015-2024": {
+      "2.0L Turbo": {
+        capacity: "4.7 L",
+        viscosity: "0W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN / ILSAC GF-5"
+      }
+    }
+  },
+  lx: {
+    "2016-2024": {
+      "5.7L V8": {
+        capacity: "7.2 L",
+        viscosity: "0W-20",
+        oilType: "Full Synthetic",
+        apiSpec: "API SN / ILSAC GF-5"
+      }
+    }
+  }
+};
+
+// Initialize official specs with all brands
 const officialSpecs: ManufacturerSpecs = {
   hyundai,
   kia,
   toyota,
-  mg,
+  honda,
+  mazda,
   nissan,
+  mitsubishi,
+  ford,
+  chevrolet,
+  dodge,
+  jeep,
+  volkswagen,
+  audi,
+  bmw,
+  mercedes_benz,
+  lexus,
+  genesis,
+  mg,
   suzuki,
   jetour,
   chery,
   geely,
   changan,
   great_wall_motor,
-  dodge,
-  jeep,
-  chevrolet,
-  genesis,
-  bmw,
-  mercedes_benz,
  }
  
  export default officialSpecs as any
