@@ -244,15 +244,23 @@ Denckermann
 
 // Enhanced OpenRouter client setup
 const createOpenRouterClient = () => {
+  console.log('🔧 Creating OpenRouter client...')
   const apiKey = process.env.OPENROUTER_API_KEY
+
+  console.log('🔍 Environment variables check:', {
+    OPENROUTER_API_KEY: apiKey ? `${apiKey.substring(0, 10)}...` : 'MISSING',
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || 'not set',
+    NODE_ENV: process.env.NODE_ENV
+  })
 
   // Validate API key
   if (!apiKey) {
-    console.error('No OpenRouter API key available')
-    throw new Error('API key not available')
+    console.error('❌ CRITICAL: No OpenRouter API key available')
+    console.error('❌ Available env vars:', Object.keys(process.env).filter(k => k.includes('API') || k.includes('KEY')))
+    throw new Error('OPENROUTER_API_KEY is not configured in environment variables')
   }
 
-  console.log(`🔑 Using API key: ${apiKey.substring(0, 20)}...`)
+  console.log(`✅ Using API key: ${apiKey.substring(0, 20)}...`)
 
   return createOpenAI({
     apiKey: apiKey,
@@ -699,12 +707,22 @@ export async function POST(request: Request) {
   const requestId = Math.random().toString(36).substring(7)
 
   try {
-    console.log(`[${requestId}] Processing chat request`)
+    console.log(`[${requestId}] ========== CHAT REQUEST START ==========`)
+    console.log(`[${requestId}] Environment check:`, {
+      hasOpenRouterKey: !!process.env.OPENROUTER_API_KEY,
+      hasDatabaseUrl: !!process.env.DATABASE_URL,
+      hasSupabaseUrl: !!process.env.SUPABASE_URL,
+      nodeEnv: process.env.NODE_ENV,
+      runtime: 'edge'
+    })
     logger.info("Chat request received", { requestId })
 
     // Validate request body
+    console.log(`[${requestId}] Step 1: Parsing request body...`)
     const body = await request.json()
+    console.log(`[${requestId}] Step 2: Validating request body...`)
     const validatedBody = RequestBodySchema.parse(body)
+    console.log(`[${requestId}] Step 3: Request body validated successfully`)
 
     // Handle both message formats
     let userQuery: string
@@ -738,8 +756,9 @@ export async function POST(request: Request) {
     }
 
     // PHASE 2: Extract car data (static only, no AI fallback needed!)
+    console.log(`[${requestId}] Step 4: Extracting car data...`)
     const carData = extractCarDataOptimized(userQuery)
-    console.log(`[${requestId}] Extracted car data:`, carData)
+    console.log(`[${requestId}] Step 5: Car data extracted:`, JSON.stringify(carData))
 
     // NEW: Fuzzy guess brand/model from raw query when extraction is weak or empty
     const guessed = guessBrandAndModelFromQuery(userQuery)
@@ -748,8 +767,9 @@ export async function POST(request: Request) {
     }
 
     // Check for filter queries (keep existing behavior)
+    console.log(`[${requestId}] Step 6: Checking if filter query...`)
     if (isFilterQuery(userQuery) || isAirFilterQuery(userQuery) || isACFilterQuery(userQuery)) {
-      console.log(`[${requestId}] Processing filter query`)
+      console.log(`[${requestId}] Step 7: Processing as filter query`)
       try {
         let filterType: 'oil' | 'air' | 'ac' = 'oil'
         if (isAirFilterQuery(userQuery)) filterType = 'air'
@@ -791,10 +811,12 @@ export async function POST(request: Request) {
     }
 
     // Prepare external context that will be injected into the system prompt
+    console.log(`[${requestId}] Step 8: Preparing external context...`)
     let externalContext = ''
     let hasOfficial = false
 
     // 1) First try to get officialSpecs data and pass it as authoritative context to the AI
+    console.log(`[${requestId}] Step 9: Checking official specs...`)
     try {
       const brandCandidate = carData.carBrand || guessed.brand
       const rawModelCandidate = mapArabicModelToEnglishIfNeeded(carData.carModel) || carData.carModel || guessed.model
@@ -904,15 +926,18 @@ export async function POST(request: Request) {
     })
 
     // Prepare system prompt with any external context (official or search)
+    console.log(`[${requestId}] Step 10: Preparing final system prompt...`)
     const finalSystemPrompt = openRouter.systemPrompt + externalContext
 
     // Create stream response
-    console.log(`[${requestId}] Creating streamText response`)
+    console.log(`[${requestId}] Step 11: Creating streamText response`)
     console.log(`[${requestId}] Model: ${modelToUse}`)
     console.log(`[${requestId}] System prompt length: ${finalSystemPrompt.length}`)
     console.log(`[${requestId}] Messages count: ${messages.length}`)
     console.log(`[${requestId}] Last user message: ${messages[messages.length - 1]?.content?.substring(0, 100)}...`)
+    console.log(`[${requestId}] API Key present: ${!!process.env.OPENROUTER_API_KEY}`)
 
+    console.log(`[${requestId}] Step 12: Calling streamText...`)
     const result = streamText({
       model: openrouter(modelToUse),
       system: finalSystemPrompt,
@@ -923,6 +948,7 @@ export async function POST(request: Request) {
       frequencyPenalty: 0.1,
       presencePenalty: 0.1
     })
+    console.log(`[${requestId}] Step 13: streamText call completed`)
 
     console.log(`[${requestId}] StreamText created, attempting to return response`)
 
@@ -986,14 +1012,28 @@ export async function POST(request: Request) {
     }
 
   } catch (error: any) {
-    console.error(`[${requestId}] Error processing request:`, error)
+    console.error(`[${requestId}] ========== ERROR CAUGHT ==========`)
+    console.error(`[${requestId}] Error type:`, error?.constructor?.name)
+    console.error(`[${requestId}] Error message:`, error?.message)
+    console.error(`[${requestId}] Error stack:`, error?.stack)
+    console.error(`[${requestId}] Full error object:`, JSON.stringify(error, Object.getOwnPropertyNames(error)))
     logger.error("Chat API error", { error, requestId })
 
+    // Return detailed error in production for debugging
     return new Response(
       JSON.stringify({
         error: "حدث خطأ أثناء معالجة طلبك. يرجى المحاولة مرة أخرى.",
         requestId,
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        errorType: error?.constructor?.name,
+        errorMessage: error?.message,
+        errorDetails: error?.toString(),
+        // Always show details for debugging on Vercel
+        debugInfo: {
+          hasOpenRouterKey: !!process.env.OPENROUTER_API_KEY,
+          hasDatabaseUrl: !!process.env.DATABASE_URL,
+          runtime: 'edge',
+          timestamp: new Date().toISOString()
+        }
       }),
       {
         status: 500,
