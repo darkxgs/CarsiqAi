@@ -298,8 +298,8 @@ const makeApiCallWithRetry = async (
       })
 
       if (response.ok) {
-        // Success - reset failed attempts counter
-        resetFailedAttempts()
+        // Success
+        console.log(`✅ API call succeeded on attempt ${attempt}`)
         return await response.json()
       }
 
@@ -312,19 +312,9 @@ const makeApiCallWithRetry = async (
         body: errorText
       }
 
-      console.error(`❌ API call failed (attempt ${attempt}):`, error)
+      console.error(`❌ API call failed (attempt ${attempt}/${maxRetries}):`, error)
 
-      // Check if we should rotate the API key
-      const rotationOccurred = handleApiError(error)
-
-      if (rotationOccurred) {
-        console.log(`🔄 API key rotated, retrying...`)
-        // Continue to next attempt with new key
-        lastError = error
-        continue
-      }
-
-      // If no rotation occurred and it's not the last attempt, still retry
+      // If not the last attempt, retry
       if (attempt < maxRetries) {
         console.log(`⏳ Retrying in 1 second...`)
         await new Promise(resolve => setTimeout(resolve, 1000))
@@ -336,11 +326,8 @@ const makeApiCallWithRetry = async (
       throw error
 
     } catch (fetchError: any) {
-      console.error(`🚨 Network error (attempt ${attempt}):`, fetchError)
+      console.error(`🚨 Network error (attempt ${attempt}/${maxRetries}):`, fetchError)
       lastError = fetchError
-
-      // For network errors, try rotating key as well
-      const rotationOccurred = handleApiError(fetchError)
 
       if (attempt < maxRetries) {
         console.log(`⏳ Retrying after network error in 2 seconds...`)
