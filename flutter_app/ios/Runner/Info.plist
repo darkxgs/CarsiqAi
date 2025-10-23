@@ -9,7 +9,7 @@
 		<key>CFBundleExecutable</key>
 		<string>$(EXECUTABLE_NAME)</string>
 		<key>CFBundleIdentifier</key>
-		<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+		<string>com.carsiqai.app</string>
 		<key>CFBundleInfoDictionaryVersion</key>
 		<string>6.0</string>
 		<key>CFBundleName</key>
@@ -50,6 +50,8 @@
 			<key>NSAllowsArbitraryLoads</key>
 			<true/>
 		</dict>
+		<key>NSPrivacyPolicyURL</key>
+		<string>https://www.carsiqai.com/privacy</string>
 		<key>UIStatusBarHidden</key>
 		<false/>
 	</dict>

@@ -33,5 +33,8 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <meta-data
+            android:name="privacy_policy_url"
+            android:value="https://www.carsiqai.com/privacy" />
     </application>
 </manifest>
