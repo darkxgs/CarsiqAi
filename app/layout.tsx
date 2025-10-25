@@ -110,6 +110,7 @@ export default function RootLayout({
         <title>هندسة السيارات - مساعد الزيوت الذكي</title>
         <meta name="description" content="محادثة ذكية للحصول على استشارات السيارات وتوصيات الشراء بشكل فوري" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no" />
+        <meta name="facebook-domain-verification" content="8tpuaf199a2s7b0gufwno1eiiqn7f1" />
         <link rel="icon" href="/logo.png" />
         <link rel="apple-touch-icon" href="/logo.png" />
         <link rel="shortcut icon" href="/logo.png" type="image/png" />
