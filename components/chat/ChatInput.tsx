@@ -63,14 +63,14 @@ export function ChatInput({
   }
 
   return (
-    <Card className="rounded-none border-0 shadow-xl bg-gradient-to-r from-red-50 via-orange-50 to-yellow-50 dark:from-gray-900 dark:via-gray-850 dark:to-gray-800 flex-shrink-0">
-      <CardContent className="p-2 pb-2 sm:p-4 sm:pb-4 md:p-6">
+    <Card className="rounded-none border-0 shadow-lg bg-gradient-to-r from-red-50 via-orange-50 to-yellow-50 dark:from-gray-900 dark:via-gray-850 dark:to-gray-800 flex-shrink-0">
+      <CardContent className="p-3 sm:p-4 md:p-5">
         <form onSubmit={handleFormSubmit} className="w-full max-w-4xl mx-auto">
           <div className="relative">
             <div className="flex items-center space-x-3 sm:space-x-4 space-x-reverse">
               <div className="flex-1 relative">
-                <div className={`absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 transition-all duration-300 ${inputFocused ? 'text-red-500 dark:text-red-400 opacity-100 scale-110' : 'text-red-400 dark:text-red-500 opacity-70'}`}>
-                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 animate-pulse" />
+                <div className={`absolute right-3 sm:right-4 md:right-5 top-1/2 -translate-y-1/2 transition-all duration-300 pointer-events-none ${inputFocused ? 'text-red-500 dark:text-red-400 opacity-100' : 'text-red-400 dark:text-red-500 opacity-60'}`}>
+                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 md:w-5 md:h-5 animate-pulse" />
                 </div>
                 <TextareaAutosize
                   value={input}
@@ -90,30 +90,33 @@ export function ChatInput({
                   placeholder="🚗 مثال: تويوتا كورولا 2020 ماشية 150 ألف كم..."
                   className={cn(
                     "w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400",
-                    "rounded-2xl px-3 sm:px-5 md:px-7 py-2.5 sm:py-4 md:py-5 pr-10 sm:pr-14 md:pr-16 pl-10 sm:pl-14 md:pl-18 focus:outline-none border-2",
-                    "transition-all duration-300 text-sm sm:text-base md:text-lg resize-none font-medium shadow-lg",
-                    "hover:shadow-xl focus:shadow-2xl",
+                    "rounded-2xl px-14 sm:px-16 md:px-16 py-3 sm:py-3.5 md:py-4 focus:outline-none border-2",
+                    "transition-all duration-200 text-base sm:text-base md:text-base resize-none font-medium shadow-md",
+                    "hover:shadow-lg focus:shadow-lg leading-relaxed",
                     inputFocused
-                      ? "border-red-500 focus:ring-4 focus:ring-red-500/20 bg-white dark:bg-gray-800 shadow-red-500/10"
-                      : "border-red-200 dark:border-red-700/50 shadow-red-100/50 dark:shadow-red-900/10"
+                      ? "border-red-500 ring-2 ring-red-500/20 bg-white dark:bg-gray-800"
+                      : "border-red-200 dark:border-red-700/50"
                   )}
                   disabled={isLoading}
                   minRows={1}
                   maxRows={6}
-                  style={{ overflow: 'hidden' }}
+                  style={{ 
+                    overflow: 'hidden',
+                    lineHeight: '1.5'
+                  }}
                 />
 
-                <div className="absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 flex items-center justify-center">
+                <div className="absolute left-2 sm:left-3 md:left-4 top-1/2 -translate-y-1/2 flex items-center justify-center z-10">
                   {isLoading ? (
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button
                           type="button"
                           onClick={() => onStopGeneration?.()}
-                          size="sm"
-                          className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 p-0 rounded-2xl transition-all duration-300 text-white shadow-lg hover:shadow-xl transform hover:scale-110 hover:-translate-y-1 h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12 flex items-center justify-center border-2 border-red-400"
+                          size="icon"
+                          className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 rounded-full transition-all duration-200 text-white shadow-md hover:shadow-lg h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 flex items-center justify-center border-2 border-white/20"
                         >
-                          <Square className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5" />
+                          <Square className="w-4 h-4 sm:w-4 sm:h-4 md:w-5 md:h-5" />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>
@@ -126,14 +129,14 @@ export function ChatInput({
                       <Button
                         type="submit"
                         disabled={isLoading || !(input?.trim?.() || '')}
-                        size="sm"
-                        className={`p-0 rounded-2xl transition-all duration-300 text-white shadow-lg hover:shadow-xl transform hover:scale-110 hover:-translate-y-1 h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12 flex items-center justify-center border-2 ${
+                        size="icon"
+                        className={`rounded-full transition-all duration-200 text-white shadow-md hover:shadow-lg h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 flex items-center justify-center border-2 ${
                           (input?.trim?.() || '') 
-                            ? "bg-gradient-to-r from-red-500 via-orange-500 to-red-600 hover:from-red-600 hover:via-orange-600 hover:to-red-700 border-red-400 animate-pulse" 
-                            : "bg-gray-300 dark:bg-gray-700 cursor-not-allowed border-gray-400"
+                            ? "bg-gradient-to-r from-red-500 via-orange-500 to-red-600 hover:from-red-600 hover:via-orange-600 hover:to-red-700 border-white/20 hover:scale-105" 
+                            : "bg-gray-300 dark:bg-gray-700 cursor-not-allowed border-gray-400/50 opacity-50"
                         }`}
                       >
-                        <Send className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5" />
+                        <Send className="w-4 h-4 sm:w-4 sm:h-4 md:w-5 md:h-5" />
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
@@ -165,7 +168,7 @@ export function ChatInput({
                 )}
               </div>
             </div>
-            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-2 sm:mt-3 text-center font-medium">
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-2 text-center font-medium">
               اكتب استفسارك عن زيت السيارة أو اختر من الأسئلة الشائعة أعلاه
             </p>
           </div>
