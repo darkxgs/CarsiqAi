@@ -1,0 +1,603 @@
+import { getCarSpecs, getCarByVIN, EnhancedCarSpec } from '@/db/supabase'
+import authorizedOils, { type OilSpec } from "@/data/authorizedOils"
+import logger from "@/utils/logger"
+
+export interface EnhancedCarData {
+  carBrand: string
+  carModel: string
+  year: number
+  mileage: number
+  conditions: string
+  vin?: string
+  transmissionType?: "Automatic" | "Manual" | "CVT" | "DCT"
+  driveType?: "FWD" | "RWD" | "AWD" | "4WD"
+  engineSize?: string
+  fuelType?: "Gasoline" | "Diesel" | "Hybrid" | "Electric" | "Plug-in Hybrid"
+  heatResistance?: string
+  dustProtection?: boolean
+  fuelEfficiency?: string
+  location?: string
+}
+
+export interface EnhancedOilRecommendation {
+  carSpecs: EnhancedCarSpec | null
+  primaryOil: [string, OilSpec] | null
+  alternativeOil: [string, OilSpec] | null
+  recommendedViscosity: string
+  recommendedType: string
+  yearCategory: string
+  transmissionRecommendation?: string
+  serviceBulletins?: Array<{
+    title: string
+    description: string
+    url: string
+  }>
+  temperatureNotes?: string
+  errorMessage?: string
+}
+
+interface CacheEntry {
+  result: EnhancedOilRecommendation | { errorMessage: string }
+  timestamp: number
+  expiryTime: number
+}
+
+class RecommendationCache {
+  private cache = new Map<string, CacheEntry>()
+  private readonly CACHE_DURATION = 30 * 60 * 1000 // 30 دقيقة
+
+  set(key: string, value: EnhancedOilRecommendation | { errorMessage: string }): void {
+    const entry: CacheEntry = {
+      result: value,
+      timestamp: Date.now(),
+      expiryTime: Date.now() + this.CACHE_DURATION,
+    }
+    this.cache.set(key, entry)
+    logger.debug(`تم حفظ النتيجة في الذاكرة المؤقتة`, { key })
+  }
+
+  get(key: string): (EnhancedOilRecommendation | { errorMessage: string }) | null {
+    const entry = this.cache.get(key)
+    if (!entry) return null
+
+    if (Date.now() > entry.expiryTime) {
+      this.cache.delete(key)
+      logger.debug(`انتهت صلاحية النتيجة في الذاكرة المؤقتة`, { key })
+      return null
+    }
+
+    logger.debug(`تم استرجاع النتيجة من الذاكرة المؤقتة`, { key })
+    return entry.result
+  }
+
+  clear(): void {
+    this.cache.clear()
+    logger.info(`تم مسح الذاكرة المؤقتة`)
+  }
+
+  getStats(): { size: number; entries: string[] } {
+    return {
+      size: this.cache.size,
+      entries: Array.from(this.cache.keys()),
+    }
+  }
+}
+
+const recommendationCache = new RecommendationCache()
+
+export class EnhancedCarAnalyzer {
+  /**
+   * استخراج بيانات السيارة من رسالة المستخدم
+   */
+  public static extractCarData(userMessage: string): EnhancedCarData {
+    const message = userMessage.toLowerCase()
+
+    // استخراج بيانات السيارة
+    let carBrand = ""
+    let carModel = ""
+    let year = 0
+    let mileage = 0
+    let vin = ""
+    let conditions = "عادي" // افتراضي
+    let transmissionType: "Automatic" | "Manual" | "CVT" | "DCT" | undefined = undefined
+    let driveType: "FWD" | "RWD" | "AWD" | "4WD" | undefined = undefined
+    let heatResistance = "متوسطة" // افتراضي
+    let dustProtection = false // افتراضي
+    let fuelEfficiency = "عادي" // افتراضي
+    let location = "" // موقع المستخدم
+    let fuelType: "Gasoline" | "Diesel" | "Hybrid" | "Electric" | "Plug-in Hybrid" | undefined = undefined
+
+    // تحديد العلامة التجارية - كود مشابه للنسخة الحالية
+    if (message.includes("هيونداي") || message.includes("hyundai")) carBrand = "hyundai"
+    else if (message.includes("تويوتا") || message.includes("toyota")) carBrand = "toyota"
+    else if (message.includes("هوندا") || message.includes("honda")) carBrand = "honda"
+    else if (message.includes("بي ام دبليو") || message.includes("bmw")) carBrand = "bmw"
+    else if (message.includes("مرسيدس") || message.includes("mercedes")) carBrand = "mercedes"
+    else if (message.includes("نيسان") || message.includes("nissan")) carBrand = "nissan"
+    else if (message.includes("كيا") || message.includes("kia")) carBrand = "kia"
+    else if (message.includes("جنسزز") || message.includes("جينيسيس") || message.includes("genesis")) carBrand = "genesis"
+    else if (message.includes("شيفروليه") || message.includes("شفروليه") || message.includes("chevrolet")) carBrand = "chevrolet"
+    else if (message.includes("ميتسوبيشي") || message.includes("متسوبيشي") || message.includes("mitsubishi")) carBrand = "mitsubishi"
+    else if (message.includes("فورد") || message.includes("ford")) carBrand = "ford"
+    else if (message.includes("فولكس واجن") || message.includes("فولكسفاجن") || message.includes("volkswagen")) carBrand = "volkswagen"
+    else if (message.includes("دودج") || message.includes("dodge")) carBrand = "dodge"
+    else if (message.includes("جيب") || message.includes("jeep")) carBrand = "jeep"
+
+    // تحديد الموديل - كود مشابه للنسخة الحالية
+    if (message.includes("النترا") || message.includes("elantra")) carModel = "elantra"
+    else if (message.includes("سوناتا") || message.includes("sonata")) carModel = "sonata"
+    else if (message.includes("توكسون") || message.includes("tucson")) carModel = "tucson"
+    else if (message.includes("اكسنت") || message.includes("أكسنت") || message.includes("accent")) carModel = "accent"
+    else if (message.includes("كريتا") || message.includes("creta")) carModel = "creta"
+    else if (message.includes("كامري") || message.includes("camry")) carModel = "camry"
+    else if (message.includes("كورولا") || message.includes("corolla")) carModel = "corolla"
+    else if (message.includes("بريوس") || message.includes("prius")) carModel = "prius"
+    else if (message.includes("هايلكس") || message.includes("هايلوكس") || message.includes("hilux")) carModel = "hilux"
+    else if (message.includes("لاندكروزر") || message.includes("لاند كروزر") || message.includes("landcruiser")) carModel = "landcruiser"
+    else if (message.includes("يارس") || message.includes("yaris")) carModel = "yaris"
+    else if (message.includes("راف فور") || message.includes("راف 4") || message.includes("rav4")) carModel = "rav4"
+    else if (message.includes("سيفيك") || message.includes("civic")) carModel = "civic"
+    else if (message.includes("أكورد") || message.includes("accord")) carModel = "accord"
+    else if (message.includes("سي آر في") || message.includes("cr-v") || message.includes("crv")) carModel = "crv"
+    else if (message.includes("سيتي") || message.includes("city")) carModel = "city"
+    else if (message.includes("الفئة الثالثة") || message.includes("3 series")) carModel = "3_series"
+    else if (message.includes("الفئة الخامسة") || message.includes("5 series")) carModel = "5_series"
+    else if (message.includes("اكس 5") || message.includes("x5")) carModel = "x5"
+    else if (message.includes("سي كلاس") || message.includes("c class")) carModel = "c_class"
+    else if (message.includes("اي كلاس") || message.includes("e class")) carModel = "e_class"
+    else if (message.includes("التيما") || message.includes("altima")) carModel = "altima"
+    else if (message.includes("صني") || message.includes("sunny")) carModel = "sunny"
+    else if (message.includes("باترول") || message.includes("patrol")) carModel = "patrol"
+    else if (message.includes("نافارا") || message.includes("navara")) carModel = "navara"
+    else if (message.includes("أوبتيما") || message.includes("optima")) carModel = "optima"
+    else if (message.includes("سبورتاج") || message.includes("sportage")) carModel = "sportage"
+    else if (message.includes("ريو") || message.includes("rio")) carModel = "rio"
+    else if (message.includes("سيراتو") || message.includes("cerato")) carModel = "cerato"
+    else if (message.includes("كروز") || message.includes("cruze")) carModel = "cruze"
+    else if (message.includes("ماليبو") || message.includes("malibu")) carModel = "malibu"
+    else if (message.includes("تاهو") || message.includes("tahoe")) carModel = "tahoe"
+    else if (message.includes("سلفرادو") || message.includes("silverado")) carModel = "silverado"
+    else if (message.includes("باجيرو") || message.includes("pajero")) carModel = "pajero"
+    else if (message.includes("لانسر") || message.includes("lancer")) carModel = "lancer"
+    else if (message.includes("ال 200") || message.includes("l200")) carModel = "l200"
+    else if (message.includes("اف 150") || message.includes("f150") || message.includes("f-150")) carModel = "f150"
+    else if (message.includes("رينجر") || message.includes("ranger")) carModel = "ranger"
+    else if (message.includes("باسات") || message.includes("passat")) carModel = "passat"
+    else if (message.includes("تيجوان") || message.includes("tiguan")) carModel = "tiguan"
+    else if (message.includes("تشارجر") || message.includes("charger")) carModel = "charger"
+    else if (message.includes("دورانجو") || message.includes("durango")) carModel = "durango"
+    else if (message.includes("جي ٧٠") || message.includes("g70") || message.includes("g 70")) carModel = "g70"
+    else if (message.includes("جي ٨٠") || message.includes("g80") || message.includes("g 80")) carModel = "g80"
+    // Jeep models
+    else if (message.includes("كومباس") || message.includes("compass")) carModel = "compass"
+    else if (message.includes("شيروكي") || message.includes("cherokee")) carModel = "cherokee"
+    else if (message.includes("جراند شيروكي") || message.includes("grand cherokee")) carModel = "grand_cherokee"
+    else if (message.includes("رانجلر") || message.includes("wrangler")) carModel = "wrangler"
+    else if (message.includes("رينيجيد") || message.includes("renegade")) carModel = "renegade"
+
+    // استخراج VIN
+    const vinMatch = message.match(/vin[:\s]*([A-HJ-NPR-Z0-9]{17})/i)
+    if (vinMatch) vin = vinMatch[1]
+
+    // استخراج السنة
+    const yearMatch = message.match(/20\d{2}/)
+    if (yearMatch) year = Number.parseInt(yearMatch[0])
+
+    // استخراج المسافة - كود مشابه للنسخة الحالية
+    const mileageThousandMatch = message.match(/(\d+)\s*(ألف|الف|k|كيلو|كلم|الف كم|الف كلم|ألف كم|ألف كلم)/i)
+    const mileageDirectMatch = message.match(/(\d+)\s*(كم|km)/i) || message.match(/ماشية\s+(\d+)/i) || message.match(/قاطع\s+(\d+)/i)
+    
+    if (mileageThousandMatch) {
+      mileage = Number.parseInt(mileageThousandMatch[1]) * 1000
+    } else if (mileageDirectMatch) {
+      mileage = Number.parseInt(mileageDirectMatch[1])
+    }
+
+    // تحديد نوع ناقل الحركة
+    if (message.includes("اوتوماتيك") || message.includes("أوتوماتيك") || message.includes("automatic")) {
+      transmissionType = "Automatic"
+    } else if (message.includes("مانيوال") || message.includes("عادي") || message.includes("manual")) {
+      transmissionType = "Manual"
+    } else if (message.includes("cvt")) {
+      transmissionType = "CVT"
+    } else if (message.includes("dct") || message.includes("dual clutch")) {
+      transmissionType = "DCT"
+    }
+
+    // تحديد نوع الدفع
+    if (message.includes("دفع أمامي") || message.includes("دفع امامي") || message.includes("fwd")) {
+      driveType = "FWD"
+    } else if (message.includes("دفع خلفي") || message.includes("rwd")) {
+      driveType = "RWD"
+    } else if (message.includes("دفع رباعي") || message.includes("4wd") || message.includes("4x4")) {
+      driveType = "4WD"
+    } else if (message.includes("دفع كلي") || message.includes("awd")) {
+      driveType = "AWD"
+    }
+
+    // تحديد نوع الوقود
+    if (message.includes("بنزين") || message.includes("gasoline")) {
+      fuelType = "Gasoline"
+    } else if (message.includes("ديزل") || message.includes("diesel")) {
+      fuelType = "Diesel"
+    } else if (message.includes("هايبرد") || message.includes("هجين") || message.includes("hybrid")) {
+      fuelType = "Hybrid"
+    } else if (message.includes("كهربائي") || message.includes("electric")) {
+      fuelType = "Electric"
+    } else if (message.includes("بلاقين") || message.includes("plug-in")) {
+      fuelType = "Plug-in Hybrid"
+    }
+
+    // تحديد ظروف التشغيل - كود مشابه للنسخة الحالية
+    if (message.includes("شاق") || message.includes("صعب")) conditions = "شاق"
+    else if (message.includes("سفر") || message.includes("طريق")) conditions = "سفر"
+    else if (message.includes("مدينة")) conditions = "مدينة"
+
+    // تحديد موقع المستخدم - كود مشابه للنسخة الحالية
+    if (message.includes("العراق") || message.includes("عراق")) {
+      location = "العراق"
+    } else if (message.includes("السعودية") || message.includes("سعودية")) {
+      location = "السعودية"
+    } else if (message.includes("الإمارات") || message.includes("الامارات") || message.includes("دبي") || message.includes("ابوظبي")) {
+      location = "الإمارات"
+    } else if (message.includes("الكويت")) {
+      location = "الكويت"
+    } else {
+      // افتراضيًا نعتبر الموقع هو العراق كما طلب المستخدم
+      location = "العراق"
+    }
+
+    // تحديد مقاومة الحرارة - كود مشابه للنسخة الحالية
+    if (message.includes("مقاومة حرارة عالية")) heatResistance = "عالية"
+    else if (message.includes("مقاومة حرارة منخفضة")) heatResistance = "منخفضة"
+
+    // تحديد حماية من الغبار - كود مشابه للنسخة الحالية
+    if (message.includes("حماية من الغبار")) dustProtection = true
+
+    // تحديد كفاءة الوقود - كود مشابه للنسخة الحالية
+    if (message.includes("كفاءة الوقود عالية")) fuelEfficiency = "عالية"
+    else if (message.includes("كفاءة الوقود منخفضة")) fuelEfficiency = "منخفضة"
+
+    // تطبيق إعدادات المناخ بناءً على الموقع تلقائيًا - كود مشابه للنسخة الحالية
+    if (location === "العراق") {
+      // يعتبر مناخ العراق حار وجاف بشكل عام
+      heatResistance = "عالية" // مقاومة حرارة عالية افتراضيًا
+      dustProtection = true // حماية من الغبار افتراضيًا
+      // للمناطق الصحراوية والظروف القاسية
+      if (conditions === "عادي" && !message.includes("مدينة")) {
+        conditions = "شاق" // نعتبر الظروف شاقة افتراضيًا
+      }
+    }
+
+    return {
+      carBrand,
+      carModel,
+      year,
+      mileage,
+      vin,
+      conditions,
+      transmissionType,
+      driveType,
+      heatResistance,
+      dustProtection,
+      fuelEfficiency,
+      location,
+      fuelType
+    }
+  }
+
+  /**
+   * التحقق من اكتمال بيانات السيارة
+   */
+  public static validateCarData(carData: EnhancedCarData): string | null {
+    // التحقق من VIN إذا كان متوفرًا
+    if (carData.vin && carData.vin.length === 17) {
+      // يمكن أن نعتمد على VIN فقط إذا كان متوفرًا
+      return null
+    }
+
+    // التحقق من البيانات الأساسية - كود مشابه للنسخة الحالية
+    if (!carData.carBrand) {
+      return "لم أتمكن من تحديد نوع السيارة. يرجى ذكر اسم الشركة المصنعة (مثل: تويوتا، هيونداي، هوندا) أو رقم VIN الخاص بالسيارة."
+    }
+
+    if (!carData.carModel) {
+      return `لم أتمكن من تحديد موديل السيارة ${carData.carBrand}. يرجى ذكر الموديل بوضوح.`
+    }
+
+    if (!carData.year) {
+      return `لم أتمكن من تحديد سنة صنع السيارة ${carData.carBrand} ${carData.carModel}. يرجى ذكر السنة (مثال: 2020).`
+    }
+
+    if (!carData.mileage) {
+      return `لم أتمكن من تحديد عدد الكيلومترات للسيارة ${carData.carBrand} ${carData.carModel}. يرجى ذكر عدد الكيلومترات (مثال: 50 ألف).`
+    }
+
+    return null
+  }
+
+  /**
+   * تحليل بيانات السيارة وتوصية الزيت المناسب باستخدام Supabase
+   */
+  public static async analyzeCarAndRecommendOil(userMessage: string): Promise<EnhancedOilRecommendation | { errorMessage: string }> {
+    try {
+      // إنشاء مفتاح للذاكرة المؤقتة
+      const cacheKey = userMessage.toLowerCase().trim()
+
+      // التحقق من وجود النتيجة في الذاكرة المؤقتة
+      const cachedResult = recommendationCache.get(cacheKey)
+      if (cachedResult) {
+        return cachedResult
+      }
+
+      // استخراج بيانات السيارة
+      const carData = this.extractCarData(userMessage)
+
+      // التحقق من اكتمال البيانات
+      const validationError = this.validateCarData(carData)
+      if (validationError) {
+        const errorResult = { errorMessage: validationError }
+        recommendationCache.set(cacheKey, errorResult)
+        return errorResult
+      }
+
+      // محاولة الحصول على البيانات من VIN أولاً إذا كان متاحًا
+      if (carData.vin && carData.vin.length === 17) {
+        logger.info(`استخدام VIN للحصول على بيانات السيارة: ${carData.vin}`)
+        
+        const vinData = await getCarByVIN(carData.vin)
+        if (vinData) {
+          // استخدام بيانات VIN لتحديث بيانات السيارة
+          carData.carBrand = vinData.brand
+          carData.carModel = vinData.model
+          carData.year = vinData.year
+          
+          // الحصول على مواصفات السيارة من البيانات المحدثة
+          const carSpecs = vinData.specs
+          
+          if (!carSpecs) {
+            logger.warn(`لم يتم العثور على مواصفات للسيارة باستخدام VIN`, { vin: carData.vin })
+            const errorResult = {
+              errorMessage: `عذراً، لم نتمكن من العثور على مواصفات لسيارتك باستخدام رقم VIN. يرجى التأكد من صحة الرقم أو تقديم معلومات إضافية عن السيارة.`
+            }
+            recommendationCache.set(cacheKey, errorResult)
+            return errorResult
+          }
+          
+          // المتابعة بالمواصفات المستلمة من VIN
+          return await this.generateRecommendation(carData, carSpecs)
+        }
+      }
+
+      // إذا لم يكن VIN متاحًا أو لم تجد نتائج، استخدم البيانات المستخرجة
+      logger.info(`الحصول على مواصفات السيارة من قاعدة البيانات: ${carData.carBrand} ${carData.carModel} ${carData.year}`)
+      
+      const carSpecs = await getCarSpecs(carData.carBrand, carData.carModel, carData.year)
+      
+      if (!carSpecs) {
+        logger.warn(`لم يتم العثور على مواصفات للسيارة`, { carData })
+        const errorResult = {
+          errorMessage: `عذراً، لا تتوفر لدينا المواصفات الفنية الرسمية لسيارة ${carData.carBrand} ${carData.carModel} موديل ${carData.year}.`
+        }
+        recommendationCache.set(cacheKey, errorResult)
+        return errorResult
+      }
+      
+      // المتابعة بالمواصفات المستلمة من قاعدة البيانات
+      return await this.generateRecommendation(carData, carSpecs)
+      
+    } catch (error) {
+      logger.error(`خطأ أثناء تحليل بيانات السيارة`, { error, userMessage })
+      const errorResult = {
+        errorMessage: `عذراً، حدث خطأ أثناء تحليل بيانات السيارة. يرجى المحاولة مرة أخرى بصيغة مختلفة.`
+      }
+      return errorResult
+    }
+  }
+
+  /**
+   * إنشاء التوصية بناءً على بيانات السيارة والمواصفات
+   */
+  private static async generateRecommendation(carData: EnhancedCarData, carSpecs: EnhancedCarSpec): Promise<EnhancedOilRecommendation> {
+    // استخدام نفس منطق التوصية مع إضافة الميزات الجديدة
+    
+    // تعديل التوصية بناءً على الكيلومترات
+    let recommendedViscosity = carSpecs.viscosity
+    let recommendedType = carSpecs.oilType
+
+    // Special handling for high mileage
+    if (carData.mileage > 150000) {
+      if (carSpecs.viscosity === "0W-20") recommendedViscosity = "5W-30"
+      else if (carSpecs.viscosity === "0W-30") recommendedViscosity = "5W-30"
+      recommendedType = "High Mileage"
+      logger.info(`تعديل التوصية للكيلومترات العالية`, {
+        originalViscosity: carSpecs.viscosity,
+        newViscosity: recommendedViscosity,
+      })
+    } else if (carData.mileage > 100000) {
+      if (carSpecs.viscosity === "0W-20") recommendedViscosity = "5W-30"
+      logger.info(`تعديل التوصية للكيلومترات المتوسطة`, {
+        originalViscosity: carSpecs.viscosity,
+        newViscosity: recommendedViscosity,
+      })
+    }
+
+    // تعديل التوصية بناءً على ظروف التشغيل
+    if (carData.conditions === "شاق" && recommendedViscosity === "0W-20") {
+      recommendedViscosity = "5W-30"
+      logger.info(`تعديل التوصية لظروف التشغيل الشاقة`, { newViscosity: recommendedViscosity })
+    }
+
+    // تعديل التوصية بناءً على مقاومة الحرارة
+    if (carData.heatResistance === "عالية") {
+      if (recommendedViscosity.startsWith("0W-")) {
+        recommendedViscosity = "5W-30"
+        logger.info(`تعديل التوصية لمقاومة الحرارة العالية`, { newViscosity: recommendedViscosity })
+      }
+      
+      // للمحركات الأكبر، يفضل لزوجة أعلى في المناخ الحار
+      if (carSpecs.engineSize.includes("2.5L") || carSpecs.engineSize.includes("3.0L")) {
+        if (recommendedViscosity === "5W-30") {
+          recommendedViscosity = "5W-40"
+          logger.info(`تعديل إضافي للمحركات الكبيرة في المناخ الحار`, { newViscosity: recommendedViscosity })
+        }
+      }
+    }
+
+    // إضافة توصيات لنقل الحركة
+    let transmissionRecommendation = ""
+    if (carData.transmissionType === "Automatic") {
+      transmissionRecommendation = "يوصى باستخدام زيت ATF المخصص للسيارات الأوتوماتيكية وتغييره كل 60,000 كم."
+    } else if (carData.transmissionType === "CVT") {
+      transmissionRecommendation = "يجب استخدام زيت CVT المخصص فقط. لا تستخدم زيت ATF العادي."
+    } else if (carData.transmissionType === "Manual") {
+      transmissionRecommendation = "يوصى باستخدام زيت 75W-90 للجير العادي وتغييره كل 80,000 كم."
+    }
+
+    // إضافة ملاحظات درجة الحرارة
+    let temperatureNotes = ""
+    if (carSpecs.temperatureRange) {
+      temperatureNotes = `الزيت الموصى به مناسب لدرجات حرارة بين ${carSpecs.temperatureRange.min} و ${carSpecs.temperatureRange.max} درجة مئوية.`
+    } else if (carData.location === "العراق") {
+      temperatureNotes = "نظرًا للمناخ الحار في العراق، يفضل استخدام زيت بلزوجة أعلى للحماية المثلى."
+    }
+
+    // البحث عن أفضل زيت متوفر
+    const matchingOils = Object.entries(authorizedOils).filter(
+      ([name, oil]) =>
+        oil.viscosity === recommendedViscosity && (oil.type === recommendedType || oil.type === "Full Synthetic"),
+    )
+
+    // التعامل مع حالة عدم وجود زيوت مطابقة
+    if (matchingOils.length === 0) {
+      logger.warn(`لم يتم العثور على زيوت مطابقة`, { recommendedViscosity, recommendedType })
+
+      // البحث عن بدائل قريبة
+      const alternativeOils = Object.entries(authorizedOils).filter(
+        ([name, oil]) => oil.type === "Full Synthetic" || oil.type === recommendedType,
+      )
+
+      if (alternativeOils.length > 0) {
+        // ترتيب البدائل حسب الجودة
+        const sortedAlternatives = alternativeOils.sort((a, b) => {
+          const typeOrder = { "Full Synthetic": 1, "High Mileage": 2, "Semi Synthetic": 3, Conventional: 4 }
+          return typeOrder[a[1].type] - typeOrder[b[1].type]
+        })
+
+        return {
+          carSpecs,
+          primaryOil: sortedAlternatives[0],
+          alternativeOil: sortedAlternatives[1] || null,
+          recommendedViscosity,
+          recommendedType,
+          yearCategory: `${carData.year}`,
+          transmissionRecommendation,
+          temperatureNotes,
+          errorMessage: `لم نجد زيتاً مطابقاً تماماً للمواصفات المطلوبة، لكن هذه أفضل البدائل المتاحة.`,
+        }
+      } else {
+        return {
+          errorMessage: `عذراً، لا تتوفر لدينا زيوت مناسبة لهذه المواصفات حالياً.`,
+          carSpecs: null,
+          primaryOil: null,
+          alternativeOil: null,
+          recommendedViscosity: "",
+          recommendedType: "",
+          yearCategory: "",
+        }
+      }
+    }
+
+    // ترتيب الزيوت حسب الجودة والسعر
+    const sortedOils = matchingOils.sort((a, b) => {
+      const typeOrder = { "Full Synthetic": 1, "High Mileage": 2, "Semi Synthetic": 3, Conventional: 4 }
+      return typeOrder[a[1].type] - typeOrder[b[1].type]
+    })
+
+    return {
+      carSpecs,
+      primaryOil: sortedOils[0],
+      alternativeOil: sortedOils[1] || null,
+      recommendedViscosity,
+      recommendedType,
+      yearCategory: `${carData.year}`,
+      transmissionRecommendation,
+      temperatureNotes,
+    }
+  }
+
+  /**
+   * إنشاء رسالة التوصية النهائية
+   */
+  public static createRecommendationMessage(recommendation: EnhancedOilRecommendation): string {
+    try {
+      if (recommendation.errorMessage) {
+        return recommendation.errorMessage
+      }
+
+      if (!recommendation.carSpecs || !recommendation.primaryOil) {
+        return `عذراً، لم نتمكن من إيجاد توصية مناسبة. يرجى التأكد من المعلومات المدخلة.`
+      }
+
+      const { carSpecs, primaryOil, alternativeOil, recommendedViscosity, recommendedType } = recommendation
+
+      // تحديد نوع المحرك للـ badge
+      const engineBadge = carSpecs.engineSize.includes("Hybrid")
+        ? "🔋 هايبرد"
+        : carSpecs.engineSize.includes("Turbo")
+          ? "⚡ تيربو"
+          : "🔧 عادي"
+
+      const driveTypeBadge = carSpecs.driveType ? `- ${carSpecs.driveType}` : ""
+      const transmissionBadge = carSpecs.transmissionType ? `- ${carSpecs.transmissionType}` : ""
+
+      // تنسيق رسالة التوصية مع تحسينات بصرية
+      const message = `🚗 **تحليل السيارة** ${engineBadge} ${driveTypeBadge} ${transmissionBadge}
+نوع المحرك: ${carSpecs.engineSize}
+حجم المحرك: ${carSpecs.capacity}
+${carSpecs.fuelType ? `نوع الوقود: ${carSpecs.fuelType}\n` : ""}
+
+🛢️ **الزيت الموصى به**
+اللزوجة: ${recommendedViscosity}
+النوع: ${recommendedType}
+العلامة التجارية: ${primaryOil[1].brand}
+اسم المنتج: ${primaryOil[0]}
+
+✅ **المواصفات الفنية**
+API: ${carSpecs.apiSpec || "غير محدد"}
+عدد الفلتر: ${carSpecs.filterNumber}
+فترة التغيير: ${carSpecs.changeInterval} كم
+
+${recommendation.transmissionRecommendation ? `🔄 **توصية ناقل الحركة**\n${recommendation.transmissionRecommendation}\n\n` : ""}
+
+${recommendation.temperatureNotes ? `🌡️ **ملاحظات درجة الحرارة**\n${recommendation.temperatureNotes}\n\n` : ""}
+
+${recommendation.serviceBulletins?.length ? `⚠️ **نشرات الخدمة الهامة**\n${recommendation.serviceBulletins.map(b => `- ${b.title}: ${b.description}`).join('\n')}\n\n` : ""}
+
+💡 **نصائح إضافية**
+${primaryOil[1].features ? primaryOil[1].features.join("\n") : "لا توجد نصائح إضافية"}
+
+⚠️ **ملاحظة هامة**
+هذه التوصية مبنية على المواصفات الرسمية للشركة المصنعة. يفضل دائماً التأكد من دليل المستخدم الخاص بسيارتك.
+
+${
+  alternativeOil
+    ? `
+🌟 **بديل مقترح**
+اللزوجة: ${recommendedViscosity}
+النوع: ${alternativeOil[1].type}
+العلامة التجارية: ${alternativeOil[1].brand}
+اسم المنتج: ${alternativeOil[0]}
+`
+    : ""
+}`
+
+      return message
+    } catch (error) {
+      logger.error(`خطأ أثناء إنشاء رسالة التوصية`, { error, recommendation })
+      return `عذراً، حدث خطأ أثناء إنشاء رسالة التوصية.`
+    }
+  }
+}
+
+export default EnhancedCarAnalyzer 
